@@ -21,7 +21,7 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->longText('text'); // Use longText for sufficient length
-            $table->integer('difficulty_level'); // 1-15
+            $table->enum('difficulty_level', ['easy', 'medium', 'hard']);
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
