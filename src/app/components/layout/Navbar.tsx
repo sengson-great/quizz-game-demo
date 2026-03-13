@@ -21,20 +21,20 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b"
-      style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px) saturate(1.4)', borderColor: 'rgba(0,0,0,0.06)' }}>
+      style={{ background: 'rgba(10,14,39,0.8)', backdropFilter: 'blur(24px) saturate(1.4)', borderColor: 'rgba(255,255,255,0.06)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 group">
             <div className="relative">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #e8364e, #f43f5e)', boxShadow: '0 4px 15px rgba(232,54,78,0.3)' }}>
+                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 15px rgba(99,102,241,0.4)' }}>
                 <Sparkles className="w-4.5 h-4.5 text-white" />
               </div>
             </div>
             <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}
-              className="text-gray-800 text-lg tracking-wide">
-              Quiz<span className="text-rose-500">Blitz</span>
+              className="text-white text-lg tracking-wide">
+              Quiz<span className="text-indigo-400">Blitz</span>
             </span>
           </Link>
 
@@ -47,10 +47,10 @@ export function Navbar() {
                   <Link key={to} to={to}
                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${
                       active
-                        ? 'text-rose-600'
-                        : 'text-gray-500 hover:text-gray-800 hover:bg-rose-50'
+                        ? 'text-indigo-300'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
-                    style={active ? { background: 'rgba(232,54,78,0.08)', border: '1px solid rgba(232,54,78,0.15)' } : {}}>
+                    style={active ? { background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' } : {}}>
                     <Icon className="w-4 h-4" />
                     {label}
                   </Link>
@@ -64,22 +64,22 @@ export function Navbar() {
             {currentUser ? (
               <>
                 <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl"
-                  style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.06)' }}>
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <span className="text-xl">{currentUser.avatar}</span>
                   <div>
-                    <p className="text-gray-800 text-sm leading-none">{currentUser.username}</p>
-                    <p className="text-rose-500 text-xs">{currentUser.totalScore.toLocaleString()} pts</p>
+                    <p className="text-white text-sm leading-none">{currentUser.username}</p>
+                    <p className="text-indigo-400 text-xs">{currentUser.totalScore.toLocaleString()} pts</p>
                   </div>
                 </div>
                 <button onClick={handleLogout}
-                  className="p-2 rounded-xl text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all duration-200">
+                  className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-white/5 transition-all duration-200">
                   <LogOut className="w-4 h-4" />
                 </button>
               </>
             ) : (
               <Link to="/auth"
                 className="px-5 py-2 rounded-xl text-white text-sm transition-all hover:shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #e8364e, #f43f5e)', boxShadow: '0 2px 10px rgba(232,54,78,0.25)' }}>
+                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 2px 10px rgba(99,102,241,0.35)' }}>
                 Sign In
               </Link>
             )}
@@ -94,7 +94,7 @@ export function Navbar() {
               return (
                 <Link key={to} to={to}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all ${
-                    active ? 'bg-rose-50 text-rose-600' : 'text-gray-400 hover:text-gray-700'
+                    active ? 'bg-indigo-500/15 text-indigo-300' : 'text-slate-500 hover:text-slate-300'
                   }`}>
                   <Icon className="w-3.5 h-3.5" />
                   {label}

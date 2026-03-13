@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { Question, buildGameQuestions } from '../data/questions';
 import { SIMULATED_OPPONENTS } from '../data/mockData';
 import { useAuth } from './AuthContext';
 
 export type GameMode = 'Solo' | '1v1' | 'Room';
-export type LifelineType = 'fifty' | 'skip' | 'audience' | 'phone';
+export type LifelineType = 'fifty' | 'skip' | 'audience' | 'phone' | 'doubleDip';
+export type JoinType = 'Link' | 'Code' | 'Random';
 
 export interface SimulatedOpponent {
   id: string;
@@ -13,6 +14,7 @@ export interface SimulatedOpponent {
   score: number;
   answered: boolean;
   skillLevel: number;
+  isBot?: boolean;
 }
 
 export interface GameAnswer {
@@ -29,6 +31,7 @@ export interface LifelineState {
   skip: boolean;
   audience: boolean;
   phone: boolean;
+  doubleDip: boolean;
 }
 
 export interface AudienceData {
@@ -46,6 +49,17 @@ export interface GameState {
   lifelines: LifelineState;
   eliminatedAnswers: string[];
   status: 'matchmaking' | 'active' | 'finished';
+  // Lobby fields
+  isHost?: boolean;
+  lobbyPlayers?: { id: string; username: string; avatar: string; isBot?: boolean; joinType?: JoinType }[];
+  lobbyCountdown?: number;
+  lobbyStatus?: 'waiting' | 'ready' | 'expired';
+  roomSize?: number; // Dynamic: up to 5 for Room, 2 for 1v1
+  isPrivate?: boolean;
+  // New ERD fields
+  expires_at?: number; // Unix timestamp (60 min from creation for invite modes)
+  is_joinable?: boolean; // false when "Start Play" clicked or room hits max
+  is_ranked?: boolean; // true for ranked 1v1
 }
 
 interface GameContextType {
@@ -57,6 +71,19 @@ interface GameContextType {
   simulateOpponentAnswer: (questionIndex: number) => void;
   resetGame: () => void;
   finalizeGame: () => void;
+  // Small Room Mode lobby methods
+  createSmallRoom: (categoryIds: string[]) => string; // Invite Room (dynamic 3-5)
+  createRandomSmallRoom: (categoryIds: string[]) => void; // Random Room (auto-fill & start)
+  joinSmallRoom: (roomCode: string) => void;
+  startSmallRoomGame: () => void;
+  extendLobbyTimer: () => void;
+  addAIPlayers: (count: number) => void;
+  // 1v1 Battle methods
+  createPrivate1v1: (categoryIds: string[]) => string; // Invite Friend
+  joinPrivate1v1: (roomCode: string) => void;
+  startRanked1v1: (categoryIds: string[]) => string; // Random Match
+  switchToRandom: () => void; // Switch private lobby to public matchmaking
+  startBattle: () => void; // Start 1v1 battle when opponent joined
 }
 
 const GameContext = createContext<GameContextType | null>(null);
@@ -75,6 +102,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const { currentUser, updateUser } = useAuth();
   const timeoutRefs = React.useRef<ReturnType<typeof setTimeout>[]>([]);
+  const lobbyTimerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cleanup timers on unmount
+  React.useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach(clearTimeout);
+      if (lobbyTimerRef.current) clearInterval(lobbyTimerRef.current);
+    };
+  }, []);
 
   const initGame = useCallback((mode: GameMode, categoryIds: string[]) => {
     const questions = buildGameQuestions(categoryIds);
@@ -96,7 +132,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       playerScore: 0,
       opponents,
       roomCode: generateRoomCode(),
-      lifelines: { fifty: false, skip: false, audience: false, phone: false },
+      lifelines: { fifty: false, skip: false, audience: false, phone: false, doubleDip: false },
       eliminatedAnswers: [],
       status: 'matchmaking',
     });
@@ -132,7 +168,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const useLifeline = useCallback((type: LifelineType): AudienceData | string | null => {
     if (!gameState) return null;
-    if (gameState.lifelines[type]) return null; // Already used
+    if (gameState.lifelines[type]) return null;
 
     const question = gameState.questions[gameState.currentQuestionIndex];
     const correctAnswer = question.answers.find(a => a.isCorrect)!;
@@ -197,7 +233,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (!prev) return prev;
       const question = prev.questions[questionIndex];
       if (!question) return prev;
-      // Clear existing timeouts
       timeoutRefs.current.forEach(clearTimeout);
       timeoutRefs.current = [];
       prev.opponents.forEach(opponent => {
@@ -238,8 +273,281 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setGameState(null);
   }, []);
 
+  // ==================== SMALL ROOM METHODS ====================
+
+  // Invite Room: Dynamic capacity 3-5, no fixed size. Host creates, friends join.
+  const createSmallRoom = useCallback((categoryIds: string[]) => {
+    const questions = buildGameQuestions(categoryIds);
+    const roomCode = generateRoomCode();
+    const expiresAt = Date.now() + 60 * 1000; // 60 seconds
+    setGameState({
+      mode: 'Room',
+      questions,
+      currentQuestionIndex: 0,
+      answers: [],
+      playerScore: 0,
+      opponents: [],
+      roomCode,
+      lifelines: { fifty: false, skip: false, audience: false, phone: false, doubleDip: false },
+      eliminatedAnswers: [],
+      status: 'matchmaking',
+      isHost: true,
+      lobbyPlayers: [{ id: currentUser.id, username: currentUser.username, avatar: currentUser.avatar, joinType: 'Link' }],
+      lobbyCountdown: 60, // 60 seconds
+      lobbyStatus: 'waiting',
+      roomSize: 5, // Dynamic max capacity
+      isPrivate: true,
+      expires_at: expiresAt,
+      is_joinable: true,
+    });
+    return roomCode;
+  }, [currentUser]);
+
+  // Random Room: Auto-fill 3-5 slots with AI players, auto-start
+  const createRandomSmallRoom = useCallback((categoryIds: string[]) => {
+    const questions = buildGameQuestions(categoryIds);
+    const roomCode = generateRoomCode();
+    const playerCount = Math.floor(Math.random() * 3) + 3; // 3-5 total
+    const aiCount = playerCount - 1;
+
+    const aiPlayers = [...SIMULATED_OPPONENTS]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, aiCount)
+      .map(o => ({
+        id: o.id,
+        username: o.username,
+        avatar: o.avatar,
+        isBot: false, // Treated as "real" players in random mode
+        joinType: 'Random' as JoinType,
+      }));
+
+    const opponents = aiPlayers.map(p => {
+      const opp = SIMULATED_OPPONENTS.find(o => o.id === p.id)!;
+      return { ...opp, score: 0, answered: false };
+    });
+
+    setGameState({
+      mode: 'Room',
+      questions,
+      currentQuestionIndex: 0,
+      answers: [],
+      playerScore: 0,
+      opponents,
+      roomCode,
+      lifelines: { fifty: false, skip: false, audience: false, phone: false, doubleDip: false },
+      eliminatedAnswers: [],
+      status: 'matchmaking',
+      isHost: true,
+      lobbyPlayers: [
+        { id: currentUser.id, username: currentUser.username, avatar: currentUser.avatar, joinType: 'Random' },
+        ...aiPlayers,
+      ],
+      lobbyCountdown: 0,
+      lobbyStatus: 'waiting',
+      roomSize: playerCount,
+      isPrivate: false,
+      is_joinable: false,
+      is_ranked: false,
+    });
+  }, [currentUser]);
+
+  const joinSmallRoom = useCallback((roomCode: string) => {
+    setGameState(prev => {
+      if (!prev || prev.mode !== 'Room' || prev.status !== 'matchmaking') return prev;
+      if (!prev.is_joinable) return prev;
+      if (prev.lobbyPlayers?.some(p => p.id === currentUser.id)) return prev;
+      const maxPlayers = 5;
+      if ((prev.lobbyPlayers?.length || 0) >= maxPlayers) return prev;
+      const newPlayers = [...prev.lobbyPlayers!, { id: currentUser.id, username: currentUser.username, avatar: currentUser.avatar, joinType: 'Code' as JoinType }];
+      return {
+        ...prev,
+        lobbyPlayers: newPlayers,
+        is_joinable: newPlayers.length < 5,
+      };
+    });
+  }, [currentUser]);
+
+  const startSmallRoomGame = useCallback(() => {
+    setGameState(prev => {
+      if (!prev || prev.mode !== 'Room' || prev.status !== 'matchmaking') return prev;
+      if (!prev.lobbyPlayers || prev.lobbyPlayers.length < 3) return prev; // Min 3 players
+
+      const opponents = prev.lobbyPlayers
+        .filter(player => player.id !== currentUser.id)
+        .map(player => ({
+          ...player,
+          score: 0,
+          answered: false,
+          skillLevel: Math.random() * 0.4 + 0.5,
+        }));
+
+      return {
+        ...prev,
+        opponents,
+        status: 'active',
+        lobbyStatus: 'ready',
+        is_joinable: false,
+      };
+    });
+  }, [currentUser]);
+
+  const extendLobbyTimer = useCallback(() => {
+    setGameState(prev => {
+      if (!prev || prev.status !== 'matchmaking') return prev;
+      if (prev.lobbyStatus !== 'waiting') return prev;
+      return {
+        ...prev,
+        lobbyCountdown: 60,
+        expires_at: Date.now() + 60 * 1000,
+      };
+    });
+  }, []);
+
+  const addAIPlayers = useCallback((count: number) => {
+    setGameState(prev => {
+      if (!prev || prev.mode !== 'Room' || prev.status !== 'matchmaking') return prev;
+      const maxPlayers = 5;
+      const currentCount = prev.lobbyPlayers?.length || 0;
+      const actualCount = Math.min(count, maxPlayers - currentCount);
+      if (actualCount <= 0) return prev;
+
+      const existingIds = new Set(prev.lobbyPlayers?.map(p => p.id) || []);
+      const aiPlayers = [...SIMULATED_OPPONENTS]
+        .filter(o => !existingIds.has(o.id))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, actualCount)
+        .map(o => ({
+          id: o.id,
+          username: o.username,
+          avatar: o.avatar,
+          isBot: true,
+          joinType: 'Random' as JoinType,
+        }));
+
+      return {
+        ...prev,
+        lobbyPlayers: [...(prev.lobbyPlayers || []), ...aiPlayers],
+      };
+    });
+  }, []);
+
+  // ==================== 1v1 BATTLE METHODS ====================
+
+  // Invite Friend: 60-second window, Room Link/Code
+  const createPrivate1v1 = useCallback((categoryIds: string[]) => {
+    const questions = buildGameQuestions(categoryIds);
+    const roomCode = generateRoomCode();
+    const expiresAt = Date.now() + 60 * 1000; // 60 seconds
+    setGameState({
+      mode: '1v1',
+      questions,
+      currentQuestionIndex: 0,
+      answers: [],
+      playerScore: 0,
+      opponents: [],
+      roomCode,
+      lifelines: { fifty: false, skip: false, audience: false, phone: false, doubleDip: false },
+      eliminatedAnswers: [],
+      status: 'matchmaking',
+      isHost: true,
+      lobbyPlayers: [{ id: currentUser.id, username: currentUser.username, avatar: currentUser.avatar, joinType: 'Link' }],
+      lobbyCountdown: 60, // 60 seconds
+      lobbyStatus: 'waiting',
+      isPrivate: true,
+      roomSize: 2,
+      expires_at: expiresAt,
+      is_joinable: true,
+      is_ranked: false,
+    });
+    return roomCode;
+  }, [currentUser]);
+
+  const joinPrivate1v1 = useCallback((roomCode: string) => {
+    setGameState(prev => {
+      if (!prev || prev.mode !== '1v1' || prev.status !== 'matchmaking') return prev;
+      if (!prev.is_joinable) return prev;
+      if (prev.lobbyPlayers?.some(p => p.id === currentUser.id)) return prev;
+      if ((prev.lobbyPlayers?.length || 0) >= 2) return prev;
+      return {
+        ...prev,
+        lobbyPlayers: [...prev.lobbyPlayers!, { id: currentUser.id, username: currentUser.username, avatar: currentUser.avatar, joinType: 'Code' as JoinType }],
+        is_joinable: false,
+      };
+    });
+  }, [currentUser]);
+
+  // Random Match: Search for human, fallback to AI "System Random"
+  const startRanked1v1 = useCallback((categoryIds: string[]) => {
+    const questions = buildGameQuestions(categoryIds);
+    const roomCode = generateRoomCode();
+    setGameState({
+      mode: '1v1',
+      questions,
+      currentQuestionIndex: 0,
+      answers: [],
+      playerScore: 0,
+      opponents: [],
+      roomCode,
+      lifelines: { fifty: false, skip: false, audience: false, phone: false, doubleDip: false },
+      eliminatedAnswers: [],
+      status: 'matchmaking',
+      isHost: true,
+      lobbyPlayers: [{ id: currentUser.id, username: currentUser.username, avatar: currentUser.avatar, joinType: 'Random' }],
+      lobbyCountdown: 30, // Short search window
+      lobbyStatus: 'waiting',
+      isPrivate: false,
+      roomSize: 2,
+      is_joinable: false,
+      is_ranked: true,
+    });
+    return roomCode;
+  }, [currentUser]);
+
+  // Switch private 1v1 lobby to public matchmaking (PATCH is_private: false)
+  const switchToRandom = useCallback(() => {
+    setGameState(prev => {
+      if (!prev || prev.mode !== '1v1' || !prev.isPrivate) return prev;
+      return {
+        ...prev,
+        isPrivate: false,
+        is_ranked: true,
+        lobbyCountdown: 30, // Reset to short search window
+      };
+    });
+  }, []);
+
+  // Start 1v1 battle when opponent is in lobby
+  const startBattle = useCallback(() => {
+    setGameState(prev => {
+      if (!prev || prev.mode !== '1v1' || prev.status !== 'matchmaking') return prev;
+      if (!prev.lobbyPlayers || prev.lobbyPlayers.length < 2) return prev;
+
+      const opponents = prev.lobbyPlayers
+        .filter(player => player.id !== currentUser.id)
+        .map(player => ({
+          ...player,
+          score: 0,
+          answered: false,
+          skillLevel: Math.random() * 0.4 + 0.5,
+        }));
+
+      return {
+        ...prev,
+        opponents,
+        status: 'active',
+        lobbyStatus: 'ready',
+        is_joinable: false,
+      };
+    });
+  }, [currentUser]);
+
   return (
-    <GameContext.Provider value={{ gameState, initGame, answerQuestion, useLifeline, nextQuestion, simulateOpponentAnswer, resetGame, finalizeGame }}>
+    <GameContext.Provider value={{
+      gameState, initGame, answerQuestion, useLifeline, nextQuestion, simulateOpponentAnswer,
+      resetGame, finalizeGame,
+      createSmallRoom, createRandomSmallRoom, joinSmallRoom, startSmallRoomGame, extendLobbyTimer, addAIPlayers,
+      createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, startBattle,
+    }}>
       {children}
     </GameContext.Provider>
   );

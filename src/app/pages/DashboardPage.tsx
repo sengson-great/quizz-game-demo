@@ -14,7 +14,7 @@ const CATEGORY_DATA = [
   { subject: 'Arts', value: 48, icon: '🎨' },
 ];
 
-const BAR_COLORS = ['#e8364e', '#f472b6', '#fb923c', '#34d399', '#818cf8', '#22d3ee'];
+const BAR_COLORS = ['#6366f1', '#8b5cf6', '#06b6d4', '#34d399', '#f472b6', '#fbbf24'];
 
 function CategoryBar({ subject, value, icon, color, index }: { subject: string; value: number; icon: string; color: string; index: number }) {
   return (
@@ -25,8 +25,8 @@ function CategoryBar({ subject, value, icon, color, index }: { subject: string; 
       className="flex items-center gap-2"
     >
       <span className="text-base w-5 flex-shrink-0">{icon}</span>
-      <span className="text-gray-500 text-xs w-16 flex-shrink-0">{subject}</span>
-      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.04)' }}>
+      <span className="text-slate-400 text-xs w-16 flex-shrink-0">{subject}</span>
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
@@ -55,37 +55,34 @@ export default function DashboardPage() {
     : 0;
 
   const stats = [
-    { label: 'Total Score', value: currentUser.totalScore.toLocaleString(), icon: Star, color: 'text-amber-500', bgStyle: { background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' } },
-    { label: 'Games Played', value: currentUser.gamesPlayed, icon: Target, color: 'text-rose-500', bgStyle: { background: 'rgba(232,54,78,0.05)', border: '1px solid rgba(232,54,78,0.1)' } },
-    { label: 'Win Rate', value: `${winRate}%`, icon: TrendingUp, color: 'text-emerald-500', bgStyle: { background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)' } },
-    { label: 'Global Rank', value: currentUser.rank > 0 ? `#${currentUser.rank}` : 'Unranked', icon: Trophy, color: 'text-indigo-500', bgStyle: { background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.12)' } },
+    { label: 'Total Score', value: currentUser.totalScore.toLocaleString(), icon: Star, color: 'text-amber-400', bgStyle: { background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)' } },
+    { label: 'Games Played', value: currentUser.gamesPlayed, icon: Target, color: 'text-indigo-400', bgStyle: { background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' } },
+    { label: 'Win Rate', value: `${winRate}%`, icon: TrendingUp, color: 'text-emerald-400', bgStyle: { background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.15)' } },
+    { label: 'Global Rank', value: currentUser.rank > 0 ? `#${currentUser.rank}` : 'Unranked', icon: Trophy, color: 'text-cyan-400', bgStyle: { background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.15)' } },
   ];
 
   const gameModes = [
     {
       icon: '🎯', title: 'Solo Practice', desc: '15 questions, no pressure.',
-      badge: 'Best for Practice', badgeStyle: { background: 'rgba(251,191,36,0.1)', color: '#d97706' },
-      cardStyle: { background: 'white', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
+      badge: 'Best for Practice', badgeStyle: { background: 'rgba(251,191,36,0.12)', color: '#fbbf24' },
       action: () => navigate('/mode-select', { state: { preMode: 'Solo' } }),
     },
     {
       icon: '⚔️', title: '1v1 Battle', desc: 'Duel a live opponent.',
-      badge: 'Recommended', badgeStyle: { background: 'rgba(232,54,78,0.08)', color: '#e8364e' },
-      cardStyle: { background: 'white', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
+      badge: 'Recommended', badgeStyle: { background: 'rgba(99,102,241,0.12)', color: '#a5b4fc' },
       action: () => navigate('/mode-select', { state: { preMode: '1v1' } }),
     },
     {
       icon: '🏆', title: 'Room Battle', desc: '3-5 players, live scoreboard.',
-      badge: 'Most Fun', badgeStyle: { background: 'rgba(52,211,153,0.1)', color: '#059669' },
-      cardStyle: { background: 'white', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
+      badge: 'Most Fun', badgeStyle: { background: 'rgba(52,211,153,0.12)', color: '#34d399' },
       action: () => navigate('/mode-select', { state: { preMode: 'Room' } }),
     },
   ];
 
   const modeStyle: Record<string, { background: string; color: string }> = {
-    Solo: { background: 'rgba(251,191,36,0.1)', color: '#d97706' },
-    '1v1': { background: 'rgba(232,54,78,0.08)', color: '#e8364e' },
-    Room: { background: 'rgba(52,211,153,0.1)', color: '#059669' },
+    Solo: { background: 'rgba(251,191,36,0.12)', color: '#fbbf24' },
+    '1v1': { background: 'rgba(99,102,241,0.12)', color: '#a5b4fc' },
+    Room: { background: 'rgba(52,211,153,0.12)', color: '#34d399' },
   };
 
   return (
@@ -93,24 +90,24 @@ export default function DashboardPage() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white"
-            style={{ border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
+            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}>
             {currentUser.avatar}
           </div>
           <div>
-            <p className="text-gray-400 text-sm">Welcome back,</p>
-            <h1 className="text-gray-900" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+            <p className="text-slate-500 text-sm">Welcome back,</p>
+            <h1 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
               {currentUser.username}
             </h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-emerald-500 text-xs">{currentUser.role === 'admin' ? 'Administrator' : 'Player'}</span>
+              <span className="text-emerald-400 text-xs">{currentUser.role === 'admin' ? 'Administrator' : 'Player'}</span>
             </div>
           </div>
         </div>
         <button onClick={() => navigate('/mode-select')}
           className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm transition-all hover:scale-[1.03]"
-          style={{ background: 'linear-gradient(135deg, #e8364e, #dc2626)', boxShadow: '0 4px 15px rgba(232,54,78,0.25)' }}>
+          style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', boxShadow: '0 4px 15px rgba(99,102,241,0.35)' }}>
           <Zap className="w-4 h-4" />
           Play Now
         </button>
@@ -123,11 +120,11 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
-            className="rounded-2xl p-5 bg-white"
-            style={bgStyle}>
+            className="rounded-2xl p-5"
+            style={{ ...bgStyle, backdropFilter: 'blur(20px)' }}>
             <Icon className={`w-5 h-5 ${color} mb-3`} />
-            <p className="text-2xl text-gray-900" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{value}</p>
-            <p className="text-gray-400 text-sm mt-1">{label}</p>
+            <p className="text-2xl text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{value}</p>
+            <p className="text-slate-500 text-sm mt-1">{label}</p>
           </motion.div>
         ))}
       </div>
@@ -135,9 +132,9 @@ export default function DashboardPage() {
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         {/* Game Modes */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-gray-900 text-lg" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Quick Play</h2>
+          <h2 className="text-white text-lg" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Quick Play</h2>
           <div className="grid sm:grid-cols-3 gap-4">
-            {gameModes.map(({ icon, title, desc, badge, badgeStyle, cardStyle, action }, i) => (
+            {gameModes.map(({ icon, title, desc, badge, badgeStyle, action }, i) => (
               <motion.button key={title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -146,12 +143,12 @@ export default function DashboardPage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={action}
                 className="group text-left rounded-2xl p-5 cursor-pointer transition-all"
-                style={cardStyle}>
+                style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="text-3xl mb-3">{icon}</div>
                 <span className="text-xs px-2.5 py-1 rounded-full mb-2 inline-block" style={badgeStyle}>{badge}</span>
-                <h3 className="text-gray-900 text-sm mb-1" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{title}</h3>
-                <p className="text-gray-400 text-xs">{desc}</p>
-                <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-rose-500 mt-3 transition-colors" />
+                <h3 className="text-white text-sm mb-1" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{title}</h3>
+                <p className="text-slate-500 text-xs">{desc}</p>
+                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 mt-3 transition-colors" />
               </motion.button>
             ))}
           </div>
@@ -159,9 +156,9 @@ export default function DashboardPage() {
 
         {/* Category Performance */}
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
-          className="rounded-2xl p-5 bg-white"
-          style={{ border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-          <h2 className="text-gray-900 text-sm mb-5" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Category Performance</h2>
+          className="rounded-2xl p-5"
+          style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <h2 className="text-white text-sm mb-5" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Category Performance</h2>
           <div className="space-y-3">
             {CATEGORY_DATA.map(({ subject, value, icon }, i) => (
               <CategoryBar
@@ -179,45 +176,45 @@ export default function DashboardPage() {
 
       {/* Recent Games */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-        className="rounded-2xl overflow-hidden bg-white"
-        style={{ border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-          <h2 className="text-gray-900" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Recent Games</h2>
+        className="rounded-2xl overflow-hidden"
+        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <h2 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Recent Games</h2>
           <button onClick={() => navigate('/leaderboard')}
-            className="text-rose-500 hover:text-rose-600 text-sm flex items-center gap-1 transition-colors">
+            className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-1 transition-colors">
             View All <ChevronRight className="w-3 h-3" />
           </button>
         </div>
-        <div className="divide-y" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
+        <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
           {MOCK_GAME_HISTORY.map((game, i) => (
             <motion.div key={game.id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 + i * 0.05 }}
-              className="flex items-center justify-between px-6 py-4 hover:bg-rose-50/30 transition-colors">
+              className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.02] transition-colors">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-                  style={{ background: 'rgba(0,0,0,0.03)' }}>
+                  style={{ background: 'rgba(255,255,255,0.05)' }}>
                   {game.mode === 'Solo' ? '🎯' : game.mode === '1v1' ? '⚔️' : '🏆'}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs px-2 py-0.5 rounded-full" style={modeStyle[game.mode]}>{game.mode}</span>
-                    {game.rank && <span className="text-xs text-amber-500">#{game.rank} Place</span>}
+                    {game.rank && <span className="text-xs text-amber-400">#{game.rank} Place</span>}
                   </div>
-                  <p className="text-gray-400 text-xs mt-1 flex items-center gap-1">
+                  <p className="text-slate-500 text-xs mt-1 flex items-center gap-1">
                     <Clock className="w-3 h-3" />{game.date}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-gray-900" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{game.score.toLocaleString()}</p>
-                <p className="text-gray-400 text-xs">{game.correctAnswers}/{game.totalQuestions} correct</p>
+                <p className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{game.score.toLocaleString()}</p>
+                <p className="text-slate-500 text-xs">{game.correctAnswers}/{game.totalQuestions} correct</p>
               </div>
             </motion.div>
           ))}
           {MOCK_GAME_HISTORY.length === 0 && (
-            <div className="py-12 text-center text-gray-400">No games yet. Start playing!</div>
+            <div className="py-12 text-center text-slate-500">No games yet. Start playing!</div>
           )}
         </div>
       </motion.div>

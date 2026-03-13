@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { Users, Copy, CheckCircle, Wifi } from 'lucide-react';
+import { Users, Copy, CheckCircle, Wifi, Bot } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
+import { ReturnButton } from '../components/ui/ReturnButton';
 
 export default function MatchmakingPage() {
   const { gameState } = useGame();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [stage, setStage] = useState<'searching' | 'found' | 'ready'>('searching');
+  const [stage, setStage] = useState<'searching' | 'filling' | 'found' | 'ready'>('searching');
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [joinedPlayers, setJoinedPlayers] = useState(1);
+  const [matchType, setMatchType] = useState<'human' | 'system' | null>(null);
 
   useEffect(() => {
     if (!gameState) { navigate('/mode-select'); return; }
@@ -29,10 +31,44 @@ export default function MatchmakingPage() {
         setCountdown(3);
       }, 1500);
     } else if (gameState.mode === '1v1') {
-      const t1 = setTimeout(() => setStage('found'), 2500);
-      const t2 = setTimeout(() => { setStage('ready'); setCountdown(3); }, 3500);
+      // Ranked 1v1: Search for human, fallback to System Random
+      const isHumanMatch = Math.random() > 0.3;
+      const searchTime = 2000 + Math.random() * 3000;
+      
+      const t1 = setTimeout(() => {
+        setMatchType(isHumanMatch ? 'human' : 'system');
+        setStage('found');
+      }, searchTime);
+      const t2 = setTimeout(() => {
+        setStage('ready');
+        setCountdown(3);
+      }, searchTime + 1500);
       return () => { clearTimeout(t1); clearTimeout(t2); };
+    } else if (gameState.mode === 'Room' && !gameState.isPrivate) {
+      // Random Room: Auto-fill players progressively
+      const totalPlayers = gameState.lobbyPlayers?.length || 3;
+      
+      setStage('filling');
+      
+      const fillIntervals: ReturnType<typeof setTimeout>[] = [];
+      for (let i = 1; i < totalPlayers; i++) {
+        const t = setTimeout(() => {
+          setJoinedPlayers(i + 1);
+        }, 1000 + i * 1200);
+        fillIntervals.push(t);
+      }
+
+      const foundTime = 1000 + totalPlayers * 1200 + 500;
+      const t1 = setTimeout(() => setStage('found'), foundTime);
+      const t2 = setTimeout(() => { setStage('ready'); setCountdown(3); }, foundTime + 1000);
+
+      return () => {
+        fillIntervals.forEach(clearTimeout);
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     } else {
+      // Fallback for other Room modes
       const interval = setInterval(() => {
         setJoinedPlayers(prev => {
           const max = (gameState.opponents.length || 2) + 1;
@@ -68,6 +104,10 @@ export default function MatchmakingPage() {
 
   if (!gameState || !currentUser) return null;
 
+  const isRandomRoom = gameState.mode === 'Room' && !gameState.isPrivate;
+  const isRanked1v1 = gameState.mode === '1v1' && gameState.is_ranked;
+  const totalPlayersInRoom = gameState.lobbyPlayers?.length || 3;
+
   const allPlayers = [
     { username: currentUser.username, avatar: currentUser.avatar, isYou: true },
     ...gameState.opponents.map(o => ({ username: o.username, avatar: o.avatar, isYou: false })),
@@ -75,71 +115,120 @@ export default function MatchmakingPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4"
-      style={{ background: 'linear-gradient(145deg, #fff5f5 0%, #fff0f0 50%, #ffffff 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+      style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+      
+      {/* Return Button */}
+      <div className="fixed top-6 left-6 z-50">
+        <ReturnButton context="matchmaking" />
+      </div>
+      
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-[0.12]"
-          style={{ background: 'radial-gradient(circle, #fecdd3, transparent)', filter: 'blur(120px)' }} />
+          style={{ background: 'radial-gradient(circle, #6366f1, transparent)', filter: 'blur(120px)' }} />
       </div>
 
       <div className="relative z-10 w-full max-w-md text-center">
         <AnimatePresence mode="wait">
-          {stage === 'searching' && (
+          {(stage === 'searching' || stage === 'filling') && (
             <motion.div key="searching" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="relative w-32 h-32 mx-auto mb-8">
                 {[0, 1, 2].map(i => (
                   <motion.div key={i}
                     className="absolute inset-0 rounded-full"
-                    style={{ border: '2px solid rgba(232,54,78,0.15)' }}
+                    style={{ border: `2px solid ${isRanked1v1 ? 'rgba(6,182,212,0.2)' : 'rgba(99,102,241,0.2)'}` }}
                     animate={{ scale: [1, 2.5], opacity: [0.5, 0] }}
                     transition={{ duration: 2, delay: i * 0.6, repeat: Infinity }}
                   />
                 ))}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full flex items-center justify-center bg-white"
-                    style={{ border: '1px solid rgba(232,54,78,0.15)', boxShadow: '0 4px 15px rgba(232,54,78,0.08)' }}>
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', border: `1px solid ${isRanked1v1 ? 'rgba(6,182,212,0.2)' : 'rgba(99,102,241,0.2)'}`, boxShadow: `0 4px 15px ${isRanked1v1 ? 'rgba(6,182,212,0.15)' : 'rgba(99,102,241,0.15)'}` }}>
                     {gameState.mode === 'Solo' ? <span className="text-3xl">🎯</span>
                       : gameState.mode === '1v1' ? <span className="text-3xl">⚔️</span>
                       : <span className="text-3xl">🏆</span>}
                   </div>
                 </div>
               </div>
-              <h2 className="text-gray-900 mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
-                {gameState.mode === 'Solo' ? 'Preparing Game...' : gameState.mode === '1v1' ? 'Finding Opponent...' : 'Setting Up Room...'}
+              <h2 className="text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+                {gameState.mode === 'Solo' ? 'Preparing Game...'
+                  : isRanked1v1 ? 'Finding Opponent...'
+                  : isRandomRoom ? 'Filling Room...'
+                  : gameState.mode === '1v1' ? 'Finding Opponent...'
+                  : 'Setting Up Room...'}
               </h2>
-              <p className="text-gray-500 text-sm mb-6">
-                {gameState.mode === '1v1' ? 'Matching you with a worthy challenger...' : gameState.mode === 'Room' ? 'Waiting for players to join...' : 'Loading your questions...'}
+              <p className="text-slate-400 text-sm mb-6">
+                {isRanked1v1 ? 'Searching for a human player... AI backup ready'
+                  : isRandomRoom ? 'Auto-filling with available players...'
+                  : gameState.mode === '1v1' ? 'Matching you with a worthy challenger...'
+                  : gameState.mode === 'Room' ? 'Waiting for players to join...'
+                  : 'Loading your questions...'}
               </p>
 
-              {gameState.mode === 'Room' && (
-                <div className="rounded-2xl p-6 mb-4 bg-white"
-                  style={{ border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-                  <p className="text-gray-500 text-sm mb-2">Room Code</p>
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-4xl text-gray-900" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, letterSpacing: '0.2em' }}>
-                      {gameState.roomCode}
-                    </span>
-                    <button onClick={copyCode} className="p-2 rounded-lg hover:bg-rose-50 text-gray-400 hover:text-rose-500 transition-colors">
-                      {copied ? <CheckCircle className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
-                    </button>
-                  </div>
-                  <div className="mt-4 flex items-center justify-center gap-2 text-gray-500 text-sm">
+              {/* Random Room: show progressive player fill */}
+              {isRandomRoom && (
+                <div className="rounded-2xl p-6 mb-4"
+                  style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="flex items-center justify-center gap-2 text-slate-400 text-sm mb-3">
                     <Users className="w-4 h-4" />
-                    {joinedPlayers} / {gameState.opponents.length + 1} players joined
+                    {joinedPlayers} / {totalPlayersInRoom} players joined
                   </div>
-                  <div className="mt-2 flex gap-1 justify-center">
-                    {Array.from({ length: gameState.opponents.length + 1 }, (_, i) => (
+                  <div className="flex gap-2 justify-center">
+                    {Array.from({ length: totalPlayersInRoom }, (_, i) => (
                       <motion.div key={i}
-                        className={`w-3 h-3 rounded-full ${i < joinedPlayers ? 'bg-emerald-400' : 'bg-gray-200'}`}
-                        animate={i < joinedPlayers ? { scale: [1, 1.2, 1] } : {}}
+                        className={`w-4 h-4 rounded-full ${i < joinedPlayers ? 'bg-emerald-400' : 'bg-slate-700'}`}
+                        animate={i < joinedPlayers ? { scale: [1, 1.3, 1] } : {}}
                         transition={{ duration: 0.3 }}
                       />
+                    ))}
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {gameState.lobbyPlayers?.slice(0, joinedPlayers).map((player, i) => (
+                      <motion.div
+                        key={player.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-2 justify-center text-sm">
+                        <span className="text-lg">{player.avatar}</span>
+                        <span className={player.id === currentUser.id ? 'text-indigo-400' : 'text-slate-300'}>
+                          {player.id === currentUser.id ? 'You' : player.username}
+                        </span>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {gameState.mode !== 'Room' && (
-                <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+              {/* 1v1 Ranked searching indicator */}
+              {isRanked1v1 && (
+                <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
+                  <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                    <Wifi className="w-4 h-4" />
+                  </motion.div>
+                  Scanning matchmaking pool...
+                </div>
+              )}
+
+              {gameState.mode === 'Room' && !isRandomRoom && (
+                <div className="rounded-2xl p-6 mb-4"
+                  style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <p className="text-slate-400 text-sm mb-2">Room Code</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="text-4xl text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, letterSpacing: '0.2em' }}>
+                      {gameState.roomCode}
+                    </span>
+                    <button onClick={copyCode} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-indigo-400 transition-colors">
+                      {copied ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <div className="mt-4 flex items-center justify-center gap-2 text-slate-400 text-sm">
+                    <Users className="w-4 h-4" />
+                    {joinedPlayers} / {gameState.opponents.length + 1} players joined
+                  </div>
+                </div>
+              )}
+
+              {gameState.mode !== 'Room' && !isRanked1v1 && (
+                <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
                   <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
                     <Wifi className="w-4 h-4" />
                   </motion.div>
@@ -153,24 +242,35 @@ export default function MatchmakingPage() {
             <motion.div key="found" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}
                 className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
-                style={{ background: 'rgba(52,211,153,0.08)', border: '2px solid rgba(52,211,153,0.3)' }}>
-                <CheckCircle className="w-10 h-10 text-emerald-500" />
+                style={{ background: 'rgba(52,211,153,0.1)', border: '2px solid rgba(52,211,153,0.3)' }}>
+                <CheckCircle className="w-10 h-10 text-emerald-400" />
               </motion.div>
-              <h2 className="text-gray-900 mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
-                {gameState.mode === 'Solo' ? 'Game Ready!' : 'Match Found!'}
+              <h2 className="text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+                {gameState.mode === 'Solo' ? 'Game Ready!'
+                  : isRandomRoom ? 'Room Ready!'
+                  : isRanked1v1 && matchType === 'system' ? 'System Random Matched!'
+                  : 'Match Found!'}
               </h2>
+              {isRanked1v1 && matchType === 'system' && (
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Bot className="w-4 h-4 text-amber-400" />
+                  <p className="text-amber-400 text-xs">No human found - matched with AI opponent</p>
+                </div>
+              )}
               <div className="flex items-center justify-center gap-4 mt-6 flex-wrap">
                 {allPlayers.map((p, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
                     className="flex flex-col items-center gap-2">
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white"
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
                       style={{
-                        border: p.isYou ? '2px solid #e8364e' : '1px solid rgba(0,0,0,0.06)',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                        background: 'rgba(255,255,255,0.05)',
+                        backdropFilter: 'blur(20px)',
+                        border: p.isYou ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.08)',
+                        boxShadow: p.isYou ? '0 0 20px rgba(99,102,241,0.3)' : 'none',
                       }}>
                       {p.avatar}
                     </div>
-                    <p className="text-sm text-gray-800">{p.isYou ? 'YOU' : p.username}</p>
+                    <p className="text-sm text-white">{p.isYou ? 'YOU' : p.username}</p>
                   </motion.div>
                 ))}
               </div>
@@ -186,12 +286,12 @@ export default function MatchmakingPage() {
                 style={{
                   fontFamily: 'Outfit, sans-serif',
                   fontWeight: 800,
-                  color: countdown > 1 ? '#e8364e' : countdown === 1 ? '#d97706' : '#059669',
+                  color: countdown > 1 ? '#6366f1' : countdown === 1 ? '#fbbf24' : '#34d399',
                   filter: `drop-shadow(0 0 30px currentColor)`,
                 }}>
                 {countdown === 0 ? '🚀' : countdown}
               </motion.div>
-              <p className="text-gray-500">{countdown === 0 ? 'Starting...' : 'Get Ready!'}</p>
+              <p className="text-slate-400">{countdown === 0 ? 'Starting...' : 'Get Ready!'}</p>
             </motion.div>
           )}
         </AnimatePresence>

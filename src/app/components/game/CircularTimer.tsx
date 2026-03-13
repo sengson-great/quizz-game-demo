@@ -43,7 +43,7 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive }: 
       >
         <svg width="110" height="110" viewBox="0 0 110 110">
           <circle cx="55" cy="55" r={radius}
-            fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="6" />
+            fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
           <circle cx="55" cy="55" r={radius}
             fill="none"
             stroke={getColor()}

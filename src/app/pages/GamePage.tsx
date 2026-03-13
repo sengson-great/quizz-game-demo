@@ -7,8 +7,9 @@ import { CATEGORIES } from '../data/questions';
 import { CircularTimer } from '../components/game/CircularTimer';
 import { AnswerOption } from '../components/game/AnswerOption';
 import { LifelineButtons } from '../components/game/LifelineButtons';
-import { OpponentProgress } from '../components/game/OpponentProgress';
+import { LiveScorePanel } from '../components/game/LiveScorePanel';
 import { AudienceModal } from '../components/game/AudienceModal';
+import { ReturnButton } from '../components/ui/ReturnButton';
 
 const TOTAL_TIME = 30;
 const RESULT_DELAY = 2200;
@@ -26,6 +27,9 @@ export default function GamePage() {
   const [lifelineModal, setLifelineModal] = useState<{ type: 'audience' | 'phone'; data: AudienceData | string } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const answeredRef = useRef(false);
+  const doubleDipActiveRef = useRef(false);
+  const doubleDipFirstAnswerRef = useRef<string | null>(null);
+  const [doubleDipWrongId, setDoubleDipWrongId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!gameState || !currentUser) { navigate('/mode-select'); return; }
@@ -40,6 +44,9 @@ export default function GamePage() {
     setRevealed(false);
     setLastAnswer(null);
     answeredRef.current = false;
+    doubleDipActiveRef.current = false;
+    doubleDipFirstAnswerRef.current = null;
+    setDoubleDipWrongId(null);
 
     if (gameState.mode !== 'Solo') {
       simulateOpponentAnswer(gameState.currentQuestionIndex);
@@ -62,6 +69,48 @@ export default function GamePage() {
 
   const submitAnswer = useCallback((answerId: string | null, time: number) => {
     if (answeredRef.current || !gameState) return;
+
+    // Handle Double Dip: if active and first answer was wrong, allow second try
+    if (doubleDipActiveRef.current && doubleDipFirstAnswerRef.current) {
+      doubleDipActiveRef.current = false;
+      answeredRef.current = true;
+      setTimerActive(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setSelectedAnswer(answerId);
+      setRevealed(true);
+      const result = answerQuestion(answerId, time);
+      setLastAnswer(result);
+
+      setTimeout(() => {
+        const isLastQuestion = gameState.currentQuestionIndex >= gameState.questions.length - 1;
+        if (isLastQuestion) {
+          finalizeGame();
+          navigate('/results');
+        } else {
+          nextQuestion();
+        }
+      }, RESULT_DELAY);
+      return;
+    }
+
+    // Check if Double Dip is active for first attempt
+    if (doubleDipActiveRef.current && !doubleDipFirstAnswerRef.current) {
+      const question = gameState.questions[gameState.currentQuestionIndex];
+      const correctAnswer = question.answers.find(a => a.isCorrect)!;
+      const isCorrect = answerId === correctAnswer.id;
+
+      if (!isCorrect && answerId !== null) {
+        doubleDipFirstAnswerRef.current = answerId;
+        setDoubleDipWrongId(answerId);
+        setSelectedAnswer(answerId);
+        setTimeout(() => {
+          setSelectedAnswer(null);
+        }, 800);
+        return;
+      }
+      doubleDipActiveRef.current = false;
+    }
+
     answeredRef.current = true;
     setTimerActive(false);
     if (timerRef.current) clearInterval(timerRef.current);
@@ -92,6 +141,11 @@ export default function GamePage() {
       submitAnswer(null, timeRemaining);
       return;
     }
+    if (type === 'doubleDip') {
+      doubleDipActiveRef.current = true;
+      doubleDipFirstAnswerRef.current = null;
+      return;
+    }
     if (type === 'audience' && result) {
       setLifelineModal({ type: 'audience', data: result as AudienceData });
     }
@@ -112,98 +166,127 @@ export default function GamePage() {
   const progressPct = (qNum / total) * 100;
 
   const difficultyStyles: Record<string, { bg: string; color: string; border: string }> = {
-    Easy: { bg: 'rgba(52,211,153,0.08)', color: '#059669', border: 'rgba(52,211,153,0.15)' },
-    Medium: { bg: 'rgba(251,191,36,0.08)', color: '#d97706', border: 'rgba(251,191,36,0.15)' },
-    Hard: { bg: 'rgba(244,63,94,0.08)', color: '#e11d48', border: 'rgba(244,63,94,0.15)' },
+    Easy: { bg: 'rgba(52,211,153,0.1)', color: '#34d399', border: 'rgba(52,211,153,0.2)' },
+    Medium: { bg: 'rgba(251,191,36,0.1)', color: '#fbbf24', border: 'rgba(251,191,36,0.2)' },
+    Hard: { bg: 'rgba(239,68,68,0.1)', color: '#f87171', border: 'rgba(239,68,68,0.2)' },
   };
   const ds = difficultyStyles[question.difficulty];
 
   return (
     <div className="min-h-screen flex flex-col px-4 py-6 max-w-3xl mx-auto relative"
-      style={{ background: 'linear-gradient(145deg, #fff5f5 0%, #fff0f0 50%, #ffffff 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
-      {/* Result flash */}
+      style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+      
+      {/* Result flash overlay */}
       <AnimatePresence>
         {revealed && lastAnswer && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 pointer-events-none"
+            className="fixed inset-0 pointer-events-none z-0"
             style={{
               background: lastAnswer.isCorrect
                 ? 'linear-gradient(to top, rgba(52,211,153,0.08), transparent)'
-                : 'linear-gradient(to top, rgba(244,63,94,0.08), transparent)',
+                : 'linear-gradient(to top, rgba(239,68,68,0.08), transparent)',
             }}
           />
         )}
       </AnimatePresence>
 
-      {/* Top Bar */}
-      <div className="flex items-center justify-between mb-4 relative z-10">
-        <div className="flex items-center gap-3">
+      {/* ═══ TOP-LEFT: Return Button (highest z-index, Saturated Crimson outline) ═══ */}
+      <div className="fixed top-4 left-4 z-[60]">
+        <ReturnButton context="game" />
+      </div>
+
+      {/* ═══ TOP BAR: Progress Center + Live Scores Right ═══ */}
+      <div className="flex items-center justify-between mb-4 relative z-30 pt-1">
+        {/* Left: Difficulty badge + category (offset for return button) */}
+        <div className="flex items-center gap-2 ml-14">
           <div className="text-xs px-3 py-1.5 rounded-full"
             style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.border}`, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
             {question.difficulty}
           </div>
-          <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+          <div className="flex items-center gap-1 text-slate-400 text-xs">
             <span>{category?.icon}</span>
-            <span>{category?.name}</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-400 text-xs" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-            {qNum}/{total}
-          </span>
-          <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
-            <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, #e8364e, #f43f5e)' }}
-              animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Score display */}
-      <div className="flex items-center justify-between mb-6 relative z-10">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{currentUser.avatar}</span>
-          <div>
-            <p className="text-gray-800 text-sm">{currentUser.username}</p>
-            <motion.p
-              key={gameState.playerScore}
-              initial={{ scale: 1.2, color: '#e8364e' }}
-              animate={{ scale: 1, color: '#f43f5e' }}
-              className="text-xs"
-              style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-              {gameState.playerScore.toLocaleString()} pts
-            </motion.p>
+            <span className="hidden sm:inline">{category?.name}</span>
           </div>
         </div>
 
-        <CircularTimer
-          timeRemaining={timeRemaining}
-          totalTime={TOTAL_TIME}
-          onExpire={handleTimerExpire}
-          isActive={timerActive}
+        {/* Center: 15-Question Progress Bar + Timer */}
+        <div className="flex items-center gap-3 absolute left-1/2 -translate-x-1/2">
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-slate-500 text-[10px]" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+              Q{qNum}/{total}
+            </span>
+            <div className="w-28 sm:w-36 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}
+                animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} />
+            </div>
+          </div>
+          <CircularTimer
+            timeRemaining={timeRemaining}
+            totalTime={TOTAL_TIME}
+            onExpire={handleTimerExpire}
+            isActive={timerActive}
+          />
+        </div>
+
+        {/* Right: Live Scores */}
+        <LiveScorePanel
+          playerScore={gameState.playerScore}
+          playerAvatar={currentUser.avatar}
+          playerName={currentUser.username}
+          opponents={gameState.opponents}
+          mode={gameState.mode}
         />
-
-        <div className="text-right">
-          <p className="text-gray-400 text-xs">Mode</p>
-          <p className="text-rose-500 text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{gameState.mode}</p>
-        </div>
       </div>
 
-      {/* Opponent progress */}
-      {gameState.mode !== 'Solo' && (
-        <div className="mb-4 relative z-10">
-          <OpponentProgress
-            opponents={gameState.opponents}
+      {/* ═══ 1v1 TUG-OF-WAR BAR (below top bar, only for 1v1) ═══ */}
+      {gameState.mode === '1v1' && gameState.opponents.length === 1 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 relative z-20"
+        >
+          <TugOfWarBar
             playerScore={gameState.playerScore}
             playerAvatar={currentUser.avatar}
-            playerName={currentUser.username}
+            opponentScore={gameState.opponents[0].score}
+            opponentAvatar={gameState.opponents[0].avatar}
+            opponentName={gameState.opponents[0].username}
           />
+        </motion.div>
+      )}
+
+      {/* Room mode: compact opponent list */}
+      {gameState.mode === 'Room' && gameState.opponents.length > 0 && (
+        <div className="mb-3 relative z-20">
+          <div className="flex items-center gap-2 overflow-x-auto py-1 px-1">
+            {gameState.opponents.map(opp => (
+              <motion.div
+                key={opp.id}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                }}>
+                <span className="text-sm">{opp.avatar}</span>
+                <span className="text-xs text-slate-400">{opp.username.slice(0, 8)}</span>
+                <motion.span
+                  key={opp.score}
+                  initial={{ scale: 1.2, color: '#f472b6' }}
+                  animate={{ scale: 1, color: '#94a3b8' }}
+                  className="text-xs tabular-nums"
+                  style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                  {opp.score}
+                </motion.span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Question */}
+      {/* ═══ CENTER: Question Card ═══ */}
       <AnimatePresence mode="wait">
         <motion.div
           key={question.id}
@@ -211,30 +294,33 @@ export default function GamePage() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -40 }}
           transition={{ duration: 0.3 }}
-          className="relative z-10 mb-6"
+          className="relative z-10 mb-6 flex-1 flex flex-col"
         >
-          <div className="rounded-2xl p-6 mb-4 bg-white"
-            style={{ border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-            <p className="text-gray-800 text-lg leading-relaxed">{question.text}</p>
+          <div className="rounded-2xl p-6 mb-4"
+            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <p className="text-white text-lg leading-relaxed">{question.text}</p>
           </div>
 
-          {/* Answers */}
+          {/* ═══ BOTTOM AREA: 4 Answer Buttons ═══ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {question.answers.map((answer, i) => (
-              <AnswerOption
-                key={answer.id}
-                id={answer.id}
-                text={answer.text}
-                label={labels[i]}
-                isSelected={selectedAnswer === answer.id}
-                isCorrect={answer.isCorrect}
-                isEliminated={gameState.eliminatedAnswers.includes(answer.id)}
-                revealed={revealed}
-                disabled={revealed || answeredRef.current}
-                onClick={() => !revealed && !answeredRef.current && submitAnswer(answer.id, timeRemaining)}
-                index={i}
-              />
-            ))}
+            {question.answers.map((answer, i) => {
+              const isDoubleDipWrong = doubleDipWrongId === answer.id;
+              return (
+                <AnswerOption
+                  key={answer.id}
+                  id={answer.id}
+                  text={answer.text}
+                  label={labels[i]}
+                  isSelected={selectedAnswer === answer.id}
+                  isCorrect={answer.isCorrect}
+                  isEliminated={gameState.eliminatedAnswers.includes(answer.id) || isDoubleDipWrong}
+                  revealed={revealed}
+                  disabled={revealed || answeredRef.current || isDoubleDipWrong}
+                  onClick={() => !revealed && !answeredRef.current && !isDoubleDipWrong && submitAnswer(answer.id, timeRemaining)}
+                  index={i}
+                />
+              );
+            })}
           </div>
         </motion.div>
       </AnimatePresence>
@@ -248,23 +334,23 @@ export default function GamePage() {
             exit={{ opacity: 0 }}
             className="relative z-10 rounded-2xl p-4 mb-4"
             style={{
-              background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.06)' : 'rgba(244,63,94,0.06)',
-              border: `1px solid ${lastAnswer.isCorrect ? 'rgba(52,211,153,0.15)' : 'rgba(244,63,94,0.15)'}`,
+              background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.08)' : 'rgba(239,68,68,0.08)',
+              border: `1px solid ${lastAnswer.isCorrect ? 'rgba(52,211,153,0.2)' : 'rgba(239,68,68,0.2)'}`,
             }}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm ${lastAnswer.isCorrect ? 'text-emerald-600' : 'text-rose-500'}`} style={{ fontWeight: 600 }}>
+                <p className={`text-sm ${lastAnswer.isCorrect ? 'text-emerald-400' : 'text-red-400'}`} style={{ fontWeight: 600 }}>
                   {lastAnswer.isCorrect ? '✓ Correct!' : selectedAnswer === null ? '⏰ Time\'s up!' : '✗ Wrong!'}
                 </p>
                 {question.explanation && (
-                  <p className="text-gray-500 text-xs mt-1">{question.explanation}</p>
+                  <p className="text-slate-400 text-xs mt-1">{question.explanation}</p>
                 )}
               </div>
               {lastAnswer.isCorrect && (
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}
-                  className="text-amber-500 text-right">
-                  <p className="text-xs text-gray-400">Points</p>
+                  className="text-amber-400 text-right">
+                  <p className="text-xs text-slate-500">Points</p>
                   <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>+{lastAnswer.pointsEarned}</p>
                 </motion.div>
               )}
@@ -273,7 +359,7 @@ export default function GamePage() {
         )}
       </AnimatePresence>
 
-      {/* Lifelines */}
+      {/* ═══ BOTTOM: 5 Lifelines ═══ */}
       <div className="relative z-10 mt-auto pt-4">
         <LifelineButtons
           lifelines={gameState.lifelines}
@@ -294,6 +380,89 @@ export default function GamePage() {
           />
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/* ═══ Tug-of-War Bar Component (1v1 only) ═══ */
+function TugOfWarBar({
+  playerScore,
+  playerAvatar,
+  opponentScore,
+  opponentAvatar,
+  opponentName,
+}: {
+  playerScore: number;
+  playerAvatar: string;
+  opponentScore: number;
+  opponentAvatar: string;
+  opponentName: string;
+}) {
+  const total = playerScore + opponentScore;
+  const playerPct = total > 0 ? (playerScore / total) * 100 : 50;
+  const isLeading = playerScore > opponentScore;
+  const isTied = playerScore === opponentScore;
+
+  return (
+    <div className="rounded-xl p-3"
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* Labels */}
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm">{playerAvatar}</span>
+          <span className="text-xs text-indigo-400" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+            You
+          </span>
+          {isLeading && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+              LEAD
+            </motion.span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          {!isLeading && !isTied && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="text-[10px] px-1.5 py-0.5 rounded-full bg-pink-500/15 text-pink-400 border border-pink-500/20">
+              LEAD
+            </motion.span>
+          )}
+          <span className="text-xs text-pink-400" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+            {opponentName}
+          </span>
+          <span className="text-sm">{opponentAvatar}</span>
+        </div>
+      </div>
+
+      {/* Tug-of-War Progress Bar */}
+      <div className="relative h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <motion.div
+          className="absolute left-0 top-0 h-full rounded-l-full"
+          style={{ background: 'linear-gradient(90deg, #6366f1, #818cf8)' }}
+          animate={{ width: `${playerPct}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
+        <motion.div
+          className="absolute right-0 top-0 h-full rounded-r-full"
+          style={{ background: 'linear-gradient(270deg, #ec4899, #f472b6)' }}
+          animate={{ width: `${100 - playerPct}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
+        {/* Center marker */}
+        <div className="absolute left-1/2 top-0 w-0.5 h-full -translate-x-1/2"
+          style={{ background: 'rgba(255,255,255,0.15)' }} />
+        {/* Momentum indicator dot */}
+        <motion.div
+          className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-lg"
+          animate={{ left: `${playerPct}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          style={{ marginLeft: '-4px', boxShadow: '0 0 8px rgba(255,255,255,0.5)' }}
+        />
+      </div>
     </div>
   );
 }

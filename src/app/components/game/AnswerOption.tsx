@@ -18,48 +18,48 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
   const getStyles = () => {
     if (isEliminated && !revealed) {
       return {
-        bg: 'rgba(0,0,0,0.02)',
-        border: 'rgba(0,0,0,0.04)',
-        text: 'text-gray-300',
-        badge: { background: 'rgba(0,0,0,0.04)', color: '#cbd5e1' },
+        bg: 'rgba(255,255,255,0.01)',
+        border: 'rgba(255,255,255,0.03)',
+        text: 'text-slate-600',
+        badge: { background: 'rgba(255,255,255,0.03)', color: '#475569' },
         glow: '',
       };
     }
     if (revealed) {
       if (isCorrect) return {
-        bg: 'rgba(52,211,153,0.06)',
-        border: 'rgba(52,211,153,0.3)',
-        text: 'text-emerald-700',
+        bg: 'rgba(52,211,153,0.1)',
+        border: 'rgba(52,211,153,0.35)',
+        text: 'text-emerald-300',
         badge: { background: '#059669', color: '#fff' },
-        glow: '0 0 15px rgba(52,211,153,0.15)',
+        glow: '0 0 20px rgba(52,211,153,0.2)',
       };
       if (isSelected && !isCorrect) return {
-        bg: 'rgba(244,63,94,0.06)',
-        border: 'rgba(244,63,94,0.3)',
-        text: 'text-rose-600',
-        badge: { background: '#e11d48', color: '#fff' },
-        glow: '0 0 15px rgba(244,63,94,0.15)',
+        bg: 'rgba(239,68,68,0.1)',
+        border: 'rgba(239,68,68,0.35)',
+        text: 'text-red-300',
+        badge: { background: '#dc2626', color: '#fff' },
+        glow: '0 0 20px rgba(239,68,68,0.2)',
       };
       return {
-        bg: 'rgba(0,0,0,0.01)',
-        border: 'rgba(0,0,0,0.06)',
-        text: 'text-gray-400',
-        badge: { background: 'rgba(0,0,0,0.04)', color: '#94a3b8' },
+        bg: 'rgba(255,255,255,0.02)',
+        border: 'rgba(255,255,255,0.05)',
+        text: 'text-slate-500',
+        badge: { background: 'rgba(255,255,255,0.05)', color: '#64748b' },
         glow: '',
       };
     }
     if (isSelected) return {
-      bg: 'rgba(232,54,78,0.04)',
-      border: 'rgba(232,54,78,0.4)',
-      text: 'text-gray-800',
-      badge: { background: '#e8364e', color: '#fff' },
-      glow: '0 0 15px rgba(232,54,78,0.1)',
+      bg: 'rgba(99,102,241,0.1)',
+      border: 'rgba(99,102,241,0.4)',
+      text: 'text-white',
+      badge: { background: '#6366f1', color: '#fff' },
+      glow: '0 0 20px rgba(99,102,241,0.15)',
     };
     return {
-      bg: 'white',
-      border: 'rgba(0,0,0,0.08)',
-      text: 'text-gray-700',
-      badge: { background: 'rgba(0,0,0,0.04)', color: '#64748b' },
+      bg: 'rgba(255,255,255,0.04)',
+      border: 'rgba(255,255,255,0.08)',
+      text: 'text-slate-200',
+      badge: { background: 'rgba(255,255,255,0.06)', color: '#94a3b8' },
       glow: '',
     };
   };
@@ -71,15 +71,16 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.08, duration: 0.3 }}
-      whileHover={!disabled && !isEliminated ? { scale: 1.01, borderColor: 'rgba(232,54,78,0.3)' } : {}}
+      whileHover={!disabled && !isEliminated ? { scale: 1.01, borderColor: 'rgba(99,102,241,0.4)' } : {}}
       whileTap={!disabled && !isEliminated ? { scale: 0.99 } : {}}
       onClick={onClick}
       disabled={disabled || isEliminated}
       className={`group w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-200 ${styles.text} ${isEliminated ? 'cursor-not-allowed opacity-40 line-through' : 'cursor-pointer'}`}
       style={{
         background: styles.bg,
+        backdropFilter: 'blur(20px)',
         border: `2px solid ${styles.border}`,
-        boxShadow: styles.glow || '0 1px 3px rgba(0,0,0,0.04)',
+        boxShadow: styles.glow || 'none',
       }}
     >
       <span className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-sm transition-all duration-200"
@@ -91,12 +92,12 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
       </span>
       {revealed && isCorrect && (
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
-          <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+          <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
         </motion.div>
       )}
       {revealed && isSelected && !isCorrect && (
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
-          <XCircle className="w-5 h-5 text-rose-500 flex-shrink-0" />
+          <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
         </motion.div>
       )}
     </motion.button>
