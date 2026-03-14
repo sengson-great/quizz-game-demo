@@ -3,7 +3,7 @@ import { Navbar } from './Navbar';
 
 export function Layout() {
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Poppins, Inter, sans-serif' }}>
       {/* Ambient background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-24 left-1/4 w-[600px] h-[600px] rounded-full opacity-[0.12]"
@@ -23,7 +23,7 @@ export function Layout() {
 
 export function FullLayout() {
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Poppins, Inter, sans-serif' }}>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-24 left-1/3 w-[700px] h-[700px] rounded-full opacity-[0.12]"
           style={{ background: 'radial-gradient(circle, #6366f1, transparent)', filter: 'blur(130px)' }} />

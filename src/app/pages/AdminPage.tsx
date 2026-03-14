@@ -396,7 +396,7 @@ export default function AdminPage() {
   const glassCard = { background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' };
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto" style={{ fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center"

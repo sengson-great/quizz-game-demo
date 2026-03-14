@@ -86,7 +86,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto" style={{ fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">

@@ -26,7 +26,7 @@ export default function LeaderboardPage() {
   const top3 = leaderboard.slice(0, 3);
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-4xl mx-auto" style={{ fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen px-4 py-8 max-w-4xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
         <Trophy className="w-10 h-10 text-amber-400 mx-auto mb-3" />

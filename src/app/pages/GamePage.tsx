@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGame, GameAnswer, AudienceData, LifelineType } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { CATEGORIES } from '../data/questions';
+import { loadSystemConfig } from '../data/systemConfig';
 import { CircularTimer } from '../components/game/CircularTimer';
 import { AnswerOption } from '../components/game/AnswerOption';
 import { LifelineButtons } from '../components/game/LifelineButtons';
@@ -11,13 +12,16 @@ import { LiveScorePanel } from '../components/game/LiveScorePanel';
 import { AudienceModal } from '../components/game/AudienceModal';
 import { ReturnButton } from '../components/ui/ReturnButton';
 
-const TOTAL_TIME = 30;
 const RESULT_DELAY = 2200;
 
 export default function GamePage() {
   const { gameState, answerQuestion, useLifeline, nextQuestion, simulateOpponentAnswer, finalizeGame } = useGame();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+
+  // Wire system config for timer duration
+  const sysConfig = useMemo(() => loadSystemConfig(), []);
+  const TOTAL_TIME = sysConfig.timerDuration;
 
   const [timeRemaining, setTimeRemaining] = useState(TOTAL_TIME);
   const [timerActive, setTimerActive] = useState(true);
@@ -30,6 +34,10 @@ export default function GamePage() {
   const doubleDipActiveRef = useRef(false);
   const doubleDipFirstAnswerRef = useRef<string | null>(null);
   const [doubleDipWrongId, setDoubleDipWrongId] = useState<string | null>(null);
+
+  // Pusher simulation: opponent score broadcast micro-animations
+  const [oppScorePulse, setOppScorePulse] = useState(false);
+  const prevOppScoreRef = useRef(0);
 
   useEffect(() => {
     if (!gameState || !currentUser) { navigate('/mode-select'); return; }
@@ -52,6 +60,17 @@ export default function GamePage() {
       simulateOpponentAnswer(gameState.currentQuestionIndex);
     }
   }, [gameState?.currentQuestionIndex]);
+
+  // Pusher simulation: detect opponent score changes
+  useEffect(() => {
+    if (!gameState || gameState.opponents.length === 0) return;
+    const totalOppScore = gameState.opponents.reduce((s, o) => s + o.score, 0);
+    if (totalOppScore > prevOppScoreRef.current) {
+      setOppScorePulse(true);
+      setTimeout(() => setOppScorePulse(false), 600);
+    }
+    prevOppScoreRef.current = totalOppScore;
+  }, [gameState?.opponents]);
 
   useEffect(() => {
     if (!timerActive) return;
@@ -136,6 +155,16 @@ export default function GamePage() {
 
   const handleLifeline = (type: LifelineType) => {
     if (!gameState || revealed) return;
+    // Check system config for lifeline availability
+    const lifelineConfigMap: Record<LifelineType, boolean> = {
+      fifty: sysConfig.enableFiftyFifty,
+      skip: sysConfig.enableSkip,
+      audience: sysConfig.enableAudience,
+      phone: sysConfig.enablePhone,
+      doubleDip: sysConfig.enableDoubleDip,
+    };
+    if (!lifelineConfigMap[type]) return;
+
     const result = useLifeline(type);
     if (type === 'skip') {
       submitAnswer(null, timeRemaining);
@@ -172,9 +201,18 @@ export default function GamePage() {
   };
   const ds = difficultyStyles[question.difficulty];
 
+  // Filter lifelines based on system config
+  const enabledLifelines = {
+    fifty: sysConfig.enableFiftyFifty ? gameState.lifelines.fifty : true,
+    skip: sysConfig.enableSkip ? gameState.lifelines.skip : true,
+    audience: sysConfig.enableAudience ? gameState.lifelines.audience : true,
+    phone: sysConfig.enablePhone ? gameState.lifelines.phone : true,
+    doubleDip: sysConfig.enableDoubleDip ? gameState.lifelines.doubleDip : true,
+  };
+
   return (
-    <div className="min-h-screen flex flex-col px-4 py-6 max-w-3xl mx-auto relative"
-      style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen flex flex-col px-4 py-5 max-w-3xl mx-auto relative"
+      style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Poppins, Inter, sans-serif' }}>
       
       {/* Result flash overlay */}
       <AnimatePresence>
@@ -193,17 +231,31 @@ export default function GamePage() {
         )}
       </AnimatePresence>
 
-      {/* ═══ TOP-LEFT: Return Button (highest z-index, Saturated Crimson outline) ═══ */}
+      {/* Pusher score.update flash overlay */}
+      <AnimatePresence>
+        {oppScorePulse && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 pointer-events-none z-0"
+            style={{ background: 'radial-gradient(ellipse at top right, rgba(236,72,153,0.12), transparent 60%)' }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ═══ TOP-LEFT: Return Button (Saturated Crimson outline, highest z-index) ═══ */}
       <div className="fixed top-4 left-4 z-[60]">
         <ReturnButton context="game" />
       </div>
 
-      {/* ═══ TOP BAR: Progress Center + Live Scores Right ═══ */}
-      <div className="flex items-center justify-between mb-4 relative z-30 pt-1">
+      {/* ═══ TOP BAR: Category/Difficulty Left + Progress Center + Live Scores Right ═══ */}
+      <div className="flex items-start justify-between mb-3 relative z-30 pt-1">
         {/* Left: Difficulty badge + category (offset for return button) */}
         <div className="flex items-center gap-2 ml-14">
           <div className="text-xs px-3 py-1.5 rounded-full"
-            style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.border}`, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+            style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.border}`, fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
             {question.difficulty}
           </div>
           <div className="flex items-center gap-1 text-slate-400 text-xs">
@@ -212,26 +264,18 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Center: 15-Question Progress Bar + Timer */}
-        <div className="flex items-center gap-3 absolute left-1/2 -translate-x-1/2">
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-slate-500 text-[10px]" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-              Q{qNum}/{total}
-            </span>
-            <div className="w-28 sm:w-36 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}
-                animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} />
-            </div>
+        {/* Center: 15-Question Progress Bar + Label */}
+        <div className="flex flex-col items-center gap-1.5 absolute left-1/2 -translate-x-1/2 top-1">
+          <span className="text-slate-500 text-[10px]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+            Q{qNum}/{total}
+          </span>
+          <div className="w-32 sm:w-40 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}
+              animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} />
           </div>
-          <CircularTimer
-            timeRemaining={timeRemaining}
-            totalTime={TOTAL_TIME}
-            onExpire={handleTimerExpire}
-            isActive={timerActive}
-          />
         </div>
 
-        {/* Right: Live Scores */}
+        {/* Right: Live Scores (Dual-Score UI for 1v1) */}
         <LiveScorePanel
           playerScore={gameState.playerScore}
           playerAvatar={currentUser.avatar}
@@ -241,43 +285,56 @@ export default function GamePage() {
         />
       </div>
 
-      {/* ═══ 1v1 TUG-OF-WAR BAR (below top bar, only for 1v1) ═══ */}
+      {/* ═══ 1v1 TUG-OF-WAR BAR ═══ */}
       {gameState.mode === '1v1' && gameState.opponents.length === 1 && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4 relative z-20"
-        >
-          <TugOfWarBar
-            playerScore={gameState.playerScore}
-            playerAvatar={currentUser.avatar}
-            opponentScore={gameState.opponents[0].score}
-            opponentAvatar={gameState.opponents[0].avatar}
-            opponentName={gameState.opponents[0].username}
-          />
-        </motion.div>
-      )}
-
-      {/* Room mode: compact opponent list */}
-      {gameState.mode === 'Room' && gameState.opponents.length > 0 && (
         <div className="mb-3 relative z-20">
           <div className="flex items-center gap-2 overflow-x-auto py-1 px-1">
+            {/* Player chip */}
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
+              style={{
+                background: 'rgba(99,102,241,0.06)',
+                border: '1px solid rgba(99,102,241,0.15)',
+              }}>
+              <span className="text-sm">{currentUser.avatar}</span>
+              <span className="text-xs text-indigo-300"
+                style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
+                {currentUser.username.slice(0, 8)}
+              </span>
+              <motion.span
+                key={gameState.playerScore}
+                initial={{ scale: 1.3, color: '#818cf8' }}
+                animate={{ scale: 1, color: '#a5b4fc' }}
+                className="text-xs tabular-nums"
+                style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                {gameState.playerScore}
+              </motion.span>
+            </motion.div>
+            {/* Opponent chip */}
             {gameState.opponents.map(opp => (
               <motion.div
                 key={opp.id}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
                 style={{
                   background: 'rgba(255,255,255,0.03)',
                   border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.06)'}`,
                 }}>
                 <span className="text-sm">{opp.avatar}</span>
-                <span className="text-xs text-slate-400">{opp.username.slice(0, 8)}</span>
+                <span className="text-xs text-slate-400"
+                  style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
+                  {opp.username.slice(0, 8)}
+                </span>
                 <motion.span
                   key={opp.score}
-                  initial={{ scale: 1.2, color: '#f472b6' }}
+                  initial={{ scale: 1.3, color: '#f472b6' }}
                   animate={{ scale: 1, color: '#94a3b8' }}
                   className="text-xs tabular-nums"
-                  style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                  style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                   {opp.score}
                 </motion.span>
               </motion.div>
@@ -286,7 +343,62 @@ export default function GamePage() {
         </div>
       )}
 
-      {/* ═══ CENTER: Question Card ═══ */}
+      {/* Room mode: compact player chip list */}
+      {gameState.mode === 'Room' && gameState.opponents.length > 0 && (
+        <div className="mb-3 relative z-20">
+          <div className="flex items-center gap-2 overflow-x-auto py-1 px-1">
+            {/* Player chip */}
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
+              style={{
+                background: 'rgba(99,102,241,0.06)',
+                border: '1px solid rgba(99,102,241,0.15)',
+              }}>
+              <span className="text-sm">{currentUser.avatar}</span>
+              <span className="text-xs text-indigo-300"
+                style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
+                {currentUser.username.slice(0, 8)}
+              </span>
+              <motion.span
+                key={gameState.playerScore}
+                initial={{ scale: 1.3, color: '#818cf8' }}
+                animate={{ scale: 1, color: '#a5b4fc' }}
+                className="text-xs tabular-nums"
+                style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                {gameState.playerScore}
+              </motion.span>
+            </motion.div>
+            {/* Opponent chips */}
+            {gameState.opponents.map(opp => (
+              <motion.div
+                key={opp.id}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                }}>
+                <span className="text-sm">{opp.avatar}</span>
+                <span className="text-xs text-slate-400"
+                  style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
+                  {opp.username.slice(0, 8)}
+                </span>
+                <motion.span
+                  key={opp.score}
+                  initial={{ scale: 1.2, color: '#f472b6' }}
+                  animate={{ scale: 1, color: '#94a3b8' }}
+                  className="text-xs tabular-nums"
+                  style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                  {opp.score}
+                </motion.span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ MAIN CENTER: Question Card ═══ */}
       <AnimatePresence mode="wait">
         <motion.div
           key={question.id}
@@ -294,15 +406,16 @@ export default function GamePage() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -40 }}
           transition={{ duration: 0.3 }}
-          className="relative z-10 mb-6 flex-1 flex flex-col"
+          className="relative z-10 flex-1 flex flex-col"
         >
+          {/* Question Text Card */}
           <div className="rounded-2xl p-6 mb-4"
             style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <p className="text-white text-lg leading-relaxed">{question.text}</p>
+            <p className="text-white text-lg leading-relaxed" style={{ fontFamily: 'Poppins, sans-serif' }}>{question.text}</p>
           </div>
 
-          {/* ═══ BOTTOM AREA: 4 Answer Buttons ═══ */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* ═══ MIDDLE-CENTER: Multiple Choice Grid (A, B, C, D) ═══ */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             {question.answers.map((answer, i) => {
               const isDoubleDipWrong = doubleDipWrongId === answer.id;
               return (
@@ -322,47 +435,73 @@ export default function GamePage() {
               );
             })}
           </div>
+
+          {/* Result feedback */}
+          <AnimatePresence>
+            {revealed && lastAnswer && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="rounded-2xl p-4 mb-4"
+                style={{
+                  background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.08)' : 'rgba(239,68,68,0.08)',
+                  border: `1px solid ${lastAnswer.isCorrect ? 'rgba(52,211,153,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm ${lastAnswer.isCorrect ? 'text-emerald-400' : 'text-red-400'}`} style={{ fontWeight: 600, fontFamily: 'Poppins, sans-serif' }}>
+                      {lastAnswer.isCorrect ? '✓ Correct!' : selectedAnswer === null ? '⏰ Time\'s up!' : '✗ Wrong!'}
+                    </p>
+                    {question.explanation && (
+                      <p className="text-slate-400 text-xs mt-1">{question.explanation}</p>
+                    )}
+                  </div>
+                  {lastAnswer.isCorrect && (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}
+                      className="text-amber-400 text-right">
+                      <p className="text-xs text-slate-500">Points</p>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>+{lastAnswer.pointsEarned}</p>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </AnimatePresence>
 
-      {/* Result feedback */}
-      <AnimatePresence>
-        {revealed && lastAnswer && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="relative z-10 rounded-2xl p-4 mb-4"
-            style={{
-              background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.08)' : 'rgba(239,68,68,0.08)',
-              border: `1px solid ${lastAnswer.isCorrect ? 'rgba(52,211,153,0.2)' : 'rgba(239,68,68,0.2)'}`,
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm ${lastAnswer.isCorrect ? 'text-emerald-400' : 'text-red-400'}`} style={{ fontWeight: 600 }}>
-                  {lastAnswer.isCorrect ? '✓ Correct!' : selectedAnswer === null ? '⏰ Time\'s up!' : '✗ Wrong!'}
-                </p>
-                {question.explanation && (
-                  <p className="text-slate-400 text-xs mt-1">{question.explanation}</p>
-                )}
-              </div>
-              {lastAnswer.isCorrect && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}
-                  className="text-amber-400 text-right">
-                  <p className="text-xs text-slate-500">Points</p>
-                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>+{lastAnswer.pointsEarned}</p>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ═══ BELOW CHOICES: 30-Second Timer (centered between options and lifelines) ═══ */}
+      <div className="relative z-10 flex justify-center py-3">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-1"
+        >
+          <CircularTimer
+            timeRemaining={timeRemaining}
+            totalTime={TOTAL_TIME}
+            onExpire={handleTimerExpire}
+            isActive={timerActive}
+            size="md"
+          />
+          {timeRemaining <= 10 && timeRemaining > 0 && timerActive && (
+            <motion.span
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 0.8, repeat: Infinity }}
+              className="text-[10px] text-rose-400 mt-0.5"
+              style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+              Hurry up!
+            </motion.span>
+          )}
+        </motion.div>
+      </div>
 
-      {/* ═══ BOTTOM: 5 Lifelines ═══ */}
-      <div className="relative z-10 mt-auto pt-4">
+      {/* ═══ BOTTOM ROW: 5 Lifelines ═══ */}
+      <div className="relative z-10 mt-auto pt-2 pb-2">
         <LifelineButtons
-          lifelines={gameState.lifelines}
+          lifelines={enabledLifelines}
           onUse={handleLifeline}
           disabled={revealed}
         />
@@ -380,89 +519,6 @@ export default function GamePage() {
           />
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-/* ═══ Tug-of-War Bar Component (1v1 only) ═══ */
-function TugOfWarBar({
-  playerScore,
-  playerAvatar,
-  opponentScore,
-  opponentAvatar,
-  opponentName,
-}: {
-  playerScore: number;
-  playerAvatar: string;
-  opponentScore: number;
-  opponentAvatar: string;
-  opponentName: string;
-}) {
-  const total = playerScore + opponentScore;
-  const playerPct = total > 0 ? (playerScore / total) * 100 : 50;
-  const isLeading = playerScore > opponentScore;
-  const isTied = playerScore === opponentScore;
-
-  return (
-    <div className="rounded-xl p-3"
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-      {/* Labels */}
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm">{playerAvatar}</span>
-          <span className="text-xs text-indigo-400" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-            You
-          </span>
-          {isLeading && (
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
-              LEAD
-            </motion.span>
-          )}
-        </div>
-        <div className="flex items-center gap-1.5">
-          {!isLeading && !isTied && (
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="text-[10px] px-1.5 py-0.5 rounded-full bg-pink-500/15 text-pink-400 border border-pink-500/20">
-              LEAD
-            </motion.span>
-          )}
-          <span className="text-xs text-pink-400" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-            {opponentName}
-          </span>
-          <span className="text-sm">{opponentAvatar}</span>
-        </div>
-      </div>
-
-      {/* Tug-of-War Progress Bar */}
-      <div className="relative h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-        <motion.div
-          className="absolute left-0 top-0 h-full rounded-l-full"
-          style={{ background: 'linear-gradient(90deg, #6366f1, #818cf8)' }}
-          animate={{ width: `${playerPct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-        <motion.div
-          className="absolute right-0 top-0 h-full rounded-r-full"
-          style={{ background: 'linear-gradient(270deg, #ec4899, #f472b6)' }}
-          animate={{ width: `${100 - playerPct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-        {/* Center marker */}
-        <div className="absolute left-1/2 top-0 w-0.5 h-full -translate-x-1/2"
-          style={{ background: 'rgba(255,255,255,0.15)' }} />
-        {/* Momentum indicator dot */}
-        <motion.div
-          className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-lg"
-          animate={{ left: `${playerPct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          style={{ marginLeft: '-4px', boxShadow: '0 0 8px rgba(255,255,255,0.5)' }}
-        />
-      </div>
     </div>
   );
 }

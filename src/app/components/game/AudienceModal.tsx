@@ -41,7 +41,7 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
                 {type === 'audience' ? <Users className="w-5 h-5 text-indigo-400" /> : <Phone className="w-5 h-5 text-emerald-400" />}
               </div>
               <div>
-                <h3 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                <h3 className="text-white" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                   {type === 'audience' ? 'Ask the Audience' : 'Phone a Friend'}
                 </h3>
                 <p className="text-slate-400 text-sm">{type === 'audience' ? 'Audience votes are in!' : 'Your friend says...'}</p>

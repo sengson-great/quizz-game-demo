@@ -32,7 +32,7 @@ export function Navbar() {
                 <Sparkles className="w-4.5 h-4.5 text-white" />
               </div>
             </div>
-            <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}
               className="text-white text-lg tracking-wide">
               Quiz<span className="text-indigo-400">Blitz</span>
             </span>

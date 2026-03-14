@@ -71,7 +71,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto" style={{ fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center"
           style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}>

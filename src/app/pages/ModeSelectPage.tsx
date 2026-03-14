@@ -98,7 +98,7 @@ export default function ModeSelectPage() {
   ];
 
   return (
-    <div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <h1 className="text-white text-center mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '1.8rem' }}>
           Select Your Mode

@@ -84,7 +84,7 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
       }}
     >
       <span className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-sm transition-all duration-200"
-        style={{ ...styles.badge, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+        style={{ ...styles.badge, fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
         {label}
       </span>
       <span className="flex-1">

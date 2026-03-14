@@ -59,7 +59,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
             ? {
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                fontFamily: 'Outfit, sans-serif',
+                fontFamily: 'Poppins, sans-serif',
                 fontWeight: 600,
               }
             : undefined
@@ -92,7 +92,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                       style={{ background: 'rgba(239,68,68,0.15)' }}>
                       <AlertTriangle className="w-5 h-5 text-red-400" />
                     </div>
-                    <h2 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '1.25rem' }}>
+                    <h2 className="text-white" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.25rem' }}>
                       Forfeit Game?
                     </h2>
                   </div>
@@ -116,7 +116,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                     style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
-                      fontFamily: 'Outfit, sans-serif',
+                      fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
                     }}>
                     Stay in Game
@@ -129,7 +129,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                     style={{
                       background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                       boxShadow: '0 2px 15px rgba(239,68,68,0.3)',
-                      fontFamily: 'Outfit, sans-serif',
+                      fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
                     }}>
                     Forfeit & Leave

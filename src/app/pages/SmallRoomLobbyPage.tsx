@@ -124,7 +124,7 @@ export default function SmallRoomLobbyPage() {
 
   return (
     <div className="min-h-screen px-4 py-10"
-      style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+      style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Poppins, Inter, sans-serif' }}>
       
       {/* Return Button */}
       <div className="fixed top-6 left-6 z-50">

@@ -26,7 +26,7 @@ const CATEGORIES = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Poppins, Inter, sans-serif' }}>
       {/* Ambient BG */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-32 left-1/3 w-[700px] h-[700px] rounded-full opacity-[0.15]"
@@ -44,7 +44,7 @@ export default function LandingPage() {
             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 15px rgba(99,102,241,0.4)' }}>
             <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
-          <span className="text-lg text-white tracking-wide" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+          <span className="text-lg text-white tracking-wide" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
             Quiz<span className="text-indigo-400">Blitz</span>
           </span>
         </div>
@@ -65,7 +65,7 @@ export default function LandingPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             Live quiz battles — real-time, multiplayer
           </div>
-          <h1 className="text-white mb-6" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', lineHeight: 1.1 }}>
+          <h1 className="text-white mb-6" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', lineHeight: 1.1 }}>
             Challenge Your<br />
             <span style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Knowledge
@@ -103,7 +103,7 @@ export default function LandingPage() {
             <div key={label} className="rounded-2xl p-5 text-center"
               style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <Icon className="w-5 h-5 text-indigo-400 mx-auto mb-2" />
-              <p className="text-2xl text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{value}</p>
+              <p className="text-2xl text-white" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{value}</p>
               <p className="text-slate-500 text-sm">{label}</p>
             </div>
           ))}
@@ -113,7 +113,7 @@ export default function LandingPage() {
       {/* Features */}
       <section className="relative z-10 px-4 py-20 max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <h2 className="text-center text-white mb-3" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+          <h2 className="text-center text-white mb-3" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
             Choose Your Battle
           </h2>
           <p className="text-center text-slate-400 mb-12">Three game modes to match every mood</p>
@@ -130,7 +130,7 @@ export default function LandingPage() {
                   style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{title}</h3>
+                <h3 className="text-white mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{title}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
               </motion.div>
             ))}
@@ -141,7 +141,7 @@ export default function LandingPage() {
       {/* Categories */}
       <section className="relative z-10 px-4 py-20 max-w-5xl mx-auto">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <h2 className="text-center text-white mb-3" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+          <h2 className="text-center text-white mb-3" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
             6 Knowledge Domains
           </h2>
           <p className="text-center text-slate-400 mb-12">Difficulty scales from Easy to Medium to Hard</p>
@@ -166,7 +166,7 @@ export default function LandingPage() {
       {/* How it works */}
       <section className="relative z-10 px-4 py-20 max-w-4xl mx-auto">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <h2 className="text-center text-white mb-12" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+          <h2 className="text-center text-white mb-12" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
             How It Works
           </h2>
           <div className="space-y-4">
@@ -183,11 +183,11 @@ export default function LandingPage() {
                 transition={{ delay: i * 0.1 }}
                 className="flex gap-6 p-6 rounded-2xl"
                 style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="text-3xl flex-shrink-0" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, color: 'rgba(99,102,241,0.4)' }}>
+                <div className="text-3xl flex-shrink-0" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, color: 'rgba(99,102,241,0.4)' }}>
                   {num}
                 </div>
                 <div>
-                  <h4 className="text-white mb-1" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{title}</h4>
+                  <h4 className="text-white mb-1" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{title}</h4>
                   <p className="text-slate-400 text-sm">{desc}</p>
                 </div>
               </motion.div>
@@ -202,7 +202,7 @@ export default function LandingPage() {
           <div className="max-w-2xl mx-auto rounded-3xl p-12"
             style={{ background: 'rgba(99,102,241,0.08)', backdropFilter: 'blur(20px)', border: '1px solid rgba(99,102,241,0.15)', boxShadow: '0 4px 40px rgba(99,102,241,0.1)' }}>
             <Shield className="w-12 h-12 text-indigo-400 mx-auto mb-4" />
-            <h2 className="text-white mb-4" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+            <h2 className="text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
               Ready to Test Yourself?
             </h2>
             <p className="text-slate-400 mb-8">Join thousands of players competing in real-time quiz battles.</p>

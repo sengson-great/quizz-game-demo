@@ -38,7 +38,7 @@ export function LifelineButtons({ lifelines, onUse, disabled }: LifelineButtonsP
               }}
             >
               <Icon className="w-5 h-5" style={{ color: used ? '#475569' : color }} />
-              <span className="text-xs" style={{ color: used ? '#475569' : color, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+              <span className="text-xs" style={{ color: used ? '#475569' : color, fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                 {label}
               </span>
             </motion.button>

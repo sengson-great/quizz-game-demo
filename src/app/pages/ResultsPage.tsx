@@ -68,7 +68,7 @@ export default function ResultsPage() {
   }).filter(c => c.total > 0);
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-3xl mx-auto" style={{ fontFamily: 'Outfit, Inter, sans-serif' }}>
+    <div className="min-h-screen px-4 py-8 max-w-3xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       {/* Confetti */}
       {isWinner && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
