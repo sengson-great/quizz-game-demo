@@ -77,7 +77,7 @@ export default function ResultsPage() {
               className="absolute w-3 h-3 rounded-sm"
               style={{
                 left: `${Math.random() * 100}%`,
-                background: ['#6366f1', '#8b5cf6', '#06b6d4', '#34d399'][i % 4],
+                background: ['#E84C6A', '#F472B6', '#06b6d4', '#34d399'][i % 4],
                 top: '-20px',
               }}
               animate={{ y: ['0vh', '110vh'], rotate: [0, 720], opacity: [1, 0] }}
@@ -96,36 +96,36 @@ export default function ResultsPage() {
           className="text-7xl mb-4">
           {isWinner ? '🏆' : gameState.mode === 'Solo' ? '🎯' : getRankIcon(playerRank)}
         </motion.div>
-        <h1 className="text-white mb-1" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '2rem' }}>
+        <h1 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '2rem' }}>
           {isWinner ? 'Victory!' : gameState.mode === 'Solo' ? 'Game Complete!' : `${getRankIcon(playerRank)} Place`}
         </h1>
-        <p className="text-slate-400">{label}</p>
+        <p className="text-[#6B7280]">{label}</p>
       </motion.div>
 
       {/* Score Card */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
         className="rounded-3xl p-6 mb-6 text-center relative z-10"
-        style={{ background: 'rgba(99,102,241,0.08)', backdropFilter: 'blur(20px)', border: '1px solid rgba(99,102,241,0.15)', boxShadow: '0 4px 30px rgba(99,102,241,0.1)' }}>
-        <p className="text-slate-400 text-sm mb-2">Final Score</p>
+        style={{ background: 'rgba(232,76,106,0.06)', backdropFilter: 'blur(20px)', border: '1px solid rgba(232,76,106,0.12)', boxShadow: '0 4px 30px rgba(232,76,106,0.06)' }}>
+        <p className="text-[#6B7280] text-sm mb-2">Final Score</p>
         <motion.p
-          className="text-white mb-4"
-          style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '3.5rem' }}>
+          className="text-[#1A1A2E] mb-4"
+          style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '3.5rem' }}>
           {animScore.toLocaleString()}
         </motion.p>
         <div className="flex items-center justify-center gap-6">
           <div className="text-center">
-            <p className="text-2xl text-amber-400" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{grade}</p>
-            <p className="text-slate-500 text-xs">Grade</p>
+            <p className="text-2xl text-amber-500" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{grade}</p>
+            <p className="text-[#9CA3AF] text-xs">Grade</p>
           </div>
-          <div className="w-px h-10" style={{ background: 'rgba(255,255,255,0.08)' }} />
+          <div className="w-px h-10" style={{ background: 'rgba(0,0,0,0.06)' }} />
           <div className="text-center">
-            <p className="text-2xl text-emerald-400" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{correctCount}/{totalQuestions}</p>
-            <p className="text-slate-500 text-xs">Correct</p>
+            <p className="text-2xl text-emerald-500" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{correctCount}/{totalQuestions}</p>
+            <p className="text-[#9CA3AF] text-xs">Correct</p>
           </div>
-          <div className="w-px h-10" style={{ background: 'rgba(255,255,255,0.08)' }} />
+          <div className="w-px h-10" style={{ background: 'rgba(0,0,0,0.06)' }} />
           <div className="text-center">
-            <p className="text-2xl text-indigo-400" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{accuracy}%</p>
-            <p className="text-slate-500 text-xs">Accuracy</p>
+            <p className="text-2xl text-[#E84C6A]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{accuracy}%</p>
+            <p className="text-[#9CA3AF] text-xs">Accuracy</p>
           </div>
         </div>
       </motion.div>
@@ -134,8 +134,8 @@ export default function ResultsPage() {
       {gameState.mode !== 'Solo' && allScores.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
           className="rounded-2xl p-5 mb-6 relative z-10"
-          style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <h3 className="text-white mb-4 flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+          style={{ background: '#FFFFFF', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)' }}>
+          <h3 className="text-[#1A1A2E] mb-4 flex items-center gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
             <Medal className="w-4 h-4 text-amber-400" /> Final Standings
           </h3>
           <div className="space-y-3">
@@ -146,15 +146,15 @@ export default function ResultsPage() {
                 transition={{ delay: 0.5 + i * 0.1 }}
                 className="flex items-center gap-3 p-3 rounded-xl"
                 style={{
-                  background: player.isPlayer ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)',
-                  border: player.isPlayer ? '1px solid rgba(99,102,241,0.15)' : '1px solid transparent',
+                  background: player.isPlayer ? 'rgba(232,76,106,0.06)' : 'rgba(0,0,0,0.01)',
+                  border: player.isPlayer ? '1px solid rgba(232,76,106,0.12)' : '1px solid transparent',
                 }}>
                 <span className="text-xl w-8 text-center">{getRankIcon(i + 1)}</span>
                 <span className="text-xl">{player.avatar}</span>
-                <span className={`flex-1 text-sm ${player.isPlayer ? 'text-indigo-300' : 'text-slate-300'}`}>
-                  {player.name} {player.isPlayer && <span className="text-xs text-indigo-400">(you)</span>}
+                <span className={`flex-1 text-sm ${player.isPlayer ? 'text-[#E84C6A]' : 'text-[#1A1A2E]'}`}>
+                  {player.name} {player.isPlayer && <span className="text-xs text-[#E84C6A]">(you)</span>}
                 </span>
-                <span className="text-white text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                <span className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                   {player.score.toLocaleString()}
                 </span>
               </motion.div>
@@ -167,9 +167,9 @@ export default function ResultsPage() {
       {categoryBreakdown.length > 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
           className="rounded-2xl p-5 mb-6 relative z-10"
-          style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <h3 className="text-white mb-4 flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-            <Star className="w-4 h-4 text-indigo-400" /> Category Performance
+          style={{ background: '#FFFFFF', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)' }}>
+          <h3 className="text-[#1A1A2E] mb-4 flex items-center gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+            <Star className="w-4 h-4 text-[#E84C6A]" /> Category Performance
           </h3>
           <div className="space-y-2">
             {categoryBreakdown.map(({ id, icon, name, correct, total }) => {
@@ -177,12 +177,12 @@ export default function ResultsPage() {
               return (
                 <div key={id}>
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-slate-300">{icon} {name}</span>
+                    <span className="text-[#1A1A2E]">{icon} {name}</span>
                     <span className={`${pct === 100 ? 'text-emerald-400' : pct >= 60 ? 'text-amber-400' : 'text-red-400'}`} style={{ fontWeight: 600 }}>
                       {correct}/{total}
                     </span>
                   </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.04)' }}>
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
@@ -201,16 +201,16 @@ export default function ResultsPage() {
       {/* Answer Review Toggle */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
         className="rounded-2xl overflow-hidden mb-6 relative z-10"
-        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)' }}>
         <button onClick={() => setShowReview(!showReview)}
-          className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition-colors">
-          <span className="text-white text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Answer Review</span>
-          <motion.span animate={{ rotate: showReview ? 180 : 0 }} className="text-slate-400">▼</motion.span>
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-black/[0.02] transition-colors">
+          <span className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Answer Review</span>
+          <motion.span animate={{ rotate: showReview ? 180 : 0 }} className="text-[#9CA3AF]">▼</motion.span>
         </button>
         <AnimatePresence>
           {showReview && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-              <div className="px-5 pb-4 space-y-2 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="px-5 pb-4 space-y-2 pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.04)' }}>
                 {gameState.answers.map((answer, i) => {
                   const q = gameState.questions[i];
                   if (!q) return null;
@@ -223,7 +223,7 @@ export default function ResultsPage() {
                         ? <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                         : <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />}
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-300 text-xs mb-0.5">{cat?.icon} {q.text.substring(0, 60)}...</p>
+                        <p className="text-[#1A1A2E] text-xs mb-0.5">{cat?.icon} {q.text.substring(0, 60)}...</p>
                         {!answer.isCorrect && (
                           <p className="text-emerald-400 text-xs">
                             ✓ {q.answers.find(a => a.isCorrect)?.text}
@@ -231,7 +231,7 @@ export default function ResultsPage() {
                         )}
                       </div>
                       {answer.isCorrect && (
-                        <span className="text-amber-400 text-xs flex-shrink-0" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+                        <span className="text-amber-400 text-xs flex-shrink-0" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
                           +{answer.pointsEarned}
                         </span>
                       )}
@@ -248,18 +248,18 @@ export default function ResultsPage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
         className="flex gap-3 relative z-10">
         <button onClick={() => { resetGame(); navigate('/dashboard'); }}
-          className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-slate-300 hover:bg-white/5 transition-colors text-sm"
-          style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-[#6B7280] hover:bg-black/[0.02] transition-colors text-sm"
+          style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
           <Home className="w-4 h-4" /> Home
         </button>
         <button onClick={() => { resetGame(); navigate('/mode-select'); }}
           className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-white text-sm transition-all hover:scale-[1.02]"
-          style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', boxShadow: '0 4px 15px rgba(99,102,241,0.35)' }}>
+          style={{ background: 'linear-gradient(135deg, #E84C6A, #D63B5C)', boxShadow: '0 4px 15px rgba(232,76,106,0.35)' }}>
           <RotateCcw className="w-4 h-4" /> Play Again
         </button>
         <button onClick={() => { resetGame(); navigate('/leaderboard'); }}
           className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-amber-400 hover:bg-amber-500/5 transition-colors text-sm"
-          style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)' }}>
+          style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' }}>
           <Trophy className="w-4 h-4" /> Leaderboard
         </button>
       </motion.div>

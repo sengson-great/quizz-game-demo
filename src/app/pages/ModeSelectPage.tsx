@@ -100,10 +100,10 @@ export default function ModeSelectPage() {
   return (
     <div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-white text-center mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '1.8rem' }}>
+        <h1 className="text-[#1A1A2E] text-center mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.8rem' }}>
           Select Your Mode
         </h1>
-        <p className="text-slate-400 text-center text-sm">Choose how you want to compete</p>
+        <p className="text-[#6B7280] text-center text-sm">Choose how you want to compete</p>
       </motion.div>
 
       {/* Mode Cards */}
@@ -121,10 +121,9 @@ export default function ModeSelectPage() {
               onClick={() => setSelectedMode(mode)}
               className="relative text-left rounded-2xl p-6 transition-all duration-200"
               style={{
-                background: isActive ? `rgba(${mode === '1v1' ? '99,102,241' : mode === 'Room' ? '52,211,153' : '251,191,36'},0.08)` : 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(20px)',
-                border: `2px solid ${isActive ? activeBorder : 'rgba(255,255,255,0.06)'}`,
-                boxShadow: isActive ? `0 4px 20px rgba(0,0,0,0.3)` : '0 1px 3px rgba(0,0,0,0.2)',
+                background: isActive ? `rgba(${mode === '1v1' ? '232,76,106' : mode === 'Room' ? '52,211,153' : '251,191,36'},0.06)` : '#FFFFFF',
+                border: `2px solid ${isActive ? activeBorder : 'rgba(0,0,0,0.06)'}`,
+                boxShadow: isActive ? `0 4px 20px rgba(0,0,0,0.06)` : '0 1px 6px rgba(0,0,0,0.04)',
               }}
             >
               {isActive && (
@@ -136,8 +135,8 @@ export default function ModeSelectPage() {
               )}
               <div className="text-4xl mb-4">{icon}</div>
               <span className="text-xs px-2.5 py-1 rounded-full mb-3 inline-block" style={{ background: `${badgeColor}20`, color: badgeColor }}>{badge}</span>
-              <h3 className="text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{title}</h3>
-              <p className="text-slate-400 text-sm">{desc}</p>
+              <h3 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{title}</h3>
+              <p className="text-[#6B7280] text-sm">{desc}</p>
             </motion.button>
           );
         })}
@@ -146,15 +145,15 @@ export default function ModeSelectPage() {
       {/* Category Selection */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
         className="rounded-2xl p-6 mb-8"
-        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)' }}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Knowledge Categories</h2>
+          <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Knowledge Categories</h2>
           <div className="flex gap-2">
             <button onClick={() => setSelectedCategories(CATEGORIES.map(c => c.id))}
-              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">All</button>
-            <span className="text-slate-600">·</span>
+              className="text-xs text-[#E84C6A] hover:text-[#D63B5C] transition-colors">All</button>
+            <span className="text-[#9CA3AF]">·</span>
             <button onClick={() => setSelectedCategories([CATEGORIES[0].id])}
-              className="text-xs text-slate-500 hover:text-slate-300 transition-colors">None</button>
+              className="text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors">None</button>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -167,21 +166,21 @@ export default function ModeSelectPage() {
                 onClick={() => toggleCategory(id)}
                 className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200"
                 style={{
-                  background: isSelected ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)',
-                  border: isSelected ? '1px solid rgba(99,102,241,0.25)' : '1px solid rgba(255,255,255,0.06)',
+                  background: isSelected ? 'rgba(232,76,106,0.04)' : 'rgba(0,0,0,0.01)',
+                  border: isSelected ? '1px solid rgba(232,76,106,0.2)' : '1px solid rgba(0,0,0,0.04)',
                 }}>
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center text-sm ${isSelected ? '' : 'opacity-40'}`}>
                   {icon}
                 </div>
-                <span className={`text-sm transition-colors ${isSelected ? 'text-white' : 'text-slate-500'}`}>
+                <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-[#9CA3AF]'}`}>
                   {name}
                 </span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-indigo-400 ml-auto" />}
+                {isSelected && <Check className="w-3.5 h-3.5 text-[#E84C6A] ml-auto" />}
               </motion.button>
             );
           })}
         </div>
-        <p className="text-slate-500 text-xs mt-3">{selectedCategories.length} of {CATEGORIES.length} selected</p>
+        <p className="text-[#9CA3AF] text-xs mt-3">{selectedCategories.length} of {CATEGORIES.length} selected</p>
       </motion.div>
 
       {/* Difficulty Info */}
@@ -207,9 +206,9 @@ export default function ModeSelectPage() {
             selectedMode ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'
           }`}
           style={{
-            background: selectedMode ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(255,255,255,0.1)',
-            boxShadow: selectedMode ? '0 4px 25px rgba(99,102,241,0.4)' : 'none',
-            fontFamily: 'Outfit, sans-serif',
+            background: selectedMode ? 'linear-gradient(135deg, #E84C6A, #D63B5C)' : 'rgba(0,0,0,0.06)',
+            boxShadow: selectedMode ? '0 4px 25px rgba(232,76,106,0.4)' : 'none',
+            fontFamily: 'Poppins, sans-serif',
             fontWeight: 600,
           }}>
           {selectedMode === 'Room' ? 'Choose Room Option' : selectedMode === '1v1' ? 'Choose Battle Option' : selectedMode ? `Start ${selectedMode} Game` : 'Select a Mode'}
@@ -232,14 +231,14 @@ export default function ModeSelectPage() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
               <div className="rounded-2xl p-6 shadow-2xl"
-                style={{ background: 'linear-gradient(145deg, #131842, #1a1145)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }}>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '1.5rem' }}>
+                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.5rem' }}>
                     Room Battle Options
                   </h2>
                   <button
                     onClick={() => setShowRoomOptions(false)}
-                    className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    className="p-2 rounded-lg hover:bg-black/[0.03] text-[#9CA3AF] hover:text-[#1A1A2E] transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -257,8 +256,8 @@ export default function ModeSelectPage() {
                         <Shuffle className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Random Room</h3>
-                        <p className="text-slate-400 text-xs">Auto-fill 3-5 players, starts immediately</p>
+                        <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Random Room</h3>
+                        <p className="text-[#6B7280] text-xs">Auto-fill 3-5 players, starts immediately</p>
                       </div>
                       <ChevronRight className="w-5 h-5 text-cyan-400" />
                     </div>
@@ -276,8 +275,8 @@ export default function ModeSelectPage() {
                         <UserPlus className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Invite Room</h3>
-                        <p className="text-slate-400 text-xs">Create room, invite friends (start at 3+ players)</p>
+                        <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Invite Room</h3>
+                        <p className="text-[#6B7280] text-xs">Create room, invite friends (start at 3+ players)</p>
                       </div>
                       <ChevronRight className="w-5 h-5 text-indigo-400" />
                     </div>
@@ -285,14 +284,14 @@ export default function ModeSelectPage() {
                 </div>
 
                 {/* Join Room */}
-                <div className="p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="p-5 rounded-xl" style={{ background: '#F9FAFB', border: '1px solid rgba(0,0,0,0.04)' }}>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.15)' }}>
                       <LogIn className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Join Existing Room</h3>
-                      <p className="text-slate-400 text-xs">Enter a room code to join instantly</p>
+                      <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Join Existing Room</h3>
+                      <p className="text-[#6B7280] text-xs">Enter a room code to join instantly</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -302,8 +301,8 @@ export default function ModeSelectPage() {
                       onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                       placeholder="Enter code (e.g., ABC123)"
                       maxLength={6}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white placeholder-slate-500"
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
+                      className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-[#9CA3AF]"
+                      style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}
                     />
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -343,14 +342,14 @@ export default function ModeSelectPage() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
               <div className="rounded-2xl p-6 shadow-2xl"
-                style={{ background: 'linear-gradient(145deg, #131842, #1a1145)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }}>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '1.5rem' }}>
+                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.5rem' }}>
                     1v1 Battle Options
                   </h2>
                   <button
                     onClick={() => setShow1v1Options(false)}
-                    className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    className="p-2 rounded-lg hover:bg-black/[0.03] text-[#9CA3AF] hover:text-[#1A1A2E] transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -371,10 +370,10 @@ export default function ModeSelectPage() {
                       <Zap className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-white mb-1" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '1rem' }}>
+                      <h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '1rem' }}>
                         Random Match
                       </h3>
-                      <p className="text-slate-400 text-sm">Find a human opponent or get matched with AI</p>
+                      <p className="text-[#6B7280] text-sm">Find a human opponent or get matched with AI</p>
                     </div>
                     <ChevronRight className="w-5 h-5 text-cyan-400" />
                   </motion.button>
@@ -394,24 +393,24 @@ export default function ModeSelectPage() {
                       <UserPlus className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-white mb-1" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '1rem' }}>
+                      <h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '1rem' }}>
                         Invite Friend
                       </h3>
-                      <p className="text-slate-400 text-sm">60-min lobby with room code, or switch to random</p>
+                      <p className="text-[#6B7280] text-sm">60-min lobby with room code, or switch to random</p>
                     </div>
                     <ChevronRight className="w-5 h-5 text-violet-400" />
                   </motion.button>
                 </div>
 
                 {/* Join 1v1 with Code */}
-                <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="p-4 rounded-xl" style={{ background: '#F9FAFB', border: '1px solid rgba(0,0,0,0.04)' }}>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.15)' }}>
                       <LogIn className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Join a Battle</h3>
-                      <p className="text-slate-400 text-xs">Enter a battle code from a friend</p>
+                      <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Join a Battle</h3>
+                      <p className="text-[#6B7280] text-xs">Enter a battle code from a friend</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -421,8 +420,8 @@ export default function ModeSelectPage() {
                       onChange={(e) => setJoinCode1v1(e.target.value.toUpperCase())}
                       placeholder="Enter battle code"
                       maxLength={6}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white placeholder-slate-500"
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
+                      className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-[#9CA3AF]"
+                      style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}
                     />
                     <motion.button
                       whileHover={{ scale: 1.05 }}

@@ -30,10 +30,10 @@ export default function LeaderboardPage() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
         <Trophy className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-        <h1 className="text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '2rem' }}>
+        <h1 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '2rem' }}>
           Global Leaderboard
         </h1>
-        <p className="text-slate-400 text-sm">Top quiz champions worldwide</p>
+        <p className="text-[#6B7280] text-sm">Top quiz champions worldwide</p>
       </motion.div>
 
       {/* Top 3 Podium */}
@@ -42,8 +42,8 @@ export default function LeaderboardPage() {
         {top3[1] && (
           <div className="flex flex-col items-center gap-2">
             <span className="text-3xl">{top3[1].avatar}</span>
-            <p className="text-slate-300 text-sm text-center">{top3[1].username}</p>
-            <p className="text-slate-500 text-xs">{top3[1].totalScore.toLocaleString()}</p>
+            <p className="text-[#1A1A2E] text-sm text-center">{top3[1].username}</p>
+            <p className="text-[#9CA3AF] text-xs">{top3[1].totalScore.toLocaleString()}</p>
             <div className="w-20 h-20 rounded-t-xl flex items-center justify-center text-3xl"
               style={{ background: 'linear-gradient(to top, rgba(148,163,184,0.08), rgba(148,163,184,0.02))' }}>
               🥈
@@ -56,7 +56,7 @@ export default function LeaderboardPage() {
               <span className="text-4xl">{top3[0].avatar}</span>
             </motion.div>
             <p className="text-white text-sm text-center" style={{ fontWeight: 600 }}>{top3[0].username}</p>
-            <p className="text-amber-400 text-xs">{top3[0].totalScore.toLocaleString()}</p>
+            <p className="text-amber-500 text-xs">{top3[0].totalScore.toLocaleString()}</p>
             <div className="w-24 h-28 rounded-t-xl flex items-center justify-center text-4xl"
               style={{ background: 'linear-gradient(to top, rgba(251,191,36,0.08), rgba(251,191,36,0.02))', boxShadow: '0 0 30px rgba(251,191,36,0.06)' }}>
               🥇
@@ -66,8 +66,8 @@ export default function LeaderboardPage() {
         {top3[2] && (
           <div className="flex flex-col items-center gap-2">
             <span className="text-3xl">{top3[2].avatar}</span>
-            <p className="text-slate-300 text-sm text-center">{top3[2].username}</p>
-            <p className="text-slate-500 text-xs">{top3[2].totalScore.toLocaleString()}</p>
+            <p className="text-[#1A1A2E] text-sm text-center">{top3[2].username}</p>
+            <p className="text-[#9CA3AF] text-xs">{top3[2].totalScore.toLocaleString()}</p>
             <div className="w-20 h-14 rounded-t-xl flex items-center justify-center text-3xl"
               style={{ background: 'linear-gradient(to top, rgba(180,83,9,0.06), rgba(180,83,9,0.02))' }}>
               🥉
@@ -85,8 +85,8 @@ export default function LeaderboardPage() {
             placeholder="Search player..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl text-white placeholder-slate-500 focus:outline-none text-sm"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            className="w-full pl-10 pr-4 py-3 rounded-xl text-[#1A1A2E] placeholder-[#9CA3AF] focus:outline-none text-sm"
+            style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)' }}
           />
         </div>
         <div className="flex gap-2">
@@ -94,9 +94,9 @@ export default function LeaderboardPage() {
             <button key={key} onClick={() => setSortBy(key)}
               className="px-4 py-3 rounded-xl text-sm transition-all flex items-center gap-1.5"
               style={{
-                background: sortBy === key ? 'rgba(99,102,241,0.12)' : 'transparent',
-                border: sortBy === key ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(255,255,255,0.08)',
-                color: sortBy === key ? '#a5b4fc' : '#94a3b8',
+                background: sortBy === key ? 'rgba(232,76,106,0.08)' : 'transparent',
+                border: sortBy === key ? '1px solid rgba(232,76,106,0.15)' : '1px solid rgba(0,0,0,0.06)',
+                color: sortBy === key ? '#E84C6A' : '#6B7280',
               }}>
               <TrendingUp className="w-3.5 h-3.5" />
               {label}
@@ -108,9 +108,9 @@ export default function LeaderboardPage() {
       {/* Table */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
         className="rounded-2xl overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="grid grid-cols-12 px-6 py-3 text-slate-500 text-xs uppercase tracking-wider"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)' }}>
+        <div className="grid grid-cols-12 px-6 py-3 text-[#9CA3AF] text-xs uppercase tracking-wider"
+          style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
           <span className="col-span-1">Rank</span>
           <span className="col-span-4">Player</span>
           <span className="col-span-3 text-right">Score</span>
@@ -118,7 +118,7 @@ export default function LeaderboardPage() {
           <span className="col-span-2 text-right">Win %</span>
         </div>
 
-        <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+        <div className="divide-y" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
           {filtered.map((entry, i) => {
             const rank = i + 1;
             const rs = getRankStyle(rank);
@@ -129,8 +129,8 @@ export default function LeaderboardPage() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.04 }}
-                className="grid grid-cols-12 items-center px-6 py-4 hover:bg-white/[0.02] transition-colors"
-                style={isCurrentUser ? { background: 'rgba(99,102,241,0.06)', borderLeft: '2px solid #6366f1' } : {}}>
+                className="grid grid-cols-12 items-center px-6 py-4 hover:bg-[#FFF5F5]/50 transition-colors"
+                style={isCurrentUser ? { background: 'rgba(232,76,106,0.04)', borderLeft: '2px solid #E84C6A' } : {}}>
                 <div className={`col-span-1 text-sm ${rs.color}`} style={{ fontWeight: 700 }}>
                   {rs.icon}
                 </div>
@@ -140,22 +140,22 @@ export default function LeaderboardPage() {
                     {entry.avatar}
                   </div>
                   <div>
-                    <p className={`text-sm ${isCurrentUser ? 'text-indigo-300' : 'text-white'}`}>
+                    <p className={`text-sm ${isCurrentUser ? 'text-[#E84C6A]' : 'text-[#1A1A2E]'}`}>
                       {entry.username}
-                      {isCurrentUser && <span className="ml-1 text-xs text-indigo-400">(you)</span>}
+                      {isCurrentUser && <span className="ml-1 text-xs text-[#E84C6A]">(you)</span>}
                     </p>
-                    <p className="text-slate-500 text-xs">{entry.gamesPlayed} games</p>
+                    <p className="text-[#9CA3AF] text-xs">{entry.gamesPlayed} games</p>
                   </div>
                 </div>
                 <div className="col-span-3 text-right">
-                  <p className="text-white text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                  <p className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                     {entry.totalScore.toLocaleString()}
                   </p>
-                  <p className="text-slate-500 text-xs">Best: {entry.bestScore.toLocaleString()}</p>
+                  <p className="text-[#9CA3AF] text-xs">Best: {entry.bestScore.toLocaleString()}</p>
                 </div>
                 <div className="col-span-2 text-right">
-                  <p className="text-slate-300 text-sm">{entry.wins}</p>
-                  <p className="text-slate-500 text-xs">wins</p>
+                  <p className="text-[#1A1A2E] text-sm">{entry.wins}</p>
+                  <p className="text-[#9CA3AF] text-xs">wins</p>
                 </div>
                 <div className="col-span-2 text-right">
                   <p className={`text-sm ${entry.winRate >= 70 ? 'text-emerald-400' : entry.winRate >= 50 ? 'text-amber-400' : 'text-slate-400'}`} style={{ fontWeight: 600 }}>

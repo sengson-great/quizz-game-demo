@@ -47,7 +47,7 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, si
       >
         <svg width={dims.w} height={dims.w} viewBox={`0 0 ${dims.w} ${dims.w}`}>
           <circle cx={dims.w / 2} cy={dims.w / 2} r={dims.r}
-            fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={dims.sw} />
+            fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth={dims.sw} />
           <circle cx={dims.w / 2} cy={dims.w / 2} r={dims.r}
             fill="none"
             stroke={getColor()}

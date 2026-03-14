@@ -212,7 +212,7 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen flex flex-col px-4 py-5 max-w-3xl mx-auto relative"
-      style={{ background: 'linear-gradient(145deg, #0a0e27 0%, #131842 40%, #1a1145 70%, #0f172a 100%)', fontFamily: 'Poppins, Inter, sans-serif' }}>
+      style={{ background: 'linear-gradient(145deg, #FFF5F5 0%, #FDE8EC 40%, #FCE4EC 70%, #FFF0F3 100%)', fontFamily: 'Poppins, Inter, sans-serif' }}>
       
       {/* Result flash overlay */}
       <AnimatePresence>
@@ -224,8 +224,8 @@ export default function GamePage() {
             className="fixed inset-0 pointer-events-none z-0"
             style={{
               background: lastAnswer.isCorrect
-                ? 'linear-gradient(to top, rgba(52,211,153,0.08), transparent)'
-                : 'linear-gradient(to top, rgba(239,68,68,0.08), transparent)',
+                ? 'linear-gradient(to top, rgba(52,211,153,0.1), transparent)'
+                : 'linear-gradient(to top, rgba(239,68,68,0.1), transparent)',
             }}
           />
         )}
@@ -240,7 +240,7 @@ export default function GamePage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 pointer-events-none z-0"
-            style={{ background: 'radial-gradient(ellipse at top right, rgba(236,72,153,0.12), transparent 60%)' }}
+            style={{ background: 'radial-gradient(ellipse at top right, rgba(232,76,106,0.1), transparent 60%)' }}
           />
         )}
       </AnimatePresence>
@@ -258,7 +258,7 @@ export default function GamePage() {
             style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.border}`, fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
             {question.difficulty}
           </div>
-          <div className="flex items-center gap-1 text-slate-400 text-xs">
+          <div className="flex items-center gap-1 text-[#6B7280] text-xs">
             <span>{category?.icon}</span>
             <span className="hidden sm:inline">{category?.name}</span>
           </div>
@@ -266,11 +266,11 @@ export default function GamePage() {
 
         {/* Center: 15-Question Progress Bar + Label */}
         <div className="flex flex-col items-center gap-1.5 absolute left-1/2 -translate-x-1/2 top-1">
-          <span className="text-slate-500 text-[10px]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+          <span className="text-[#9CA3AF] text-[10px]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
             Q{qNum}/{total}
           </span>
-          <div className="w-32 sm:w-40 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}
+          <div className="w-32 sm:w-40 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
+            <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, #E84C6A, #F472B6)' }}
               animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} />
           </div>
         </div>
@@ -295,18 +295,19 @@ export default function GamePage() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
               style={{
-                background: 'rgba(99,102,241,0.06)',
-                border: '1px solid rgba(99,102,241,0.15)',
+                background: '#FFFFFF',
+                border: '1px solid rgba(232,76,106,0.15)',
+                boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
               }}>
               <span className="text-sm">{currentUser.avatar}</span>
-              <span className="text-xs text-indigo-300"
+              <span className="text-xs text-[#E84C6A]"
                 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
                 {currentUser.username.slice(0, 8)}
               </span>
               <motion.span
                 key={gameState.playerScore}
-                initial={{ scale: 1.3, color: '#818cf8' }}
-                animate={{ scale: 1, color: '#a5b4fc' }}
+                initial={{ scale: 1.3, color: '#E84C6A' }}
+                animate={{ scale: 1, color: '#D63B5C' }}
                 className="text-xs tabular-nums"
                 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                 {gameState.playerScore}
@@ -321,18 +322,19 @@ export default function GamePage() {
                 transition={{ delay: 0.05 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                  background: '#FFFFFF',
+                  border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.2)' : 'rgba(0,0,0,0.06)'}`,
+                  boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
                 }}>
                 <span className="text-sm">{opp.avatar}</span>
-                <span className="text-xs text-slate-400"
+                <span className="text-xs text-[#6B7280]"
                   style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
                   {opp.username.slice(0, 8)}
                 </span>
                 <motion.span
                   key={opp.score}
-                  initial={{ scale: 1.3, color: '#f472b6' }}
-                  animate={{ scale: 1, color: '#94a3b8' }}
+                  initial={{ scale: 1.3, color: '#F472B6' }}
+                  animate={{ scale: 1, color: '#6B7280' }}
                   className="text-xs tabular-nums"
                   style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                   {opp.score}
@@ -353,18 +355,19 @@ export default function GamePage() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
               style={{
-                background: 'rgba(99,102,241,0.06)',
-                border: '1px solid rgba(99,102,241,0.15)',
+                background: '#FFFFFF',
+                border: '1px solid rgba(232,76,106,0.15)',
+                boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
               }}>
               <span className="text-sm">{currentUser.avatar}</span>
-              <span className="text-xs text-indigo-300"
+              <span className="text-xs text-[#E84C6A]"
                 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
                 {currentUser.username.slice(0, 8)}
               </span>
               <motion.span
                 key={gameState.playerScore}
-                initial={{ scale: 1.3, color: '#818cf8' }}
-                animate={{ scale: 1, color: '#a5b4fc' }}
+                initial={{ scale: 1.3, color: '#E84C6A' }}
+                animate={{ scale: 1, color: '#D63B5C' }}
                 className="text-xs tabular-nums"
                 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                 {gameState.playerScore}
@@ -376,18 +379,19 @@ export default function GamePage() {
                 key={opp.id}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                  background: '#FFFFFF',
+                  border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.2)' : 'rgba(0,0,0,0.06)'}`,
+                  boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
                 }}>
                 <span className="text-sm">{opp.avatar}</span>
-                <span className="text-xs text-slate-400"
+                <span className="text-xs text-[#6B7280]"
                   style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
                   {opp.username.slice(0, 8)}
                 </span>
                 <motion.span
                   key={opp.score}
-                  initial={{ scale: 1.2, color: '#f472b6' }}
-                  animate={{ scale: 1, color: '#94a3b8' }}
+                  initial={{ scale: 1.2, color: '#F472B6' }}
+                  animate={{ scale: 1, color: '#6B7280' }}
                   className="text-xs tabular-nums"
                   style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                   {opp.score}
@@ -410,8 +414,8 @@ export default function GamePage() {
         >
           {/* Question Text Card */}
           <div className="rounded-2xl p-6 mb-4"
-            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <p className="text-white text-lg leading-relaxed" style={{ fontFamily: 'Poppins, sans-serif' }}>{question.text}</p>
+            style={{ background: '#FFFFFF', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)' }}>
+            <p className="text-[#1A1A2E] text-lg leading-relaxed" style={{ fontFamily: 'Poppins, sans-serif' }}>{question.text}</p>
           </div>
 
           {/* ═══ MIDDLE-CENTER: Multiple Choice Grid (A, B, C, D) ═══ */}
@@ -445,17 +449,17 @@ export default function GamePage() {
                 exit={{ opacity: 0 }}
                 className="rounded-2xl p-4 mb-4"
                 style={{
-                  background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.08)' : 'rgba(239,68,68,0.08)',
-                  border: `1px solid ${lastAnswer.isCorrect ? 'rgba(52,211,153,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                  background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.06)' : 'rgba(239,68,68,0.06)',
+                  border: `1px solid ${lastAnswer.isCorrect ? 'rgba(52,211,153,0.15)' : 'rgba(239,68,68,0.15)'}`,
                 }}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm ${lastAnswer.isCorrect ? 'text-emerald-400' : 'text-red-400'}`} style={{ fontWeight: 600, fontFamily: 'Poppins, sans-serif' }}>
+                    <p className={`text-sm ${lastAnswer.isCorrect ? 'text-emerald-500' : 'text-red-500'}`} style={{ fontWeight: 600, fontFamily: 'Poppins, sans-serif' }}>
                       {lastAnswer.isCorrect ? '✓ Correct!' : selectedAnswer === null ? '⏰ Time\'s up!' : '✗ Wrong!'}
                     </p>
                     {question.explanation && (
-                      <p className="text-slate-400 text-xs mt-1">{question.explanation}</p>
+                      <p className="text-[#6B7280] text-xs mt-1">{question.explanation}</p>
                     )}
                   </div>
                   {lastAnswer.isCorrect && (
