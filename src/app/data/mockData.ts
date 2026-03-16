@@ -107,7 +107,7 @@ export const ANALYTICS_DATA = {
     games: Math.floor(Math.random() * 450) + 250,
   })),
   gameModeDistribution: [
-    { name: 'Solo', value: 45, fill: '#7c3aed' },
+    { name: 'Solo', value: 45, fill: '#E84C6A' },
     { name: '1v1', value: 35, fill: '#06b6d4' },
     { name: 'Room', value: 20, fill: '#f59e0b' },
   ],

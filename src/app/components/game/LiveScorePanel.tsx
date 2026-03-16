@@ -38,12 +38,12 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
   if (mode === 'Solo') {
     return (
       <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
-        style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.06)', backdropFilter: 'blur(12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <span className="text-sm">{playerAvatar}</span>
         <motion.span
           key={playerScore}
           initial={{ scale: 1.3, color: '#E84C6A' }}
-          animate={{ scale: 1, color: '#D63B5C' }}
+          animate={{ scale: 1, color: '#1A1A2E' }}
           className="text-xs tabular-nums"
           style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
           {playerScore.toLocaleString()}
@@ -59,10 +59,10 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
 
   return (
     <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl"
-      style={{ background: '#FFFFFF', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)' }}>
+      style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
       {visible.map((s, i) => (
         <div key={s.id} className="flex items-center gap-1 relative">
-          {i > 0 && <span className="text-[#9CA3AF] text-[10px] mx-0.5">·</span>}
+          {i > 0 && <span className="text-slate-300 text-[10px] mx-0.5">·</span>}
           <span className="text-sm">{s.avatar}</span>
           <motion.span
             key={`${s.id}-${s.score}`}
@@ -73,7 +73,7 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
             style={{
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 600,
-              color: s.isPlayer ? '#E84C6A' : '#6B7280',
+              color: s.isPlayer ? '#E84C6A' : '#64748b',
             }}>
             {s.score}
           </motion.span>
@@ -89,7 +89,7 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
                 style={{
                   fontFamily: 'Poppins, sans-serif',
                   fontWeight: 700,
-                  color: s.isPlayer ? '#059669' : '#E84C6A',
+                  color: s.isPlayer ? '#34d399' : '#E84C6A',
                 }}>
                 +{flashes[s.id]}
               </motion.span>
@@ -98,7 +98,7 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
         </div>
       ))}
       {overflow > 0 && (
-        <span className="text-[#9CA3AF] text-xs ml-0.5"
+        <span className="text-slate-400 text-xs ml-0.5"
           style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
           +{overflow}
         </span>

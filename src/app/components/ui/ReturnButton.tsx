@@ -49,17 +49,17 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
         onClick={handleReturn}
         className={`flex items-center gap-2 transition-all ${
           variant === 'minimal' 
-            ? 'text-[#6B7280] hover:text-[#1A1A2E]' 
+            ? 'text-slate-500 hover:text-[#1A1A2E]' 
             : 'px-4 py-2 rounded-xl text-[#1A1A2E]'
         }`}
         style={
           variant === 'default'
             ? {
-                background: '#FFFFFF',
+                background: 'rgba(255,255,255,0.8)',
                 border: '1px solid rgba(0,0,0,0.08)',
-                boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 600,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
               }
             : undefined
         }>
@@ -84,11 +84,11 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
               <div className="rounded-2xl p-6 shadow-2xl"
-                style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }}>
+                style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ background: 'rgba(239,68,68,0.08)' }}>
+                      style={{ background: 'rgba(239,68,68,0.1)' }}>
                       <AlertTriangle className="w-5 h-5 text-red-500" />
                     </div>
                     <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.25rem' }}>
@@ -97,12 +97,12 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                   </div>
                   <button
                     onClick={() => setShowConfirmation(false)}
-                    className="p-2 rounded-lg hover:bg-black/[0.03] text-[#9CA3AF] hover:text-[#1A1A2E] transition-colors">
+                    className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <p className="text-[#6B7280] mb-6">
+                <p className="text-slate-600 mb-6">
                   Leaving now will forfeit your score and count as a loss. Are you sure you want to quit this game?
                 </p>
 
@@ -111,9 +111,9 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowConfirmation(false)}
-                    className="flex-1 py-3 rounded-xl text-[#6B7280] transition-all"
+                    className="flex-1 py-3 rounded-xl text-[#1A1A2E] transition-all"
                     style={{
-                      background: '#F9FAFB',
+                      background: 'rgba(0,0,0,0.04)',
                       border: '1px solid rgba(0,0,0,0.08)',
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,

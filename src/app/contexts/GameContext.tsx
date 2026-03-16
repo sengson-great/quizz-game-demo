@@ -88,6 +88,28 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | null>(null);
 
+const defaultGameContext: GameContextType = {
+  gameState: null,
+  initGame: () => {},
+  answerQuestion: () => ({ questionId: '', selectedAnswerId: null, correctAnswerId: '', isCorrect: false, timeRemaining: 0, pointsEarned: 0 }),
+  useLifeline: () => null,
+  nextQuestion: () => {},
+  simulateOpponentAnswer: () => {},
+  resetGame: () => {},
+  finalizeGame: () => {},
+  createSmallRoom: () => '',
+  createRandomSmallRoom: () => {},
+  joinSmallRoom: () => {},
+  startSmallRoomGame: () => {},
+  extendLobbyTimer: () => {},
+  addAIPlayers: () => {},
+  createPrivate1v1: () => '',
+  joinPrivate1v1: () => {},
+  startRanked1v1: () => '',
+  switchToRandom: () => {},
+  startBattle: () => {},
+};
+
 function generateRoomCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -555,6 +577,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 export function useGame() {
   const ctx = useContext(GameContext);
-  if (!ctx) throw new Error('useGame must be used within GameProvider');
+  if (!ctx) return defaultGameContext;
   return ctx;
 }

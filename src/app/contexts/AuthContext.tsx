@@ -9,7 +9,15 @@ interface AuthContextType {
   updateUser: (updates: Partial<User>) => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const defaultAuthContext: AuthContextType = {
+  currentUser: null,
+  login: () => false,
+  register: () => false,
+  logout: () => {},
+  updateUser: () => {},
+};
+
+const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 const STORAGE_KEY = 'quiz_current_user';
 const USERS_KEY = 'quiz_users';
@@ -18,12 +26,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Initialize users in storage if not present
     const storedUsers = localStorage.getItem(USERS_KEY);
     if (!storedUsers) {
       localStorage.setItem(USERS_KEY, JSON.stringify(MOCK_USERS));
     }
-    // Load current user
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
@@ -107,8 +113,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+export function useAuth(): AuthContextType {
+  return useContext(AuthContext);
 }

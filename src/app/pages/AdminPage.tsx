@@ -130,8 +130,8 @@ const ICON_OPTIONS = ['📚', '🔬', '📜', '💻', '🌍', '⚽', '🎨', '�
 function HorizBar({ label, value, max, color, index }: { label: string; value: number; max: number; color: string; index: number }) {
   return (
     <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-center gap-2">
-      <span className="text-slate-400 text-xs w-36 flex-shrink-0 truncate" title={label}>{label}</span>
-      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+      <span className="text-slate-500 text-xs w-36 flex-shrink-0 truncate" title={label}>{label}</span>
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
         <motion.div initial={{ width: 0 }} animate={{ width: `${(value / max) * 100}%` }} transition={{ duration: 0.7, delay: 0.1 + index * 0.05 }} className="h-full rounded-full" style={{ background: color }} />
       </div>
       <span className="text-xs w-8 text-right flex-shrink-0" style={{ color }}>{value}%</span>
@@ -206,15 +206,15 @@ function DonutChart({ segments }: { segments: { name: string; value: number; fil
     <div className="flex items-center gap-6">
       <svg viewBox="0 0 160 160" width="160" height="160">
         {arcs.map(arc => (<path key={arc.name} d={arc.path} fill={arc.fill} opacity={0.85} />))}
-        <text x={cx} y={cy - 6} textAnchor="middle" fill="#e2e8f0" fontSize="13" fontWeight="700">Mode</text>
+        <text x={cx} y={cy - 6} textAnchor="middle" fill="#1A1A2E" fontSize="13" fontWeight="700">Mode</text>
         <text x={cx} y={cy + 10} textAnchor="middle" fill="#64748b" fontSize="10">split</text>
       </svg>
       <div className="space-y-3">
         {arcs.map(arc => (
           <div key={arc.name} className="flex items-center gap-3">
             <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: arc.fill }} />
-            <span className="text-slate-300 text-sm w-10">{arc.name}</span>
-            <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <span className="text-slate-600 text-sm w-10">{arc.name}</span>
+            <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
               <div className="h-full rounded-full" style={{ width: `${arc.pct}%`, background: arc.fill }} />
             </div>
             <span className="text-xs" style={{ color: arc.fill }}>{arc.pct}%</span>
@@ -390,54 +390,54 @@ export default function AdminPage() {
   ];
 
   const catScoreMax = Math.max(...ANALYTICS_DATA.categoryScores.map(d => d.avgScore));
-  const catColors = ['#818cf8', '#fbbf24', '#34d399', '#f472b6', '#fb923c', '#22d3ee'];
-  const updatedDistribution = ANALYTICS_DATA.gameModeDistribution.map((d, i) => ({ ...d, fill: ['#818cf8', '#34d399', '#fbbf24'][i] || d.fill }));
+  const catColors = ['#E84C6A', '#fbbf24', '#34d399', '#f472b6', '#fb923c', '#22d3ee'];
+  const updatedDistribution = ANALYTICS_DATA.gameModeDistribution.map((d, i) => ({ ...d, fill: ['#E84C6A', '#34d399', '#fbbf24'][i] || d.fill }));
 
-  const glassCard = { background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' };
+  const glassCard = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 
   return (
     <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}>
-          <Shield className="w-5 h-5 text-indigo-400" />
+          style={{ background: 'rgba(232,76,106,0.08)', border: '1px solid rgba(232,76,106,0.15)' }}>
+          <Shield className="w-5 h-5 text-[#E84C6A]" />
         </div>
         <div>
-          <h1 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>Admin Dashboard</h1>
-          <p className="text-slate-400 text-sm">Content Management & Analytics</p>
+          <h1 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>Admin Dashboard</h1>
+          <p className="text-slate-500 text-sm">Content Management & Analytics</p>
         </div>
         <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg"
-          style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' }}>
+          style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' }}>
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-indigo-400 text-xs">{currentUser?.username}</span>
+          <span className="text-[#E84C6A] text-xs">{currentUser?.username}</span>
         </div>
       </motion.div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Questions', value: questions.length, color: '#6366f1', bgStyle: { background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' } },
-          { label: 'Categories', value: categories.filter(c => c.enabled).length, color: '#8b5cf6', bgStyle: { background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)' } },
-          { label: 'Total Players', value: ANALYTICS_DATA.totalStats.totalPlayers.toLocaleString(), color: '#34d399', bgStyle: { background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.15)' } },
-          { label: 'Games Played', value: ANALYTICS_DATA.totalStats.totalGames.toLocaleString(), color: '#fbbf24', bgStyle: { background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)' } },
+          { label: 'Total Questions', value: questions.length, color: '#E84C6A', bgStyle: { background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' } },
+          { label: 'Categories', value: categories.filter(c => c.enabled).length, color: '#8b5cf6', bgStyle: { background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.12)' } },
+          { label: 'Total Players', value: ANALYTICS_DATA.totalStats.totalPlayers.toLocaleString(), color: '#059669', bgStyle: { background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.12)' } },
+          { label: 'Games Played', value: ANALYTICS_DATA.totalStats.totalGames.toLocaleString(), color: '#d97706', bgStyle: { background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' } },
         ].map(({ label, value, color, bgStyle }) => (
           <div key={label} className="rounded-2xl p-5" style={bgStyle}>
-            <p className="text-2xl" style={{ color, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{value}</p>
+            <p className="text-2xl" style={{ color, fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{value}</p>
             <p className="text-slate-500 text-sm mt-1">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 p-1 rounded-xl overflow-x-auto" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="flex gap-1 mb-6 p-1 rounded-xl overflow-x-auto" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
         {tabs.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setTab(id)}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm transition-all whitespace-nowrap"
             style={{
-              background: tab === id ? 'rgba(99,102,241,0.12)' : 'transparent',
-              border: tab === id ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
-              color: tab === id ? '#a5b4fc' : '#64748b',
+              background: tab === id ? 'rgba(232,76,106,0.08)' : 'transparent',
+              border: tab === id ? '1px solid rgba(232,76,106,0.15)' : '1px solid transparent',
+              color: tab === id ? '#E84C6A' : '#64748b',
             }}>
             <Icon className="w-4 h-4" />
             <span className="hidden sm:inline">{label}</span>
@@ -452,23 +452,23 @@ export default function AdminPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input type="text" placeholder="Search questions..." value={search} onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-white placeholder-slate-500 focus:outline-none text-sm"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+                className="w-full pl-10 pr-4 py-3 rounded-xl text-[#1A1A2E] placeholder-slate-400 focus:outline-none text-sm"
+                style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }} />
             </div>
             <select value={diffFilter} onChange={e => setDiffFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl text-white focus:outline-none text-sm"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              className="px-4 py-3 rounded-xl text-[#1A1A2E] focus:outline-none text-sm"
+              style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.08)' }}>
               {['All', 'Easy', 'Medium', 'Hard'].map(d => <option key={d} value={d}>{d}</option>)}
             </select>
             <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl text-white focus:outline-none text-sm"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              className="px-4 py-3 rounded-xl text-[#1A1A2E] focus:outline-none text-sm"
+              style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.08)' }}>
               <option value="All">All Categories</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
             </select>
             <button onClick={openAdd}
               className="flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', boxShadow: '0 2px 10px rgba(99,102,241,0.35)' }}>
+              style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)', boxShadow: '0 2px 10px rgba(232,76,106,0.3)' }}>
               <Plus className="w-4 h-4" /> Add Question
             </button>
           </div>
@@ -476,13 +476,13 @@ export default function AdminPage() {
           <p className="text-slate-500 text-xs mb-3">{filteredQs.length} of {questions.length} questions</p>
 
           <div className="rounded-2xl overflow-hidden" style={glassCard}>
-            <div className="hidden sm:grid grid-cols-12 px-5 py-3 text-slate-500 text-xs uppercase tracking-wider" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="hidden sm:grid grid-cols-12 px-5 py-3 text-slate-400 text-xs uppercase tracking-wider" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
               <span className="col-span-6">Question</span>
               <span className="col-span-2">Category</span>
               <span className="col-span-2">Difficulty</span>
               <span className="col-span-2 text-right">Actions</span>
             </div>
-            <div className="divide-y max-h-[500px] overflow-y-auto" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+            <div className="divide-y max-h-[500px] overflow-y-auto" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
               {filteredQs.map((q, i) => {
                 const cat = categories.find(c => c.id === q.categoryId);
                 const diffStyle: Record<string, { bg: string; color: string }> = {
@@ -493,19 +493,19 @@ export default function AdminPage() {
                 const ds = diffStyle[q.difficulty];
                 return (
                   <motion.div key={q.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                    className="grid grid-cols-12 items-center px-5 py-4 hover:bg-white/[0.02] transition-colors gap-2">
-                    <div className="col-span-12 sm:col-span-6"><p className="text-slate-200 text-sm line-clamp-2">{q.text}</p></div>
+                    className="grid grid-cols-12 items-center px-5 py-4 hover:bg-black/[0.01] transition-colors gap-2">
+                    <div className="col-span-12 sm:col-span-6"><p className="text-[#1A1A2E] text-sm line-clamp-2">{q.text}</p></div>
                     <div className="col-span-4 sm:col-span-2"><span className="text-xs text-slate-400">{cat?.icon} {cat?.name || 'Unknown'}</span></div>
                     <div className="col-span-4 sm:col-span-2"><span className="text-xs px-2 py-1 rounded-full" style={{ background: ds.bg, color: ds.color }}>{q.difficulty}</span></div>
                     <div className="col-span-4 sm:col-span-2 flex justify-end gap-2">
-                      <button onClick={() => openEdit(q)} className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-indigo-400 transition-colors"><Edit3 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => openEdit(q)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#E84C6A] transition-colors"><Edit3 className="w-3.5 h-3.5" /></button>
                       {deleteConfirm === q.id ? (
                         <div className="flex gap-1">
-                          <button onClick={() => handleDelete(q.id)} className="p-1.5 rounded text-red-400 hover:bg-red-500/10"><Check className="w-3 h-3" /></button>
-                          <button onClick={() => setDeleteConfirm(null)} className="p-1.5 rounded text-slate-500 hover:bg-white/5"><X className="w-3 h-3" /></button>
+                          <button onClick={() => handleDelete(q.id)} className="p-1.5 rounded text-red-500 hover:bg-red-50"><Check className="w-3 h-3" /></button>
+                          <button onClick={() => setDeleteConfirm(null)} className="p-1.5 rounded text-slate-400 hover:bg-black/5"><X className="w-3 h-3" /></button>
                         </div>
                       ) : (
-                        <button onClick={() => setDeleteConfirm(q.id)} className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => setDeleteConfirm(q.id)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                       )}
                     </div>
                   </motion.div>
@@ -525,7 +525,7 @@ export default function AdminPage() {
             </div>
             <button onClick={openAddCategory}
               className="flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', boxShadow: '0 2px 10px rgba(99,102,241,0.35)' }}>
+              style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)', boxShadow: '0 2px 10px rgba(232,76,106,0.3)' }}>
               <Plus className="w-4 h-4" /> Add Category
             </button>
           </div>
@@ -551,7 +551,7 @@ export default function AdminPage() {
                         {cat.icon}
                       </div>
                       <div>
-                        <h3 className="text-white text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                        <h3 className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                           {cat.name}
                         </h3>
                         <p className="text-slate-500 text-xs">{cat.description}</p>
@@ -559,7 +559,7 @@ export default function AdminPage() {
                     </div>
                     <button
                       onClick={() => toggleCategoryEnabled(cat.id)}
-                      className="p-1 rounded-lg hover:bg-white/5 transition-colors"
+                      className="p-1 rounded-lg hover:bg-black/5 transition-colors"
                       title={cat.enabled ? 'Disable category' : 'Enable category'}>
                       {cat.enabled ? (
                         <ToggleRight className="w-5 h-5 text-emerald-400" />
@@ -572,9 +572,9 @@ export default function AdminPage() {
                   {/* Stats */}
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
-                      style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' }}>
-                      <FolderOpen className="w-3 h-3 text-indigo-400" />
-                      <span className="text-indigo-400 text-xs" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                      style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' }}>
+                      <FolderOpen className="w-3 h-3 text-[#E84C6A]" />
+                      <span className="text-[#E84C6A] text-xs" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                         {qCount} questions
                       </span>
                     </div>
@@ -587,16 +587,16 @@ export default function AdminPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => openEditCategory(cat)}
-                      className="flex-1 py-2 rounded-lg text-xs flex items-center justify-center gap-1 text-slate-400 hover:text-indigo-400 transition-colors"
-                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      className="flex-1 py-2 rounded-lg text-xs flex items-center justify-center gap-1 text-slate-500 hover:text-[#E84C6A] transition-colors"
+                      style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
                       <Edit3 className="w-3 h-3" /> Edit
                     </button>
                     {catDeleteConfirm === cat.id ? (
                       <div className="flex gap-1">
-                        <button onClick={() => handleDeleteCategory(cat.id)} className="px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors" style={{ border: '1px solid rgba(239,68,68,0.2)' }}>
+                        <button onClick={() => handleDeleteCategory(cat.id)} className="px-3 py-2 rounded-lg text-xs text-red-500 hover:bg-red-50 transition-colors" style={{ border: '1px solid rgba(239,68,68,0.15)' }}>
                           Confirm
                         </button>
-                        <button onClick={() => setCatDeleteConfirm(null)} className="px-3 py-2 rounded-lg text-xs text-slate-500 hover:bg-white/5 transition-colors" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <button onClick={() => setCatDeleteConfirm(null)} className="px-3 py-2 rounded-lg text-xs text-slate-500 hover:bg-black/5 transition-colors" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                           Cancel
                         </button>
                       </div>
@@ -607,8 +607,8 @@ export default function AdminPage() {
                           setCatDeleteAction('reassign');
                           setCatReassignTarget(categories.find(c => c.id !== cat.id)?.id || '');
                         }}
-                        className="py-2 px-3 rounded-lg text-xs flex items-center gap-1 text-slate-500 hover:text-red-400 transition-colors"
-                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        className="py-2 px-3 rounded-lg text-xs flex items-center gap-1 text-slate-500 hover:text-red-500 transition-colors"
+                        style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
                         <Trash2 className="w-3 h-3" />
                       </button>
                     )}
@@ -628,15 +628,15 @@ export default function AdminPage() {
                           {qCount} orphaned questions found
                         </p>
                         <div className="space-y-2">
-                          <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
                             <input type="radio" name={`delete-${cat.id}`} checked={catDeleteAction === 'reassign'}
-                              onChange={() => setCatDeleteAction('reassign')} className="accent-indigo-500" />
+                              onChange={() => setCatDeleteAction('reassign')} className="accent-[#E84C6A]" />
                             Reassign to:
                             <select
                               value={catReassignTarget}
                               onChange={e => setCatReassignTarget(e.target.value)}
-                              className="px-2 py-1 rounded text-xs text-white focus:outline-none"
-                              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                              className="px-2 py-1 rounded text-xs text-[#1A1A2E] focus:outline-none"
+                              style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
                               {categories.filter(c => c.id !== cat.id).map(c => (
                                 <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
                               ))}
@@ -663,7 +663,7 @@ export default function AdminPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           <div className="grid lg:grid-cols-2 gap-6">
             <div className="rounded-2xl p-5" style={glassCard}>
-              <h3 className="text-white mb-4" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Most Failed Questions</h3>
+              <h3 className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Most Failed Questions</h3>
               <div className="space-y-3">
                 {ANALYTICS_DATA.mostFailedQuestions.map((d, i) => (
                   <HorizBar key={d.question} label={d.question.length > 28 ? d.question.slice(0, 28) + '...' : d.question} value={d.failRate} max={100} color="#f472b6" index={i} />
@@ -671,7 +671,7 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="rounded-2xl p-5" style={glassCard}>
-              <h3 className="text-white mb-4" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Avg Score by Category</h3>
+              <h3 className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Avg Score by Category</h3>
               <div className="flex items-end gap-2 h-32 px-2">
                 {ANALYTICS_DATA.categoryScores.map((d, i) => (
                   <VertBar key={d.category} label={d.category.slice(0, 4)} value={d.avgScore} max={catScoreMax} color={catColors[i % catColors.length]} index={i} />
@@ -687,12 +687,12 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="rounded-2xl p-5 lg:col-span-2" style={glassCard}>
-              <h3 className="text-white mb-4" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Daily Activity (March 2026)</h3>
+              <h3 className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Daily Activity (March 2026)</h3>
               <div style={{ height: 140 }}><MiniLineChart data={ANALYTICS_DATA.dailyUsers.slice(0, 10)} /></div>
             </div>
           </div>
           <div className="rounded-2xl p-5" style={glassCard}>
-            <h3 className="text-white mb-4" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Game Mode Distribution</h3>
+            <h3 className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Game Mode Distribution</h3>
             <DonutChart segments={updatedDistribution} />
           </div>
         </motion.div>
@@ -707,12 +707,12 @@ export default function AdminPage() {
               {confirmReset ? (
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-slate-400">Confirm reset?</span>
-                  <button onClick={() => { setLeaderboard([]); setConfirmReset(false); }} className="px-3 py-1.5 rounded-lg text-red-400 transition-colors" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>Yes, Reset</button>
-                  <button onClick={() => setConfirmReset(false)} className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-colors" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>Cancel</button>
+                  <button onClick={() => { setLeaderboard([]); setConfirmReset(false); }} className="px-3 py-1.5 rounded-lg text-red-500 transition-colors" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>Yes, Reset</button>
+                  <button onClick={() => setConfirmReset(false)} className="px-3 py-1.5 rounded-lg text-slate-500 hover:text-[#1A1A2E] transition-colors" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>Cancel</button>
                 </div>
               ) : (
                 <>
-                  <button onClick={() => setLeaderboard(l => l.slice(0, 10))} className="px-3 py-2 rounded-lg text-slate-400 hover:text-white text-sm transition-colors flex items-center gap-1.5" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <button onClick={() => setLeaderboard(l => l.slice(0, 10))} className="px-3 py-2 rounded-lg text-slate-500 hover:text-[#1A1A2E] text-sm transition-colors flex items-center gap-1.5" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                     <ChevronDown className="w-3.5 h-3.5" /> Keep Top 10
                   </button>
                   <button onClick={() => setConfirmReset(true)} className="px-3 py-2 rounded-lg text-red-400 text-sm transition-colors flex items-center gap-1.5" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
@@ -723,19 +723,19 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="rounded-2xl overflow-hidden" style={glassCard}>
-            <div className="grid grid-cols-10 px-5 py-3 text-slate-500 text-xs uppercase tracking-wider" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="grid grid-cols-10 px-5 py-3 text-slate-400 text-xs uppercase tracking-wider" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
               <span className="col-span-1">#</span><span className="col-span-4">Player</span><span className="col-span-2 text-right">Score</span><span className="col-span-1 text-right">Games</span><span className="col-span-1 text-right">Wins</span><span className="col-span-1 text-right">Action</span>
             </div>
-            <div className="divide-y max-h-[450px] overflow-y-auto" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+            <div className="divide-y max-h-[450px] overflow-y-auto" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
               {leaderboard.map((entry, i) => (
-                <div key={entry.id} className="grid grid-cols-10 items-center px-5 py-3 hover:bg-white/[0.02] transition-colors">
-                  <span className="col-span-1 text-slate-500 text-sm">{i + 1}</span>
-                  <div className="col-span-4 flex items-center gap-2"><span className="text-xl">{entry.avatar}</span><span className="text-slate-200 text-sm">{entry.username}</span></div>
-                  <span className="col-span-2 text-right text-white text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{entry.totalScore.toLocaleString()}</span>
+                <div key={entry.id} className="grid grid-cols-10 items-center px-5 py-3 hover:bg-black/[0.01] transition-colors">
+                  <span className="col-span-1 text-slate-400 text-sm">{i + 1}</span>
+                  <div className="col-span-4 flex items-center gap-2"><span className="text-xl">{entry.avatar}</span><span className="text-[#1A1A2E] text-sm">{entry.username}</span></div>
+                  <span className="col-span-2 text-right text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{entry.totalScore.toLocaleString()}</span>
                   <span className="col-span-1 text-right text-slate-400 text-sm">{entry.gamesPlayed}</span>
                   <span className="col-span-1 text-right text-slate-400 text-sm">{entry.wins}</span>
                   <div className="col-span-1 flex justify-end">
-                    <button onClick={() => setLeaderboard(l => l.filter(e => e.id !== entry.id))} className="p-1.5 rounded hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => setLeaderboard(l => l.filter(e => e.id !== entry.id))} className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
               ))}
@@ -776,27 +776,27 @@ export default function AdminPage() {
 
           {/* Game Timer */}
           <div className="rounded-2xl p-6" style={glassCard}>
-            <h3 className="text-white mb-5" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Game Timer</h3>
+            <h3 className="text-[#1A1A2E] mb-5" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Game Timer</h3>
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-slate-400 text-sm">Question Timer Duration</label>
-                <span className="text-indigo-400 text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{systemConfig.timerDuration}s</span>
+                <label className="text-slate-500 text-sm">Question Timer Duration</label>
+                <span className="text-[#E84C6A] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{systemConfig.timerDuration}s</span>
               </div>
               <input type="range" min={10} max={60} value={systemConfig.timerDuration}
                 onChange={e => { setSystemConfig(s => ({ ...s, timerDuration: +e.target.value })); setConfigDirty(true); }}
-                className="w-full" style={{ accentColor: '#6366f1' }} />
+                className="w-full" style={{ accentColor: '#E84C6A' }} />
               <div className="flex justify-between text-slate-500 text-xs mt-1"><span>10s</span><span>60s</span></div>
             </div>
           </div>
 
           {/* Lobby & Room Settings */}
           <div className="rounded-2xl p-6" style={glassCard}>
-            <h3 className="text-white mb-5" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Lobby & Room Settings</h3>
+            <h3 className="text-[#1A1A2E] mb-5" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Lobby & Room Settings</h3>
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-slate-400 text-sm">Lobby Timeout</label>
-                  <span className="text-cyan-400 text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{systemConfig.lobbyTimeout}s</span>
+                  <label className="text-slate-500 text-sm">Lobby Timeout</label>
+                  <span className="text-cyan-500 text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{systemConfig.lobbyTimeout}s</span>
                 </div>
                 <input type="range" min={15} max={300} step={5} value={systemConfig.lobbyTimeout}
                   onChange={e => { setSystemConfig(s => ({ ...s, lobbyTimeout: +e.target.value })); setConfigDirty(true); }}
@@ -805,8 +805,8 @@ export default function AdminPage() {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-slate-400 text-sm">Min Players for Room</label>
-                  <span className="text-violet-400 text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{systemConfig.minRoomPlayers}</span>
+                  <label className="text-slate-500 text-sm">Min Players for Room</label>
+                  <span className="text-violet-500 text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{systemConfig.minRoomPlayers}</span>
                 </div>
                 <input type="range" min={2} max={5} value={systemConfig.minRoomPlayers}
                   onChange={e => { setSystemConfig(s => ({ ...s, minRoomPlayers: +e.target.value })); setConfigDirty(true); }}
@@ -815,8 +815,8 @@ export default function AdminPage() {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-slate-400 text-sm">Max Players for Room</label>
-                  <span className="text-violet-400 text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{systemConfig.maxRoomPlayers}</span>
+                  <label className="text-slate-500 text-sm">Max Players for Room</label>
+                  <span className="text-violet-500 text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{systemConfig.maxRoomPlayers}</span>
                 </div>
                 <input type="range" min={3} max={8} value={systemConfig.maxRoomPlayers}
                   onChange={e => { setSystemConfig(s => ({ ...s, maxRoomPlayers: +e.target.value })); setConfigDirty(true); }}
@@ -828,14 +828,14 @@ export default function AdminPage() {
 
           {/* Difficulty Distribution */}
           <div className="rounded-2xl p-6" style={glassCard}>
-            <h3 className="text-white mb-5" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Difficulty Distribution</h3>
+            <h3 className="text-[#1A1A2E] mb-5" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Difficulty Distribution</h3>
             <p className="text-slate-400 text-sm mb-4">Configure the number of questions per difficulty level (max 15 total)</p>
             <div className="space-y-4">
               {([['easyCount', 'Easy', '#34d399'], ['mediumCount', 'Medium', '#fbbf24'], ['hardCount', 'Hard', '#f87171']] as const).map(([key, label, color]) => (
                 <div key={key}>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-sm" style={{ color }}>{label} Questions</label>
-                    <span className="text-sm" style={{ color, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{systemConfig[key]}</span>
+                    <span className="text-sm" style={{ color, fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{systemConfig[key]}</span>
                   </div>
                   <input type="range" min={1} max={10} value={systemConfig[key]}
                     onChange={e => { setSystemConfig(s => ({ ...s, [key]: +e.target.value })); setConfigDirty(true); }}
@@ -847,8 +847,8 @@ export default function AdminPage() {
               background: systemConfig.easyCount + systemConfig.mediumCount + systemConfig.hardCount === 15 ? 'rgba(52,211,153,0.08)' : 'rgba(239,68,68,0.08)',
               border: `1px solid ${systemConfig.easyCount + systemConfig.mediumCount + systemConfig.hardCount === 15 ? 'rgba(52,211,153,0.2)' : 'rgba(239,68,68,0.2)'}`,
             }}>
-              <p className="text-sm text-slate-300">
-                Total: <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, color: systemConfig.easyCount + systemConfig.mediumCount + systemConfig.hardCount === 15 ? '#34d399' : '#f87171' }}>
+              <p className="text-sm text-[#1A1A2E]">
+                Total: <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, color: systemConfig.easyCount + systemConfig.mediumCount + systemConfig.hardCount === 15 ? '#059669' : '#dc2626' }}>
                   {systemConfig.easyCount + systemConfig.mediumCount + systemConfig.hardCount} / 15
                 </span>
                 {systemConfig.easyCount + systemConfig.mediumCount + systemConfig.hardCount !== 15 && (<span className="text-red-400 ml-2 text-xs">Must equal 15</span>)}
@@ -858,7 +858,7 @@ export default function AdminPage() {
 
           {/* Active Lifelines */}
           <div className="rounded-2xl p-6" style={glassCard}>
-            <h3 className="text-white mb-5" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Active Lifelines</h3>
+            <h3 className="text-[#1A1A2E] mb-5" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Active Lifelines</h3>
             <p className="text-slate-400 text-sm mb-4">Toggle which lifelines are available during gameplay</p>
             <div className="space-y-3">
               {([
@@ -870,19 +870,19 @@ export default function AdminPage() {
               ] as const).map(([key, label, desc, color]) => (
                 <div key={key} className="flex items-center justify-between p-3 rounded-xl transition-all"
                   style={{
-                    background: systemConfig[key] ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
-                    border: `1px solid ${systemConfig[key] ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)'}`,
+                    background: systemConfig[key] ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.01)',
+                    border: `1px solid ${systemConfig[key] ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.03)'}`,
                     opacity: systemConfig[key] ? 1 : 0.5,
                   }}>
                   <div className="flex items-center gap-3">
                     <span className="w-2 h-2 rounded-full" style={{ background: color }} />
                     <div>
-                      <p className="text-white text-sm">{label}</p>
+                      <p className="text-[#1A1A2E] text-sm">{label}</p>
                       <p className="text-slate-500 text-xs">{desc}</p>
                     </div>
                   </div>
                   <button onClick={() => { setSystemConfig(s => ({ ...s, [key]: !s[key] })); setConfigDirty(true); }}
-                    className="p-1 rounded-lg hover:bg-white/5 transition-colors">
+                    className="p-1 rounded-lg hover:bg-black/5 transition-colors">
                     {systemConfig[key] ? (
                       <ToggleRight className="w-6 h-6 text-emerald-400" />
                     ) : (
@@ -906,13 +906,13 @@ export default function AdminPage() {
             }}
             className="w-full py-4 rounded-xl text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.02] relative overflow-hidden"
             style={{
-              background: configDirty ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'linear-gradient(135deg, rgba(99,102,241,0.5), rgba(79,70,229,0.5))',
-              boxShadow: configDirty ? '0 4px 15px rgba(99,102,241,0.35)' : 'none',
+              background: configDirty ? 'linear-gradient(135deg, #E84C6A, #D43B59)' : 'linear-gradient(135deg, rgba(232,76,106,0.5), rgba(212,59,89,0.5))',
+              boxShadow: configDirty ? '0 4px 15px rgba(232,76,106,0.3)' : 'none',
             }}>
             {configDirty && (
               <motion.div
                 className="absolute inset-0 rounded-xl"
-                animate={{ boxShadow: ['0 0 10px rgba(99,102,241,0.2)', '0 0 25px rgba(99,102,241,0.5)', '0 0 10px rgba(99,102,241,0.2)'] }}
+                animate={{ boxShadow: ['0 0 10px rgba(232,76,106,0.15)', '0 0 25px rgba(232,76,106,0.35)', '0 0 10px rgba(232,76,106,0.15)'] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
             )}
@@ -929,57 +929,57 @@ export default function AdminPage() {
         {modal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)' }}
+            style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }}
             onClick={() => setModal(null)}>
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               className="w-full max-w-2xl rounded-2xl overflow-hidden"
-              style={{ background: 'linear-gradient(145deg, #131842, #1a1145)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 10px 40px rgba(0,0,0,0.4)' }}
+              style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }}
               onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{modal.mode === 'add' ? '+ New Question' : 'Edit Question'}</h3>
-                <button onClick={() => setModal(null)} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
+              <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{modal.mode === 'add' ? '+ New Question' : 'Edit Question'}</h3>
+                <button onClick={() => setModal(null)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"><X className="w-4 h-4" /></button>
               </div>
               <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Category</label>
+                    <label className="text-slate-500 text-xs mb-1 block">Category</label>
                     <select value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
-                      className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none"
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none"
+                      style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
                       {categories.filter(c => c.enabled).map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Difficulty</label>
+                    <label className="text-slate-500 text-xs mb-1 block">Difficulty</label>
                     <select value={form.difficulty} onChange={e => setForm(f => ({ ...f, difficulty: e.target.value as Question['difficulty'] }))}
-                      className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none"
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none"
+                      style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
                       {['Easy', 'Medium', 'Hard'].map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Question Text</label>
+                  <label className="text-slate-500 text-xs mb-1 block">Question Text</label>
                   <textarea value={form.text} onChange={e => setForm(f => ({ ...f, text: e.target.value }))} rows={3} placeholder="Enter your question..."
-                    className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none resize-none placeholder-slate-500"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none resize-none placeholder-slate-400"
+                    style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }} />
                 </div>
                 <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Explanation (optional)</label>
+                  <label className="text-slate-500 text-xs mb-1 block">Explanation (optional)</label>
                   <input type="text" value={form.explanation} onChange={e => setForm(f => ({ ...f, explanation: e.target.value }))} placeholder="Brief explanation..."
-                    className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none placeholder-slate-500"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400"
+                    style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }} />
                 </div>
                 <div>
-                  <label className="text-slate-400 text-xs mb-2 block">Answer Options (click check to mark correct)</label>
+                  <label className="text-slate-500 text-xs mb-2 block">Answer Options (click check to mark correct)</label>
                   <div className="space-y-2">
                     {form.answers.map((ans, i) => (
                       <div key={i} className="flex items-center gap-2 p-2 rounded-xl transition-all"
-                        style={{ background: ans.isCorrect ? 'rgba(52,211,153,0.06)' : 'rgba(255,255,255,0.02)', border: ans.isCorrect ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.06)' }}>
-                        <span className="w-6 h-6 rounded-md flex items-center justify-center text-xs" style={{ fontWeight: 700, background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}>{['A', 'B', 'C', 'D'][i]}</span>
+                        style={{ background: ans.isCorrect ? 'rgba(52,211,153,0.06)' : 'rgba(0,0,0,0.02)', border: ans.isCorrect ? '1px solid rgba(52,211,153,0.15)' : '1px solid rgba(0,0,0,0.06)' }}>
+                        <span className="w-6 h-6 rounded-md flex items-center justify-center text-xs" style={{ fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: '#64748b' }}>{['A', 'B', 'C', 'D'][i]}</span>
                         <input type="text" value={ans.text} onChange={e => { const updated = [...form.answers]; updated[i] = { ...updated[i], text: e.target.value }; setForm(f => ({ ...f, answers: updated })); }}
                           placeholder={`Option ${['A', 'B', 'C', 'D'][i]}`}
-                          className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder-slate-500" />
+                          className="flex-1 bg-transparent text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400" />
                         <button onClick={() => markCorrect(i)} className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
                           style={{ background: ans.isCorrect ? 'rgba(52,211,153,0.2)' : 'transparent', color: ans.isCorrect ? '#34d399' : '#475569' }}>
                           <Check className="w-3.5 h-3.5" />
@@ -994,8 +994,8 @@ export default function AdminPage() {
                   </div>
                 )}
                 <div className="flex gap-3 pt-2">
-                  <button onClick={() => setModal(null)} className="flex-1 py-3 rounded-xl text-slate-400 hover:text-white text-sm transition-colors" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>Cancel</button>
-                  <button onClick={handleSave} className="flex-1 py-3 rounded-xl text-white text-sm" style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>{modal.mode === 'add' ? 'Add Question' : 'Save Changes'}</button>
+                  <button onClick={() => setModal(null)} className="flex-1 py-3 rounded-xl text-slate-500 hover:text-[#1A1A2E] text-sm transition-colors" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>Cancel</button>
+                  <button onClick={handleSave} className="flex-1 py-3 rounded-xl text-white text-sm" style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)' }}>{modal.mode === 'add' ? 'Add Question' : 'Save Changes'}</button>
                 </div>
               </div>
             </motion.div>
@@ -1008,22 +1008,22 @@ export default function AdminPage() {
         {catModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)' }}
+            style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }}
             onClick={() => setCatModal(null)}>
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               className="w-full max-w-lg rounded-2xl overflow-hidden"
-              style={{ background: 'linear-gradient(145deg, #131842, #1a1145)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 10px 40px rgba(0,0,0,0.4)' }}
+              style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }}
               onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+              <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                   {catModal.mode === 'add' ? '+ New Category' : 'Edit Category'}
                 </h3>
-                <button onClick={() => setCatModal(null)} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
+                <button onClick={() => setCatModal(null)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"><X className="w-4 h-4" /></button>
               </div>
               <div className="p-5 space-y-4">
                 {/* Icon selector */}
                 <div>
-                  <label className="text-slate-400 text-xs mb-2 block">Icon</label>
+                  <label className="text-slate-500 text-xs mb-2 block">Icon</label>
                   <div className="flex flex-wrap gap-2">
                     {ICON_OPTIONS.map(icon => (
                       <button
@@ -1031,8 +1031,8 @@ export default function AdminPage() {
                         onClick={() => setCatForm(f => ({ ...f, icon }))}
                         className="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all"
                         style={{
-                          background: catForm.icon === icon ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)',
-                          border: catForm.icon === icon ? '2px solid rgba(99,102,241,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                          background: catForm.icon === icon ? 'rgba(232,76,106,0.1)' : 'rgba(0,0,0,0.02)',
+                          border: catForm.icon === icon ? '2px solid rgba(232,76,106,0.35)' : '1px solid rgba(0,0,0,0.06)',
                         }}>
                         {icon}
                       </button>
@@ -1042,27 +1042,27 @@ export default function AdminPage() {
 
                 {/* Name */}
                 <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Category Name</label>
+                  <label className="text-slate-500 text-xs mb-1 block">Category Name</label>
                   <input type="text" value={catForm.name}
                     onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="e.g., Web Development"
-                    className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none placeholder-slate-500"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400"
+                    style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }} />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Description</label>
+                  <label className="text-slate-500 text-xs mb-1 block">Description</label>
                   <input type="text" value={catForm.description}
                     onChange={e => setCatForm(f => ({ ...f, description: e.target.value }))}
                     placeholder="Brief description of this category"
-                    className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none placeholder-slate-500"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400"
+                    style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }} />
                 </div>
 
                 {/* Color */}
                 <div>
-                  <label className="text-slate-400 text-xs mb-2 block">Color Theme</label>
+                  <label className="text-slate-500 text-xs mb-2 block">Color Theme</label>
                   <div className="grid grid-cols-4 gap-2">
                     {COLOR_OPTIONS.map(opt => (
                       <button
@@ -1070,8 +1070,8 @@ export default function AdminPage() {
                         onClick={() => setCatForm(f => ({ ...f, color: opt.value }))}
                         className="flex items-center gap-2 p-2 rounded-lg transition-all"
                         style={{
-                          background: catForm.color === opt.value ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.02)',
-                          border: catForm.color === opt.value ? '2px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                          background: catForm.color === opt.value ? 'rgba(232,76,106,0.08)' : 'rgba(0,0,0,0.02)',
+                          border: catForm.color === opt.value ? '2px solid rgba(232,76,106,0.25)' : '1px solid rgba(0,0,0,0.06)',
                         }}>
                         <div className={`w-5 h-5 rounded bg-gradient-to-br ${opt.value}`} />
                         <span className="text-xs text-slate-400">{opt.label.split('/')[0]}</span>
@@ -1081,14 +1081,14 @@ export default function AdminPage() {
                 </div>
 
                 {/* Preview */}
-                <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <p className="text-slate-500 text-xs mb-2">Preview</p>
+                <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
+                  <p className="text-slate-400 text-xs mb-2">Preview</p>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${catForm.color} flex items-center justify-center text-lg`}>
                       {catForm.icon}
                     </div>
                     <div>
-                      <p className="text-white text-sm" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                      <p className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                         {catForm.name || 'Category Name'}
                       </p>
                       <p className="text-slate-500 text-xs">{catForm.description || 'Description'}</p>
@@ -1103,8 +1103,8 @@ export default function AdminPage() {
                 )}
 
                 <div className="flex gap-3 pt-2">
-                  <button onClick={() => setCatModal(null)} className="flex-1 py-3 rounded-xl text-slate-400 hover:text-white text-sm transition-colors" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>Cancel</button>
-                  <button onClick={handleSaveCategory} className="flex-1 py-3 rounded-xl text-white text-sm" style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
+                  <button onClick={() => setCatModal(null)} className="flex-1 py-3 rounded-xl text-slate-500 hover:text-[#1A1A2E] text-sm transition-colors" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>Cancel</button>
+                  <button onClick={handleSaveCategory} className="flex-1 py-3 rounded-xl text-white text-sm" style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)' }}>
                     {catModal.mode === 'add' ? 'Create Category' : 'Save Changes'}
                   </button>
                 </div>
