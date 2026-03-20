@@ -1,33 +1,27 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GameController;
-use App\Http\Controllers\Api\MultiplayerController;
 use App\Models\Question;
 
+// ─── Public Routes ───────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/battle/invite/{inviteCode}', function ($inviteCode) {
-    return response()->json([
-        'invite_code' => $inviteCode,
-        'message' => 'Use this code in the app to join the battle',
-        'join_url' => url("/api/multiplayer/battle/join/{$inviteCode}")
-    ]);
-});
+// Public leaderboard
+Route::get('/leaderboard', [LeaderboardController::class, 'index']);
 
+// ─── Authenticated Routes ─────────────────────────────────────
+Route::middleware('auth:api')->group(function () {
 
-Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
-    Route::get('/players/search', [AuthController::class, 'searchPlayers']);
 
-    // Game Routes
-    Route::post('/games', [GameController::class, 'store']);
-    Route::get('/games/{session}', [GameController::class, 'show']);
-    Route::post('/games/{session}/answer', [GameController::class, 'answer']);
+    // Game routes
+    Route::post('/games',                    [GameController::class, 'store']);
+    Route::get('/games/{session}',           [GameController::class, 'show']);
+    Route::post('/games/{session}/answer',   [GameController::class, 'answer']);
     Route::post('/games/{session}/lifeline', [GameController::class, 'lifeline']);
 
     // Multiplayer Routes
@@ -52,15 +46,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/debug/match/{matchId}', [MultiplayerController::class, 'debugMatch']);
     });
 
-    // Admin Routes
-    Route::middleware('can:admin')->group(function () {
-        // Simple admin endpoint
-        Route::get('/admin/questions', function () {
-            return Question::with('category')->paginate(50);
-        });
-        Route::post('/admin/questions', function (Request $request) {
-            // Logic to create question
-            return Question::create($request->all());
-        });
+    // ─── Admin Routes ─────────────────────────────────────────
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/stats',                            [LeaderboardController::class, 'stats']);
+        Route::apiResource('categories',                CategoryController::class);
+        Route::apiResource('questions',                 QuestionController::class);
+        Route::get('/settings',                         [GameSettingController::class, 'index']);
+        Route::put('/settings',                         [GameSettingController::class, 'update']);
     });
 });

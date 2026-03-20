@@ -26,10 +26,10 @@ class AuthController extends Controller
             'role' => 'player',
         ]);
 
-        // Login immediately
-        Auth::login($user);
+        // REFACTORED: Passport uses ->accessToken instead of ->plainTextToken
+        $token = $user->createToken('auth')->accessToken;
 
-        return response()->json(['user' => $user, 'token' => $user->createToken('auth')->plainTextToken]);
+        return response()->json(['user' => $user, 'token' => $token]);
     }
 
     public function login(Request $request)
@@ -47,14 +47,16 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        return response()->json(['user' => $user, 'token' => $user->createToken('auth')->plainTextToken]);
+        // REFACTORED: Passport uses ->accessToken
+        $token = $user->createToken('auth')->accessToken;
+
+        return response()->json(['user' => $user, 'token' => $token]);
     }
 
     public function logout(Request $request)
     {
-        // Revoke tokens
-        $request->user()->tokens()->delete();
-        Auth::guard('web')->logout();
+        // REFACTORED: Passport uses revoke() on the token
+        $request->user()->token()->revoke();
 
         return response()->json(['message' => 'Logged out']);
     }
@@ -62,25 +64,5 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         return $request->user();
-    }
-
-    /**
-     * Search for players by name
-     */
-    public function searchPlayers(Request $request)
-    {
-        $query = $request->query('query');
-        
-        if (empty($query)) {
-            return response()->json([]);
-        }
-
-        $users = User::where('name', 'LIKE', "%{$query}%")
-            ->where('id', '!=', $request->user()->id)
-            ->where('role', 'player')
-            ->limit(10)
-            ->get(['id', 'name']);
-
-        return response()->json($users);
     }
 }
