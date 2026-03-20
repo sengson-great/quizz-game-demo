@@ -28,17 +28,29 @@ class GameService
         15 => 1000000
     ];
 
-    public function createSession($user)
+    public function createSession($user, $matchId = null)
     {
-        // Check for unfinished sessions? Or define new always.
-        // Assuming new.
+        // For multiplayer: reuse an existing active session for the same match.
+        // This prevents duplicate sessions if the player refreshes or reconnects.
+        if ($matchId) {
+            $existing = GameSession::where('user_id', $user->id)
+                ->where('match_id', $matchId)
+                ->whereIn('status', ['active'])
+                ->first();
+
+            if ($existing) {
+                return $existing;
+            }
+        }
+
         $session = GameSession::create([
-            'user_id' => $user->id,
+            'user_id'       => $user->id,
+            'match_id'      => $matchId,
             'current_level' => 1,
-            'score' => 0,
-            'status' => 'active',
-            'lifelines' => ['fiftyFifty' => true, 'skip' => true, 'doubleChance' => true],
-            'started_at' => now(),
+            'score'         => 0,
+            'status'        => 'active',
+            'lifelines'     => ['fiftyFifty' => true, 'skip' => true, 'doubleChance' => true],
+            'started_at'    => now(),
         ]);
 
         return $session;
@@ -46,6 +58,41 @@ class GameService
 
     public function getNextQuestion(GameSession $session)
     {
+        // 1. Check if this is a multiplayer match with pre-defined questions
+        if ($session->match_id) {
+            $match = \App\Models\GameMatch::find($session->match_id);
+            // JSON object keys are always decoded as strings in PHP, so cast level to string for lookup
+            $levelKey = (string) $session->current_level;
+            if ($match && $match->questions && isset($match->questions[$levelKey])) {
+                $questionId = $match->questions[$levelKey];
+                
+                $question = Question::with([
+                    'answers' => function ($q) {
+                        $q->select('id', 'question_id', 'text')->orderBy('id');
+                    }
+                ])->find($questionId);
+
+                if ($question) {
+                    $seed = crc32($session->match_id . $session->current_level);
+                    mt_srand($seed);
+                    
+                    $answers = $question->answers->all();
+                    $count = count($answers);
+                    for ($i = $count - 1; $i >= 1; $i--) {
+                        $j = mt_rand(0, $i);
+                        $temp = $answers[$i];
+                        $answers[$i] = $answers[$j];
+                        $answers[$j] = $temp;
+                    }
+                    $question->setRelation('answers', collect($answers));
+                    mt_srand(); // reset seed
+                }
+                
+                return $question;
+            }
+        }
+
+        // 2. Default: random question for the level
         // Get already used questions
         $usedQuestionIds = GameSessionQuestion::where('game_session_id', $session->id)
             ->pluck('question_id')->toArray();

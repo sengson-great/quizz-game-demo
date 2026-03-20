@@ -11,6 +11,7 @@ class GameSession extends Model
 
     protected $fillable = [
         'user_id',
+        'match_id',
         'current_level',
         'score',
         'status',

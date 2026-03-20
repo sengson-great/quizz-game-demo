@@ -63,4 +63,24 @@ class AuthController extends Controller
     {
         return $request->user();
     }
+
+    /**
+     * Search for players by name
+     */
+    public function searchPlayers(Request $request)
+    {
+        $query = $request->query('query');
+        
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        $users = User::where('name', 'LIKE', "%{$query}%")
+            ->where('id', '!=', $request->user()->id)
+            ->where('role', 'player')
+            ->limit(10)
+            ->get(['id', 'name']);
+
+        return response()->json($users);
+    }
 }

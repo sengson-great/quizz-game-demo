@@ -19,7 +19,10 @@ class GameController extends Controller
 
     public function store(Request $request)
     {
-        $session = $this->gameService->createSession($request->user());
+        $session = $this->gameService->createSession(
+            $request->user(), 
+            $request->input('match_id')
+        );
         return response()->json([
             'session' => $session,
             'question' => $this->gameService->getNextQuestion($session)

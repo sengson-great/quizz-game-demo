@@ -21,13 +21,22 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        // Player user
-        User::create([
-            'name' => 'Player One',
-            'email' => 'player@example.com',
-            'role' => 'player',
-            'password' => Hash::make('password'),
-        ]);
+        // Player users
+        $players = [
+            ['name' => 'John Doe', 'email' => 'john@example.com'],
+            ['name' => 'Jane Smith', 'email' => 'jane@example.com'],
+            ['name' => 'Bob Builder', 'email' => 'bob@example.com'],
+            ['name' => 'Alice Wonder', 'email' => 'alice@example.com']
+        ];
+
+        foreach ($players as $p) {
+            User::create([
+                'name' => $p['name'],
+                'email' => $p['email'],
+                'role' => 'player',
+                'password' => Hash::make('password'),
+            ]);
+        }
 
         $categories = ['General Knowledge', 'Science', 'History', 'Pop Culture'];
         $catIds = [];

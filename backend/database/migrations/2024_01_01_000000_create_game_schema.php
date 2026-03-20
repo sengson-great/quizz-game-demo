@@ -38,6 +38,7 @@ return new class extends Migration
         Schema::create('game_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->uuid('match_id')->nullable(); // Link to multiplayer match
             $table->integer('current_level')->default(1);
             $table->decimal('score', 15, 2)->default(0);
             $table->enum('status', ['active', 'completed', 'failed', 'timeout'])->default('active');
