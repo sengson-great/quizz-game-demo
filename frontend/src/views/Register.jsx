@@ -18,6 +18,8 @@ const Register = ({ setUser }) => {
                 withCredentials: true 
             });
             const res = await api.post('/register', { name, email, password, password_confirmation: confirmPassword });
+            localStorage.setItem('access_token', res.data.token);
+            localStorage.setItem('user', JSON.stringify(res.data.user));
             setUser(res.data.user);
             navigate('/dashboard');
         } catch (error) {

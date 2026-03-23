@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\GameSession;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use OpenApi\Attributes as OA;
 
 class LeaderboardController extends Controller
 {
+    #[OA\Get(path: "/leaderboard", summary: "Get top players", tags: ["Leaderboard"])]
+    #[OA\Response(response: 200, description: "List of top 10 players")]
     public function index()
     {
         $leaderboard = GameSession::with('user:id,name')
@@ -20,6 +23,8 @@ class LeaderboardController extends Controller
         return response()->json($leaderboard);
     }
 
+    #[OA\Get(path: "/admin/stats", summary: "Get game statistics (Admin only)", tags: ["Leaderboard"])]
+    #[OA\Response(response: 200, description: "Overall game statistics")]
     public function stats()
     {
         return response()->json([

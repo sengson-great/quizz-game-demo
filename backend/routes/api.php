@@ -3,6 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GameController;
+use App\Http\Controllers\Api\MultiplayerController;
+use App\Http\Controllers\Api\LeaderboardController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\QuestionController;
+use App\Http\Controllers\Api\GameSettingController;
 use App\Models\Question;
 
 // ─── Public Routes ───────────────────────────────────────────

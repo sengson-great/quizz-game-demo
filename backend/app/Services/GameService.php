@@ -49,7 +49,13 @@ class GameService
             'current_level' => 1,
             'score'         => 0,
             'status'        => 'active',
-            'lifelines'     => ['fiftyFifty' => true, 'skip' => true, 'doubleChance' => true],
+            'lifelines'     => [
+                'fiftyFifty' => true, 
+                'skip' => true, 
+                'doubleChance' => true,
+                'audienceVote' => true,
+                'phoneFriend' => true
+            ],
             'started_at'    => now(),
         ]);
 
@@ -97,8 +103,16 @@ class GameService
         $usedQuestionIds = GameSessionQuestion::where('game_session_id', $session->id)
             ->pluck('question_id')->toArray();
 
+        // Map current level to difficulty
+        $difficulty = 'easy';
+        if ($session->current_level > 5 && $session->current_level <= 10) {
+            $difficulty = 'medium';
+        } elseif ($session->current_level > 10) {
+            $difficulty = 'hard';
+        }
+
         // Difficulty matches current level
-        $question = Question::where('difficulty_level', $session->current_level)
+        $question = Question::where('difficulty_level', $difficulty)
             ->whereNotIn('id', $usedQuestionIds)
             ->with([
                 'answers' => function ($q) {
@@ -239,6 +253,48 @@ class GameService
 
             $nextQuestion = $this->getNextQuestion($session);
             return ['status' => 'ok', 'next_question' => $nextQuestion];
+        }
+
+        if ($type === 'audienceVote') {
+            if (!$questionId) return ['error' => 'Question ID required'];
+            $question = Question::find($questionId);
+            if (!$question) return ['error' => 'Question not found'];
+
+            $answers = $question->answers;
+            $correctId = $answers->where('is_correct', true)->first()->id;
+            
+            $percentages = [];
+            $remaining = 100;
+            $correctPercent = mt_rand(40, 75);
+            $percentages[$correctId] = $correctPercent;
+            $remaining -= $correctPercent;
+
+            $wrongAnswers = tap($answers->where('is_correct', false)->pluck('id'))->shuffle()->toArray();
+            
+            foreach ($wrongAnswers as $index => $id) {
+                if ($index === count($wrongAnswers) - 1) {
+                    $percentages[$id] = $remaining;
+                } else {
+                    $share = mt_rand(0, $remaining);
+                    $percentages[$id] = $share;
+                    $remaining -= $share;
+                }
+            }
+            return ['status' => 'ok', 'vote_data' => $percentages];
+        }
+
+        if ($type === 'phoneFriend') {
+            if (!$questionId) return ['error' => 'Question ID required'];
+            $question = Question::find($questionId);
+            if (!$question) return ['error' => 'Question not found'];
+
+            $correctAnswer = $question->answers->where('is_correct', true)->first();
+            $messages = [
+                "I'm pretty sure the answer is: " . $correctAnswer->text,
+                "I think it's " . $correctAnswer->text . ", but I'm not 100% sure.",
+                "Oh, I know this one! It's definitely " . $correctAnswer->text . ".",
+            ];
+            return ['status' => 'ok', 'friend_advice' => $messages[array_rand($messages)]];
         }
 
         return ['status' => 'ok'];

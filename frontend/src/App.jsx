@@ -11,7 +11,10 @@ import BattleLobby from './views/BattleLobby'
 import './App.css'
 
 function App() {
-  const [user, setUser] = useState(null); // Simple auth state for now
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   return (
     <Router>

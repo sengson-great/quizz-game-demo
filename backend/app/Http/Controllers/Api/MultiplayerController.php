@@ -7,12 +7,25 @@ use App\Models\GameMatch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use OpenApi\Attributes as OA;
 
 class MultiplayerController extends Controller
 {
     /**
      * Create a new battle lobby (for battle mode)
      */
+    #[OA\Post(path: "/multiplayer/battle/create", summary: "Create a new battle lobby", tags: ["Multiplayer"])]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["player_count"],
+            properties: [
+                new OA\Property(property: "player_count", type: "integer", example: 4),
+                new OA\Property(property: "is_private", type: "boolean", example: true)
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Battle lobby created")]
     public function createBattle(Request $request)
     {
         $user = $request->user();
@@ -73,6 +86,10 @@ class MultiplayerController extends Controller
     /**
      * Join a battle using invite code
      */
+    #[OA\Post(path: "/multiplayer/battle/join/{inviteCode}", summary: "Join a battle lobby", tags: ["Multiplayer"])]
+    #[OA\Parameter(name: "inviteCode", in: "path", required: true, description: "6-character invite code")]
+    #[OA\Response(response: 200, description: "Joined successfully")]
+    #[OA\Response(response: 404, description: "Lobby not found")]
     public function joinBattle(Request $request, $inviteCode)
     {
         $user = $request->user();
@@ -163,6 +180,10 @@ class MultiplayerController extends Controller
     /**
      * Get battle lobby info
      */
+    #[OA\Get(path: "/multiplayer/battle/lobby/{inviteCode}", summary: "Get battle lobby details", tags: ["Multiplayer"])]
+    #[OA\Parameter(name: "inviteCode", in: "path", required: true, description: "6-character invite code")]
+    #[OA\Response(response: 200, description: "Lobby details")]
+    #[OA\Response(response: 404, description: "Lobby not found")]
     public function getBattleLobby(Request $request, $inviteCode)
     {
         $user = $request->user();
@@ -194,6 +215,16 @@ class MultiplayerController extends Controller
     /**
      * Set player ready status
      */
+    #[OA\Post(path: "/multiplayer/battle/ready/{inviteCode}", summary: "Set player ready status", tags: ["Multiplayer"])]
+    #[OA\Parameter(name: "inviteCode", in: "path", required: true, description: "6-character invite code")]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["ready"],
+            properties: [new OA\Property(property: "ready", type: "boolean", example: true)]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Ready status updated")]
     public function setReady(Request $request, $inviteCode)
     {
         $user = $request->user();
@@ -249,6 +280,11 @@ class MultiplayerController extends Controller
     /**
      * Start the battle (host only)
      */
+    #[OA\Post(path: "/multiplayer/battle/start/{inviteCode}", summary: "Start the battle (host only)", tags: ["Multiplayer"])]
+    #[OA\Parameter(name: "inviteCode", in: "path", required: true, description: "6-character invite code")]
+    #[OA\Response(response: 200, description: "Battle started")]
+    #[OA\Response(response: 400, description: "Not enough players")]
+    #[OA\Response(response: 403, description: "Not host")]
     public function startBattle(Request $request, $inviteCode)
     {
         $user = $request->user();
@@ -359,6 +395,9 @@ class MultiplayerController extends Controller
     /**
      * Leave battle lobby
      */
+    #[OA\Post(path: "/multiplayer/battle/leave/{inviteCode}", summary: "Leave battle lobby", tags: ["Multiplayer"])]
+    #[OA\Parameter(name: "inviteCode", in: "path", required: true, description: "6-character invite code")]
+    #[OA\Response(response: 200, description: "Left successfully")]
     public function leaveBattle(Request $request, $inviteCode)
     {
         $user = $request->user();
@@ -420,6 +459,15 @@ class MultiplayerController extends Controller
     /**
      * Original 1v1 matchmaking (keep as is)
      */
+    #[OA\Post(path: "/multiplayer/matchmake", summary: "Enter 1v1 matchmaking", tags: ["Multiplayer"])]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["mode"],
+            properties: [new OA\Property(property: "mode", type: "string", example: "1v1")]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Match found or queued")]
     public function matchmake(Request $request)
     {
         $user = $request->user();
@@ -507,6 +555,19 @@ class MultiplayerController extends Controller
     /**
      * Send game action to other players in the match
      */
+    #[OA\Post(path: "/multiplayer/action", summary: "Send game action to other players", tags: ["Multiplayer"])]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["match_id", "action_type", "payload"],
+            properties: [
+                new OA\Property(property: "match_id", type: "string", example: "uuid"),
+                new OA\Property(property: "action_type", type: "string", example: "score_update"),
+                new OA\Property(property: "payload", type: "object", example: ["score" => 500])
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Action sent")]
     public function sendAction(Request $request)
     {
         $user = $request->user();
@@ -526,7 +587,11 @@ class MultiplayerController extends Controller
         $payload['sender_name'] = $user->name;
 
         // Broadcast to ALL players subscribed to this match channel
-        broadcast(new \App\Events\GameAction($matchId, $user->id, $actionType, $payload));
+        try {
+            broadcast(new \App\Events\GameAction($matchId, $user->id, $actionType, $payload));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('GameAction broadcast failed: ' . $e->getMessage());
+        }
 
         return response()->json(['status' => 'sent']);
     }
@@ -534,6 +599,8 @@ class MultiplayerController extends Controller
     /**
      * Cancel matchmaking (1v1 only)
      */
+    #[OA\Post(path: "/multiplayer/cancel-matchmake", summary: "Cancel 1v1 matchmaking", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Matchmaking cancelled")]
     public function cancelMatchmake(Request $request)
     {
         $user = $request->user();
@@ -549,6 +616,9 @@ class MultiplayerController extends Controller
     /**
      * HTTP Fallback: Get all scores for a match
      */
+    #[OA\Get(path: "/multiplayer/scores/{matchId}", summary: "Get all scores for a match", tags: ["Multiplayer"])]
+    #[OA\Parameter(name: "matchId", in: "path", required: true, description: "Match UUID")]
+    #[OA\Response(response: 200, description: "Scores dictionary")]
     public function getScores($matchId)
     {
         $sessions = \App\Models\GameSession::where('match_id', $matchId)
@@ -566,6 +636,9 @@ class MultiplayerController extends Controller
     /**
      * Debug: View match payload
      */
+    #[OA\Get(path: "/multiplayer/debug/match/{matchId}", summary: "Debug match payload", tags: ["Multiplayer"])]
+    #[OA\Parameter(name: "matchId", in: "path", required: true, description: "Match UUID")]
+    #[OA\Response(response: 200, description: "Match details")]
     public function debugMatch($matchId)
     {
         if (config('app.env') !== 'local' && config('app.env') !== 'development') {
