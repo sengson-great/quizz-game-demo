@@ -1,0 +1,1084 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Millionaire Quiz API",
+        "description": "API documentation",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "Local API Server"
+        }
+    ],
+    "paths": {
+        "/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "operationId": "5d4fa5d5607ed675ba93907e1fc94534",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful registration"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log in to the application",
+                "operationId": "67d6d0fdd54fba132e1b6f55ca254183",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login"
+                    },
+                    "422": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log out the current user",
+                "operationId": "28d48c13fca984400ac8de99f54ee13a",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out"
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get current user profile",
+                "operationId": "2baab1eeb5fd49516237a38da22e7a07",
+                "responses": {
+                    "200": {
+                        "description": "User profile data"
+                    }
+                }
+            }
+        },
+        "/admin/categories": {
+            "get": {
+                "tags": [
+                    "Admin: Categories"
+                ],
+                "summary": "List all categories",
+                "operationId": "e96b11bff9cd9bc03b847ab242cf5c73",
+                "responses": {
+                    "200": {
+                        "description": "A list of categories"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Admin: Categories"
+                ],
+                "summary": "Create a new category",
+                "operationId": "3241c323072053016993f23f96778757",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Science"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "General science questions"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Category created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/admin/categories/{category}": {
+            "get": {
+                "tags": [
+                    "Admin: Categories"
+                ],
+                "summary": "Get a specific category",
+                "operationId": "8cbcc84d3275eecdd3fe482392ae3da5",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Category details"
+                    },
+                    "404": {
+                        "description": "Category not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Admin: Categories"
+                ],
+                "summary": "Update an existing category",
+                "operationId": "dc6399d1256bfbba64bb84c55739cf77",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Advanced Science"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Harder questions"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Category updated"
+                    },
+                    "404": {
+                        "description": "Category not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Admin: Categories"
+                ],
+                "summary": "Delete a category",
+                "operationId": "6d488c5faf596fa20935eb9fbd94351a",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Category deleted"
+                    },
+                    "404": {
+                        "description": "Category not found"
+                    }
+                }
+            }
+        },
+        "/games": {
+            "post": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Start a new game session",
+                "operationId": "abd1c03529d58e457306ca5af02232d3",
+                "responses": {
+                    "200": {
+                        "description": "Returns the newly created game session and first question"
+                    }
+                }
+            }
+        },
+        "/games/{session}": {
+            "get": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Get an active game session state",
+                "operationId": "11877bd8ba37bd6c962da8a8050ac224",
+                "parameters": [
+                    {
+                        "name": "session",
+                        "in": "path",
+                        "description": "Game Session ID",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session and current question details"
+                    },
+                    "403": {
+                        "description": "Forbidden/Not owner of session"
+                    }
+                }
+            }
+        },
+        "/games/{session}/answer": {
+            "post": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Submit an answer for the current question",
+                "operationId": "e1f5263ae3c44d56a1290500b64a0cd1",
+                "parameters": [
+                    {
+                        "name": "session",
+                        "in": "path",
+                        "description": "Game Session ID",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "answer_id"
+                                ],
+                                "properties": {
+                                    "answer_id": {
+                                        "type": "integer",
+                                        "example": 123
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Answer evaluation result (correct/wrong) and optional next question"
+                    },
+                    "400": {
+                        "description": "Game already ended"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/games/{session}/lifeline": {
+            "post": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Use a lifeline for the current question",
+                "operationId": "54e842a2abc137f3f10db6147d967a1c",
+                "parameters": [
+                    {
+                        "name": "session",
+                        "in": "path",
+                        "description": "Game Session ID",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "type"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "description": "Name of lifeline (e.g. fiftyFifty, skip, audienceVote, phoneFriend)",
+                                        "type": "string",
+                                        "example": "fiftyFifty"
+                                    },
+                                    "question_id": {
+                                        "description": "ID of the question (for lifelines that need it)",
+                                        "type": "integer",
+                                        "example": 45
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Result of using the lifeline (e.g. hidden answers or next question)"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/admin/settings": {
+            "get": {
+                "tags": [
+                    "Admin: Settings"
+                ],
+                "summary": "Get global game settings",
+                "operationId": "62d3cba55df1f792e1273336f6030146",
+                "responses": {
+                    "200": {
+                        "description": "Current game settings"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Admin: Settings"
+                ],
+                "summary": "Update global game settings",
+                "operationId": "253afd9048e6ab299315502e3836a15a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "time_per_question": {
+                                        "type": "integer",
+                                        "example": 30
+                                    },
+                                    "total_levels": {
+                                        "type": "integer",
+                                        "example": 15
+                                    },
+                                    "easy_count": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "medium_count": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "hard_count": {
+                                        "type": "integer",
+                                        "example": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated game settings"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/leaderboard": {
+            "get": {
+                "tags": [
+                    "Leaderboard"
+                ],
+                "summary": "Get top players",
+                "operationId": "5e41702f56aaaec9b321d4d648095413",
+                "responses": {
+                    "200": {
+                        "description": "List of top 10 players"
+                    }
+                }
+            }
+        },
+        "/admin/stats": {
+            "get": {
+                "tags": [
+                    "Leaderboard"
+                ],
+                "summary": "Get game statistics (Admin only)",
+                "operationId": "57cf308bad1483c22f9d1ea4fb2808bb",
+                "responses": {
+                    "200": {
+                        "description": "Overall game statistics"
+                    }
+                }
+            }
+        },
+        "/multiplayer/battle/create": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Create a new battle lobby",
+                "description": "Create a new battle lobby (for battle mode)",
+                "operationId": "49b335e5e1c6dd8f0d40aef9da9c9097",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "player_count"
+                                ],
+                                "properties": {
+                                    "player_count": {
+                                        "type": "integer",
+                                        "example": 4
+                                    },
+                                    "is_private": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Battle lobby created"
+                    }
+                }
+            }
+        },
+        "/multiplayer/battle/join/{inviteCode}": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Join a battle lobby",
+                "description": "Join a battle using invite code",
+                "operationId": "d3a1c6996e869dedbe28face740051f8",
+                "parameters": [
+                    {
+                        "name": "inviteCode",
+                        "in": "path",
+                        "description": "6-character invite code",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Joined successfully"
+                    },
+                    "404": {
+                        "description": "Lobby not found"
+                    }
+                }
+            }
+        },
+        "/multiplayer/battle/lobby/{inviteCode}": {
+            "get": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Get battle lobby details",
+                "description": "Get battle lobby info",
+                "operationId": "2f97de207eb69341373d842648d57546",
+                "parameters": [
+                    {
+                        "name": "inviteCode",
+                        "in": "path",
+                        "description": "6-character invite code",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lobby details"
+                    },
+                    "404": {
+                        "description": "Lobby not found"
+                    }
+                }
+            }
+        },
+        "/multiplayer/battle/ready/{inviteCode}": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Set player ready status",
+                "description": "Set player ready status",
+                "operationId": "9280aa6a4ae15d7e1f3af9d0e1be7ee8",
+                "parameters": [
+                    {
+                        "name": "inviteCode",
+                        "in": "path",
+                        "description": "6-character invite code",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ready"
+                                ],
+                                "properties": {
+                                    "ready": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Ready status updated"
+                    }
+                }
+            }
+        },
+        "/multiplayer/battle/start/{inviteCode}": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Start the battle (host only)",
+                "description": "Start the battle (host only)",
+                "operationId": "84fa31091d24a5c6a5c11b860c726585",
+                "parameters": [
+                    {
+                        "name": "inviteCode",
+                        "in": "path",
+                        "description": "6-character invite code",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Battle started"
+                    },
+                    "400": {
+                        "description": "Not enough players"
+                    },
+                    "403": {
+                        "description": "Not host"
+                    }
+                }
+            }
+        },
+        "/multiplayer/battle/leave/{inviteCode}": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Leave battle lobby",
+                "description": "Leave battle lobby",
+                "operationId": "1bddc527f8addc44e73e9b6c8107c4c0",
+                "parameters": [
+                    {
+                        "name": "inviteCode",
+                        "in": "path",
+                        "description": "6-character invite code",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Left successfully"
+                    }
+                }
+            }
+        },
+        "/multiplayer/matchmake": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Enter 1v1 matchmaking",
+                "description": "Original 1v1 matchmaking (keep as is)",
+                "operationId": "06a1ed5cdd617fa14e65e574934e5548",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mode"
+                                ],
+                                "properties": {
+                                    "mode": {
+                                        "type": "string",
+                                        "example": "1v1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Match found or queued"
+                    }
+                }
+            }
+        },
+        "/multiplayer/action": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Send game action to other players",
+                "description": "Send game action to other players in the match",
+                "operationId": "553b8db3e76fc035f0f4eb87886d7182",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "match_id",
+                                    "action_type",
+                                    "payload"
+                                ],
+                                "properties": {
+                                    "match_id": {
+                                        "type": "string",
+                                        "example": "uuid"
+                                    },
+                                    "action_type": {
+                                        "type": "string",
+                                        "example": "score_update"
+                                    },
+                                    "payload": {
+                                        "type": "object",
+                                        "example": {
+                                            "score": 500
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Action sent"
+                    }
+                }
+            }
+        },
+        "/multiplayer/cancel-matchmake": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Cancel 1v1 matchmaking",
+                "description": "Cancel matchmaking (1v1 only)",
+                "operationId": "5b6dc2b95e6d72348a488dee14a06145",
+                "responses": {
+                    "200": {
+                        "description": "Matchmaking cancelled"
+                    }
+                }
+            }
+        },
+        "/multiplayer/scores/{matchId}": {
+            "get": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Get all scores for a match",
+                "description": "HTTP Fallback: Get all scores for a match",
+                "operationId": "3e9b526906b940ecc78545ea1afc3831",
+                "parameters": [
+                    {
+                        "name": "matchId",
+                        "in": "path",
+                        "description": "Match UUID",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scores dictionary"
+                    }
+                }
+            }
+        },
+        "/multiplayer/debug/match/{matchId}": {
+            "get": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Debug match payload",
+                "description": "Debug: View match payload",
+                "operationId": "319afb33c1e8a9d0b393b8ce66d407e8",
+                "parameters": [
+                    {
+                        "name": "matchId",
+                        "in": "path",
+                        "description": "Match UUID",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Match details"
+                    }
+                }
+            }
+        },
+        "/admin/questions": {
+            "get": {
+                "tags": [
+                    "Admin: Questions"
+                ],
+                "summary": "List all questions",
+                "operationId": "02adbff9e90c63efce0701c678123264",
+                "parameters": [
+                    {
+                        "name": "difficulty_level",
+                        "in": "query",
+                        "description": "Filter by difficulty (easy, medium, hard)",
+                        "required": false,
+                        "example": "easy"
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Filter by category ID",
+                        "required": false,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of questions"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Admin: Questions"
+                ],
+                "summary": "Create a new question",
+                "operationId": "70a12c5c8253235593e39e27d82ff841",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "text",
+                                    "difficulty_level",
+                                    "answers"
+                                ],
+                                "properties": {
+                                    "text": {
+                                        "type": "string",
+                                        "example": "What is the capital of France?"
+                                    },
+                                    "difficulty_level": {
+                                        "type": "string",
+                                        "example": "easy"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "answers": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "text": {
+                                                    "type": "string",
+                                                    "example": "Paris"
+                                                },
+                                                "is_correct": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Question created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/admin/questions/{question}": {
+            "get": {
+                "tags": [
+                    "Admin: Questions"
+                ],
+                "summary": "Get a specific question",
+                "operationId": "e876bf3ac8cd0a86f88f7b9c8de9b64c",
+                "parameters": [
+                    {
+                        "name": "question",
+                        "in": "path",
+                        "description": "Question ID",
+                        "required": true,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question details including answers"
+                    },
+                    "404": {
+                        "description": "Question not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Admin: Questions"
+                ],
+                "summary": "Update an existing question",
+                "operationId": "da6746af324b2f10148577d6dc6f9195",
+                "parameters": [
+                    {
+                        "name": "question",
+                        "in": "path",
+                        "description": "Question ID",
+                        "required": true,
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "text": {
+                                        "type": "string",
+                                        "example": "What is the capital of France?"
+                                    },
+                                    "difficulty_level": {
+                                        "type": "string",
+                                        "example": "medium"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "answers": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "text": {
+                                                    "type": "string",
+                                                    "example": "Lyon"
+                                                },
+                                                "is_correct": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Question updated"
+                    },
+                    "404": {
+                        "description": "Question not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Admin: Questions"
+                ],
+                "summary": "Delete a question",
+                "operationId": "d2931c72c3a5bfbdb34c0598ab11c06a",
+                "parameters": [
+                    {
+                        "name": "question",
+                        "in": "path",
+                        "description": "Question ID",
+                        "required": true,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question deleted"
+                    },
+                    "404": {
+                        "description": "Question not found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "Admin: Categories",
+            "description": "Admin: Categories"
+        },
+        {
+            "name": "Game",
+            "description": "Game"
+        },
+        {
+            "name": "Admin: Settings",
+            "description": "Admin: Settings"
+        },
+        {
+            "name": "Leaderboard",
+            "description": "Leaderboard"
+        },
+        {
+            "name": "Multiplayer",
+            "description": "Multiplayer"
+        },
+        {
+            "name": "Admin: Questions",
+            "description": "Admin: Questions"
+        }
+    ]
+}
