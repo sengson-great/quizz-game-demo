@@ -17,6 +17,7 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, si
     const circumference = 2 * Math.PI * dims.r;
     const progress = timeRemaining / totalTime;
     const strokeDashoffset = circumference * (1 - progress);
+    
     const getColor = () => {
         if (timeRemaining > totalTime * 0.66)
             return '#059669';
