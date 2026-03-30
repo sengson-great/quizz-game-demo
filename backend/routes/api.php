@@ -14,6 +14,10 @@ use App\Models\Question;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Explicitly register broadcast routes for API/Passport
+\Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth:api']]);
+
+
 // Public leaderboard
 Route::get('/leaderboard', [LeaderboardController::class, 'index']);
 

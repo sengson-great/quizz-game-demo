@@ -67,9 +67,10 @@ class GameController extends Controller
         if ($session->status !== 'active')
             return response()->json(['error' => 'Game ended'], 400);
 
-        $request->validate(['answer_id' => 'required|exists:answers,id']);
+        $request->validate(['answer_id' => 'nullable|exists:answers,id']);
 
-        $result = $this->gameService->processAnswer($session, $request->answer_id);
+        $answerId = $request->input('answer_id'); // null means timed out
+        $result = $this->gameService->processAnswer($session, $answerId);
 
         // If correct, get next question immediately? Or separate call.
         // Frontend expects next_question in response often.

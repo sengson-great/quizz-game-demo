@@ -127,16 +127,25 @@ class GameService
 
     public function processAnswer(GameSession $session, $answerId)
     {
+        // Null answer_id = timed out — mark session failed and return correct answer
+        if (!$answerId) {
+            $currentQuestion = $this->getNextQuestion($session);
+            $correctAnswerId = null;
+            if ($currentQuestion) {
+                $correctAnswer = $currentQuestion->answers()->where('is_correct', true)->first();
+                $correctAnswerId = $correctAnswer?->id;
+            }
+            $session->status = 'failed';
+            $session->ended_at = now();
+            $session->save();
+            return [
+                'status' => 'timeout',
+                'correct_answer' => $correctAnswerId,
+                'score' => $session->score,
+            ];
+        }
+
         $answer = Answer::find($answerId);
-
-        // Log answer
-        // Note: For Double Chance, we need to know if this is a retry.
-        // If double chance active, check if previously failed THIS question?
-        // Actually, Double Chance means if fail, get another try immediately.
-        // Session needs to track "double_chance_active_for_question_id".
-        // Simpler: Just rely on frontend for retry logic? No, secure.
-        // Let's assume standard flow first.
-
         $isCorrect = $answer->is_correct;
 
         // Check if double chance active
