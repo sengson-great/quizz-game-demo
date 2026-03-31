@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Settings, Volume2, Music, Globe, Tag, Save, Check } from 'lucide-react';
@@ -11,6 +11,10 @@ const LANGUAGES = [
     { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭' }, { code: 'en', name: 'English', flag: '🇬🇧' },
 ];
 const AVATARS = ['🦊', '🐺', '🦋', '🐉', '🦅', '🐬', '🦁', '🐙', '🐸', '🦄', '🦉', '🐆'];
+
+const ToggleSwitch = memo(({ value, onChange }) => (<button onClick={() => onChange(!value)} className="relative w-12 h-6 rounded-full transition-all duration-300" style={{ background: value ? '#E84C6A' : 'rgba(0,0,0,0.12)' }}>
+  <motion.div animate={{ x: value ? 24 : 2 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"/>
+</button>));
 
 export default function SettingsPage() {
     const { currentUser, updateUser } = useAuth();
@@ -27,10 +31,6 @@ export default function SettingsPage() {
     const handleSave = () => { updateUser({ username: form.username, avatar: form.avatar, language: form.language, soundEnabled: form.soundEnabled, musicEnabled: form.musicEnabled, preferredCategories: form.preferredCategories }); setSaved(true); setTimeout(() => setSaved(false), 2000); };
     if (!currentUser)
         return null;
-
-    const ToggleSwitch = ({ value, onChange }) => (<button onClick={() => onChange(!value)} className="relative w-12 h-6 rounded-full transition-all duration-300" style={{ background: value ? '#E84C6A' : 'rgba(0,0,0,0.12)' }}>
-      <motion.div animate={{ x: value ? 24 : 2 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"/>
-    </button>);
 
     return (<div className="min-h-screen px-4 py-8 max-w-2xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-8">
