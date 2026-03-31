@@ -29,7 +29,7 @@ const applyDefaults = (user) => {
     // Restore frontend-only settings
     user.soundEnabled = saved.soundEnabled ?? true;
     user.musicEnabled = saved.musicEnabled ?? true;
-    user.language = saved.language || 'en';
+    user.language = saved.language || 'km';
     user.preferredCategories = saved.preferredCategories || [];
     return user;
 };

@@ -3,22 +3,29 @@ import { Trophy, LayoutDashboard, Settings, Shield, LogOut, Sparkles, Music, Vol
 import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAudio } from '../../contexts/AudioContext';
+import { useTranslation } from '../../hooks/useTranslation';
+
 export function Navbar() {
     const { currentUser, logout } = useAuth();
     const { isPlaying, isMuted, toggleMute } = useAudio();
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
+
     const handleLogout = () => {
         logout();
         navigate('/');
     };
+
     const navLinks = [
-        { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-        { to: '/settings', label: 'Settings', icon: Settings },
-        ...(currentUser?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: Shield }] : []),
+        { to: '/dashboard', label: t('dashboard'), icon: LayoutDashboard },
+        { to: '/leaderboard', label: t('leaderboard'), icon: Trophy },
+        { to: '/settings', label: t('settings'), icon: Settings },
+        ...(currentUser?.role === 'admin' ? [{ to: '/admin', label: t('admin'), icon: Shield }] : []),
     ];
+
     const showMusicBtn = currentUser?.musicEnabled && isPlaying;
+
     return (<nav className="fixed top-0 left-0 right-0 z-50 border-b" style={{ background: 'rgba(255,245,245,0.85)', backdropFilter: 'blur(24px) saturate(1.4)', borderColor: 'rgba(0,0,0,0.06)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -76,14 +83,14 @@ export function Navbar() {
                   <span className="text-xl">{currentUser.avatar}</span>
                   <div>
                     <p className="text-[#1A1A2E] text-sm leading-none">{currentUser.username}</p>
-                    <p className="text-[#E84C6A] text-xs">{currentUser.totalScore.toLocaleString()} pts</p>
+                    <p className="text-[#E84C6A] text-xs">{currentUser.totalScore.toLocaleString()} {t('points')}</p>
                   </div>
                 </div>
                 <button onClick={handleLogout} className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200">
                   <LogOut className="w-4 h-4"/>
                 </button>
               </>) : (<Link to="/auth" className="px-5 py-2 rounded-xl text-white text-sm transition-all hover:shadow-lg" style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)', boxShadow: '0 2px 10px rgba(232,76,106,0.3)' }}>
-                Sign In
+                {t('signIn')}
               </Link>)}
           </div>
         </div>

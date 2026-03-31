@@ -47,7 +47,7 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
                   <span className="text-lg">🧑‍🏫</span>
                 </div>
                 <div>
-                  <p className="text-emerald-600 text-sm mb-1" style={{ fontWeight: 500 }}>Dr. Alex</p>
+                  <p className="text-emerald-600 text-sm mb-1" style={{ fontWeight: 500 }}>Dr. Suytong</p>
                   <p className="text-slate-600 text-sm leading-relaxed">{phoneMessage}</p>
                 </div>
               </div>

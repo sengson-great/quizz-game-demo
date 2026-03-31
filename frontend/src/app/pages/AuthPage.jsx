@@ -3,7 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Eye, EyeOff, User, Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../hooks/useTranslation';
+
 const LIGHT_BG = 'linear-gradient(145deg, #FFF5F5 0%, #FDE8EC 40%, #FCE4EC 70%, #FFF0F3 100%)';
+
 export default function AuthPage() {
     const [tab, setTab] = useState('login');
     const [email, setEmail] = useState('');
@@ -13,6 +16,7 @@ export default function AuthPage() {
     const [error, setError] = useState('');
     const [formLoading, setFormLoading] = useState(false);
     const { login, register, currentUser, loading: authLoading } = useAuth();
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,12 +36,12 @@ export default function AuthPage() {
                 navigate('/dashboard');
             }
             else {
-                setError('Invalid email or password. Try admin@quiz.com / admin123');
+                setError(t('invalidCredentials'));
             }
         }
         else {
             if (!username.trim() || username.length < 3) {
-                setError('Username must be at least 3 characters');
+                setError(t('usernameRequired'));
                 setFormLoading(false);
                 return;
             }
@@ -46,12 +50,14 @@ export default function AuthPage() {
                 navigate('/dashboard');
             }
             else {
-                setError('Email already registered.');
+                setError(t('alreadyRegistered'));
             }
         }
         setFormLoading(false);
     };
+
     const inputClass = "w-full px-4 py-3 rounded-xl text-[#1A1A2E] placeholder-slate-400 focus:outline-none transition-all text-sm";
+
     return (<div className="min-h-screen flex items-center justify-center px-4 relative" style={{ background: LIGHT_BG, fontFamily: 'Poppins, Inter, sans-serif' }}>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full opacity-[0.3]" style={{ background: 'radial-gradient(circle, #FCE4EC, transparent)', filter: 'blur(100px)' }}/>
@@ -69,7 +75,7 @@ export default function AuthPage() {
             </span>
           </Link>
           <p className="text-slate-500 text-sm">
-            {tab === 'login' ? 'Welcome back! Sign in to continue.' : 'Create your account and start competing'}
+            {tab === 'login' ? t('welcomeBackSignIn') : t('createAccountCompete')}
           </p>
         </div>
 
@@ -77,8 +83,8 @@ export default function AuthPage() {
         <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)' }}>
           {/* Tabs */}
           <div className="flex" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-            {['login', 'register'].map(t => (<button key={t} onClick={() => { setTab(t); setError(''); }} className={`flex-1 py-4 text-sm transition-all capitalize ${tab === t ? 'text-[#E84C6A] border-b-2 border-[#E84C6A]' : 'text-slate-400 hover:text-slate-600'}`} style={tab === t ? { background: 'rgba(232,76,106,0.04)' } : {}}>
-                {t === 'login' ? 'Sign In' : 'Register'}
+            {['login', 'register'].map(tKey => (<button key={tKey} onClick={() => { setTab(tKey); setError(''); }} className={`flex-1 py-4 text-sm transition-all capitalize ${tab === tKey ? 'text-[#E84C6A] border-b-2 border-[#E84C6A]' : 'text-slate-400 hover:text-slate-600'}`} style={tab === tKey ? { background: 'rgba(232,76,106,0.04)' } : {}}>
+                {tKey === 'login' ? t('signIn') : t('register')}
               </button>))}
           </div>
 
@@ -87,15 +93,15 @@ export default function AuthPage() {
               <motion.form key={tab} initial={{ opacity: 0, x: tab === 'login' ? -10 : 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} onSubmit={handleSubmit} className="space-y-4">
                 {tab === 'register' && (<div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
-                    <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required className={`${inputClass} pl-10`} style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                    <input type="text" placeholder={t('username')} value={username} onChange={e => setUsername(e.target.value)} required className={`${inputClass} pl-10`} style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
                   </div>)}
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
-                  <input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required className={`${inputClass} pl-10`} style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                  <input type="email" placeholder={t('emailAddress')} value={email} onChange={e => setEmail(e.target.value)} required className={`${inputClass} pl-10`} style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
-                  <input type={showPass ? 'text' : 'password'} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className={`${inputClass} pl-10 pr-10`} style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                  <input type={showPass ? 'text' : 'password'} placeholder={t('password')} value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className={`${inputClass} pl-10 pr-10`} style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
                   <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                     {showPass ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
                   </button>
@@ -114,13 +120,13 @@ export default function AuthPage() {
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity="0.3"/>
                         <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
                       </svg>
-                      {tab === 'login' ? 'Signing in...' : 'Creating account...'}
-                    </span>) : (tab === 'login' ? 'Sign In' : 'Create Account')}
+                      {tab === 'login' ? t('signingIn') : t('creatingAccount')}
+                    </span>) : (tab === 'login' ? t('signIn') : t('register'))}
                 </button>
 
                 {tab === 'login' && (<div className="text-center">
                     <p className="text-slate-400 text-xs">
-                      Demo User: <span className="text-[#E84C6A]">admin@example.com</span> / <span className="text-[#E84C6A]">password</span>
+                      {t('player')}: <span className="text-[#E84C6A]">admin@example.com</span> / <span className="text-[#E84C6A]">password</span>
                     </p>
                   </div>)}
               </motion.form>

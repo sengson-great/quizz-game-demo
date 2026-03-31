@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, AlertTriangle, X } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
