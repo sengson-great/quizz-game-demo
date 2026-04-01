@@ -1,0 +1,3239 @@
+{
+    "categories": [
+        {
+            "id": "science",
+            "name": "Science",
+            "name_km": "វិទ្យាសាស្ត្រ",
+            "icon": "🔬",
+            "color": "from-blue-500 to-cyan-400",
+            "description": "Physics, chemistry, biology and more"
+        },
+        {
+            "id": "history",
+            "name": "History",
+            "name_km": "ប្រវត្តិសាស្ត្រ",
+            "icon": "📜",
+            "color": "from-amber-500 to-orange-400",
+            "description": "World events, civilizations & leaders"
+        },
+        {
+            "id": "technology",
+            "name": "Technology",
+            "name_km": "បច្ចេកវិទ្យា",
+            "icon": "💻",
+            "color": "from-violet-500 to-purple-400",
+            "description": "Programming, internet & innovation"
+        },
+        {
+            "id": "geography",
+            "name": "Geography",
+            "name_km": "ភូមិសាស្ត្រ",
+            "icon": "🌍",
+            "color": "from-green-500 to-emerald-400",
+            "description": "Countries, capitals & natural wonders"
+        },
+        {
+            "id": "sports",
+            "name": "Sports",
+            "name_km": "កីឡា",
+            "icon": "⚽",
+            "color": "from-red-500 to-rose-400",
+            "description": "Teams, athletes & competitions"
+        },
+        {
+            "id": "arts",
+            "name": "Arts & Culture",
+            "name_km": "សិល្បៈ និងវប្បធម៌",
+            "icon": "🎨",
+            "color": "from-pink-500 to-fuchsia-400",
+            "description": "Music, painting, literature & film"
+        }
+    ],
+    "questions": [
+        {
+            "id": "sci-e-1",
+            "categoryId": "science",
+            "difficulty": "Easy",
+            "text": "What planet is closest to the Sun?",
+            "text_km": "តើភពណាដែលនៅជិតព្រះអាទិត្យជាងគេ?",
+            "explanation": "Mercury is the innermost planet in our Solar System.",
+            "explanation_km": "ភពពុធគឺជាភពដែលនៅខាងក្នុងបំផុតនៃប្រព័ន្ធព្រះអាទិត្យរបស់យើង។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Venus",
+                    "text_km": "ភពសុក្រ",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Mercury",
+                    "text_km": "ភពពុធ",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Mars",
+                    "text_km": "ភពអង្គារ",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Earth",
+                    "text_km": "ភពផែនដី",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-e-2",
+            "categoryId": "science",
+            "difficulty": "Easy",
+            "text": "What gas do humans need to breathe to survive?",
+            "text_km": "តើឧស្ម័នអ្វីដែលមនុស្សត្រូវការដកដង្ហើមដើម្បីរស់?",
+            "explanation": "Humans need oxygen (O₂) to cellular respiration.",
+            "explanation_km": "មនុស្សត្រូវការអុកស៊ីហ្សែន (O₂) សម្រាប់ការដកដង្ហើមរបស់កោសិកា។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Carbon Dioxide",
+                    "text_km": "កាបូនឌីអុកស៊ីត",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Nitrogen",
+                    "text_km": "អាសូត",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Oxygen",
+                    "text_km": "អុកស៊ីហ្សែន",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Hydrogen",
+                    "text_km": "អ៊ីដ្រូសែន",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-e-3",
+            "categoryId": "science",
+            "difficulty": "Easy",
+            "text": "What is the chemical formula for water?",
+            "text_km": "តើរូបមន្តគីមីនៃទឹកគឺជាអ្វី?",
+            "explanation": "Water consists of two hydrogen atoms bonded to one oxygen atom.",
+            "explanation_km": "ទឹកមានអាតូមអ៊ីដ្រូសែនពីរភ្ជាប់ជាមួយអាតូមអុកស៊ីហ្សែនមួយ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "CO₂",
+                    "text_km": "CO₂",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "NaCl",
+                    "text_km": "NaCl",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "H₂O₂",
+                    "text_km": "H₂O₂",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "H₂O",
+                    "text_km": "H₂O",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "sci-e-4",
+            "categoryId": "science",
+            "difficulty": "Easy",
+            "text": "How many bones are in the adult human body?",
+            "text_km": "តើមានឆ្អឹងប៉ុន្មាននៅក្នុងរាងកាយមនុស្សពេញវ័យ?",
+            "explanation": "Adults have 206 bones; babies are born with around 270–300.",
+            "explanation_km": "មនុស្សពេញវ័យមានឆ្អឹង ២០៦; ទារកហកើតមកមានប្រហែល ២៧០-៣០០។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "206",
+                    "text_km": "២០៦",
+                    "isCorrect": true
+                },
+                {
+                    "id": "b",
+                    "text": "180",
+                    "text_km": "១៨០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "250",
+                    "text_km": "២៥០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "320",
+                    "text_km": "៣២០",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-e-5",
+            "categoryId": "science",
+            "difficulty": "Easy",
+            "text": "What is the closest star to Earth?",
+            "text_km": "តើផ្កាយណាដែលនៅជិតផែនដីជាងគេ?",
+            "explanation": "The Sun is our nearest star, about 150 million km away.",
+            "explanation_km": "ព្រះអាទិត្យគឺជាផ្កាយដែលនៅជិតយើងបំផុត ដែលមានចម្ងាយប្រហែល ១៥០ លានគីឡូម៉ែត្រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Sirius",
+                    "text_km": "ស៊ីរីយូស (Sirius)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Proxima Centauri",
+                    "text_km": "ប្រុកស៊ីម៉ា សេនតូរី (Proxima Centauri)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "The Sun",
+                    "text_km": "ព្រះអាទិត្យ",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Betelgeuse",
+                    "text_km": "បេថេលហ្សឺស (Betelgeuse)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-e-1",
+            "categoryId": "history",
+            "difficulty": "Easy",
+            "text": "In which year did World War II end?",
+            "text_km": "តើពិភពលោកលើកទី២ បានបញ្ចប់នៅឆ្នាំណា?",
+            "explanation": "WWII ended in 1945 — V-E Day (May 8) and V-J Day (September 2).",
+            "explanation_km": "សង្គ្រាមលោកលើកទី ២ បានបញ្ចប់នៅឆ្នាំ ១៩៤៥ - ទិវាជ័យជំនះនៅអឺរ៉ុប (ថ្ងៃទី ៨ ខែឧសភា) និងទិវាជ័យជំនះលើជប៉ុន (ថ្ងៃទី ២ ខែកញ្ញា)។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1943",
+                    "text_km": "១៩៤៣",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1945",
+                    "text_km": "១៩៤៥",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "1947",
+                    "text_km": "១៩៤៧",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "1941",
+                    "text_km": "១៩៤១",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-e-2",
+            "categoryId": "history",
+            "difficulty": "Easy",
+            "text": "Who was the first President of the United States?",
+            "text_km": "តើនរណាជាប្រធានាធិបតីទីមួយនៃសហរដ្ឋអាមេរិក?",
+            "explanation": "George Washington served as the 1st US President from 1789 to 1797.",
+            "explanation_km": "ចច វ៉ាស៊ីនតោន (George Washington) បានបម្រើការជាប្រធានាធិបតីអាមេរិកទី ១ ពីឆ្នាំ ១៧៨៩ ដល់ ១៧៩៧។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Abraham Lincoln",
+                    "text_km": "អាប្រាហាម លីនខុន (Abraham Lincoln)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Thomas Jefferson",
+                    "text_km": "ថូម៉ាស ជេហ្វឺសុន (Thomas Jefferson)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Benjamin Franklin",
+                    "text_km": "ប៊េនចាមីន ហ្វ្រែងឃ្លីន (Benjamin Franklin)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "George Washington",
+                    "text_km": "ចច វ៉ាស៊ីនតោន (George Washington)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "his-e-3",
+            "categoryId": "history",
+            "difficulty": "Easy",
+            "text": "In which year did the Berlin Wall fall?",
+            "text_km": "តើជញ្ជាំងប៊ែរឡាំងបានដួលរលំនៅឆ្នាំណា?",
+            "explanation": "The Berlin Wall fell on November 9, 1989, symbolising the end of the Cold War.",
+            "explanation_km": "ជញ្ជាំងប៊ែរឡាំងបានដួលរលំនៅថ្ងៃទី ៩ ខែវិច្ឆិកា ឆ្នាំ ១៩៨៩ ដែលជានិមិត្តរូបនៃការបញ្ចប់សង្គ្រាមត្រជាក់។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1987",
+                    "text_km": "១៩៨៧",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1991",
+                    "text_km": "១៩៩១",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "1989",
+                    "text_km": "១៩៨៩",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "1985",
+                    "text_km": "១៩៨៥",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-e-4",
+            "categoryId": "history",
+            "difficulty": "Easy",
+            "text": "Which ancient wonder was located in Alexandria, Egypt?",
+            "text_km": "តើអច្ឆរិយៈបុរាណមួយណាដែលមានទីតាំងនៅអាឡិចសាន់ឌ្រី (Alexandria) ប្រទេសអេស៊ីប?",
+            "explanation": "The Lighthouse of Alexandria was one of the Seven Wonders of the Ancient World.",
+            "explanation_km": "បង្គោលភ្លើងហ្វារអាឡិចសាន់ឌ្រី (Lighthouse of Alexandria) គឺជាអច្ឆរិយៈមួយក្នុងចំណោមអច្ឆរិយៈទាំង ៧ នៃពិភពលោកបុរាណ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "The Colossus",
+                    "text_km": "រូបសំណាកកូឡូសសឹស (The Colossus)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "The Sphinx",
+                    "text_km": "រូបសំណាកស្ភីង (The Sphinx)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "The Lighthouse of Alexandria",
+                    "text_km": "បង្គោលភ្លើងហ្វារអាឡិចសាន់ឌ្រី (The Lighthouse of Alexandria)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "The Hanging Gardens",
+                    "text_km": "សួនច្បារព្យួរ (The Hanging Gardens)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-e-5",
+            "categoryId": "history",
+            "difficulty": "Easy",
+            "text": "Who was known as the \"Maid of Orléans\"?",
+            "text_km": "តើនរណាដែលត្រូវបានគេស្គាល់ថាជា \"ស្ត្រីនៃអ័រឡេអង់\" (Maid of Orléans)?",
+            "explanation": "Joan of Arc led the French army to victory during the Hundred Years' War.",
+            "explanation_km": "សាំង ហ្សង់ដាក (Joan of Arc) បានដឹកនាំកងទ័ពបារាំងឱ្យទទួលបានជ័យជំនះក្នុងអំឡុងសង្គ្រាមមួយរយឆ្នាំ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Marie Antoinette",
+                    "text_km": "ម៉ារី អង់តូណែត (Marie Antoinette)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Joan of Arc",
+                    "text_km": "សាំង ហ្សង់ដាក (Joan of Arc)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Catherine the Great",
+                    "text_km": "ខេតធឺរីន ដឺ ហ្គ្រេត (Catherine the Great)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Eleanor of Aquitaine",
+                    "text_km": "អែលីន័រ នៃអាគីតែន (Eleanor of Aquitaine)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-e-1",
+            "categoryId": "technology",
+            "difficulty": "Easy",
+            "text": "What does \"HTML\" stand for?",
+            "text_km": "តើ \"HTML\" តំណាងឱ្យអ្វី?",
+            "explanation": "HTML stands for HyperText Markup Language, the backbone of every webpage.",
+            "explanation_km": "HTML តំណាងឱ្យ HyperText Markup Language ដែលជាឆ្អឹងខ្នងនៃរាល់គេហទំព័រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "High-Tech Markup Language",
+                    "text_km": "High-Tech Markup Language",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "HyperText Markup Language",
+                    "text_km": "HyperText Markup Language",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "HyperTransfer Markup Listing",
+                    "text_km": "HyperTransfer Markup Listing",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Hyper Terminal Meta Language",
+                    "text_km": "Hyper Terminal Meta Language",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-e-2",
+            "categoryId": "technology",
+            "difficulty": "Easy",
+            "text": "Which company created the iPhone?",
+            "text_km": "តើក្រុមហ៊ុនណាដែលបានបង្កើត iPhone?",
+            "explanation": "Apple Inc. unveiled the first iPhone on January 9, 2007.",
+            "explanation_km": "ក្រុមហ៊ុន Apple Inc. បានបង្ហាញទូរស័ព្ទ iPhone ដំបូងបង្អស់នៅថ្ងៃទី ៩ ខែមករា ឆ្នាំ ២០០៧។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Samsung",
+                    "text_km": "សាំស៊ុង (Samsung)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Nokia",
+                    "text_km": "ណូគៀ (Nokia)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Google",
+                    "text_km": "ហ្គូហ្កល (Google)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Apple",
+                    "text_km": "អាផល (Apple)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "tec-e-3",
+            "categoryId": "technology",
+            "difficulty": "Easy",
+            "text": "What does \"CPU\" stand for?",
+            "text_km": "តើ \"CPU\" តំណាងឱ្យអ្វី?",
+            "explanation": "CPU stands for Central Processing Unit — the brain of a computer.",
+            "explanation_km": "CPU តំណាងឱ្យ Central Processing Unit ដែលជាខួរក្បាលនៃកុំព្យូទ័រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Core Processing Utility",
+                    "text_km": "Core Processing Utility",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Central Processing Unit",
+                    "text_km": "Central Processing Unit",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Computer Power Unit",
+                    "text_km": "Computer Power Unit",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Central Programming Unit",
+                    "text_km": "Central Programming Unit",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-e-4",
+            "categoryId": "technology",
+            "difficulty": "Easy",
+            "text": "What does \"URL\" stand for?",
+            "text_km": "តើ \"URL\" តំណាងឱ្យអ្វី?",
+            "explanation": "URL stands for Uniform Resource Locator — the address of a web page.",
+            "explanation_km": "URL តំណាងឱ្យ Uniform Resource Locator ដែលជាអាសយដ្ឋាននៃគេហទំព័រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Universal Request Link",
+                    "text_km": "Universal Request Link",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Unified Resource Listing",
+                    "text_km": "Unified Resource Listing",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Uniform Resource Locator",
+                    "text_km": "Uniform Resource Locator",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Universal Remote Loader",
+                    "text_km": "Universal Remote Loader",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-e-5",
+            "categoryId": "technology",
+            "difficulty": "Easy",
+            "text": "Which programming language is primarily used for styling web pages?",
+            "text_km": "តើភាសាកម្មវិធីមួយណាដែលត្រូវបានប្រើប្រាស់ជាចម្បងសម្រាប់ការរចនាគេហទំព័រ?",
+            "explanation": "CSS (Cascading Style Sheets) controls the visual presentation of HTML documents.",
+            "explanation_km": "CSS (Cascading Style Sheets) គ្រប់គ្រងការបង្ហាញរូបរាងនៃឯកសារ HTML។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "JavaScript",
+                    "text_km": "JavaScript",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Python",
+                    "text_km": "Python",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "CSS",
+                    "text_km": "CSS",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "SQL",
+                    "text_km": "SQL",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-e-1",
+            "categoryId": "geography",
+            "difficulty": "Easy",
+            "text": "What is the capital city of France?",
+            "text_km": "តើទីក្រុងប៉ារីសជារដ្ឋធានីនៃប្រទេសណា?",
+            "explanation": "Paris has been the capital of France since the 10th century.",
+            "explanation_km": "ទីក្រុងប៉ារីសបានក្លាយជារដ្ឋធានីនៃប្រទេសបារាំងតាំងពីសតវត្សទី ១០។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Lyon",
+                    "text_km": "លីយ៉ុង (Lyon)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Marseille",
+                    "text_km": "ម៉ារសី (Marseille)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Paris",
+                    "text_km": "ប៉ារីស (Paris)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Nice",
+                    "text_km": "នីស (Nice)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-e-2",
+            "categoryId": "geography",
+            "difficulty": "Easy",
+            "text": "What is the largest continent by area?",
+            "text_km": "តើទ្វីបណាដែលធំជាងគេតាមផ្ទៃដី?",
+            "explanation": "Asia covers approximately 44.6 million km² — about 30% of Earth's land area.",
+            "explanation_km": "ទ្វីបអាស៊ីគ្របដណ្តប់លើផ្ទៃដីប្រហែល ៤៤.៦ លានគីឡូម៉ែត្រការ៉េ ដែលស្មើនឹងប្រហែល ៣០% នៃផ្ទៃដីរបស់ផែនដី។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Africa",
+                    "text_km": "អាហ្វ្រិក",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "North America",
+                    "text_km": "អាមេរិកខាងជើង",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Asia",
+                    "text_km": "អាស៊ី",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Europe",
+                    "text_km": "អឺរ៉ុប",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-e-3",
+            "categoryId": "geography",
+            "difficulty": "Easy",
+            "text": "How many continents are on Earth?",
+            "text_km": "តើមានទ្វីបចំនួនប៉ុន្មាននៅលើផែនដី?",
+            "explanation": "The seven continents are Africa, Antarctica, Asia, Australia, Europe, North America, and South America.",
+            "explanation_km": "ទ្វីបទាំងប្រាំពីរមានដូចជា អាហ្វ្រិក, អង់តាក់ទិក, អាស៊ី, អូស្ត្រាលី, អឺរ៉ុប, អាមេរិកខាងជើង និងអាមេរិកខាងត្បូង។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "5",
+                    "text_km": "៥",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "6",
+                    "text_km": "៦",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "7",
+                    "text_km": "៧",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "8",
+                    "text_km": "៨",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-e-4",
+            "categoryId": "geography",
+            "difficulty": "Easy",
+            "text": "Which ocean is the largest on Earth?",
+            "text_km": "តើមហាសមុទ្រមួយណាដែលធំជាងគេនៅលើផែនដី?",
+            "explanation": "The Pacific Ocean covers more than 165 million km², about 46% of Earth's water surface.",
+            "explanation_km": "មហាសមុទ្រប៉ាស៊ីហ្វិកគ្របដណ្តប់លើផ្ទៃដីជាង ១៦៥ លានគីឡូម៉ែត្រការ៉េ ដែលស្មើនឹងប្រហែល ៤៦% នៃផ្ទៃទឹករបស់ផែនដី។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Atlantic Ocean",
+                    "text_km": "មហាសមុទ្រអាត្លង់ទិក",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Indian Ocean",
+                    "text_km": "មហាសមុទ្រឥណ្ឌា",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Pacific Ocean",
+                    "text_km": "មហាសមុទ្រប៉ាស៊ីហ្វិក",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Arctic Ocean",
+                    "text_km": "មហាសមុទ្រអាកទិក",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-e-5",
+            "categoryId": "geography",
+            "difficulty": "Easy",
+            "text": "Which country has the most population in the world?",
+            "text_km": "តើប្រទេសណាដែលមានចំនួនប្រជាជនច្រើនជាងគេបំផុតនៅលើពិភពលោក?",
+            "explanation": "India surpassed China in 2023 to become the world's most populous country.",
+            "explanation_km": "ប្រទេសឥណ្ឌាបានវ៉ាដាច់ប្រទេសចិនក្នុងឆ្នាំ ២០២៣ ដើម្បីក្លាយជាប្រទេសដែលមានប្រជាជនច្រើនជាងគេបំផុតនៅលើពិភពលោក។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "China",
+                    "text_km": "ចិន",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "USA",
+                    "text_km": "សហរដ្ឋអាមេរិក",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "India",
+                    "text_km": "ឥណ្ឌា",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Russia",
+                    "text_km": "រុស្ស៊ី",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-e-1",
+            "categoryId": "sports",
+            "difficulty": "Easy",
+            "text": "How many players are on a soccer/football team on the field?",
+            "text_km": "តើមានកីឡាករប៉ុន្មាននាក់នៅក្នុងក្រុមបាល់ទាត់នៅលើទីលាន?",
+            "explanation": "Each soccer team fields 11 players including the goalkeeper.",
+            "explanation_km": "ក្រុមបាល់ទាត់នីមួយៗមានកីឡាករ ១១ នាក់ រួមទាំងអ្នកចាំទីម្នាក់ផងដែរ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "9",
+                    "text_km": "៩",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "11",
+                    "text_km": "១១",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "12",
+                    "text_km": "១២",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "10",
+                    "text_km": "១០",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-e-2",
+            "categoryId": "sports",
+            "difficulty": "Easy",
+            "text": "How many rings are on the Olympic flag?",
+            "text_km": "តើមានចិញ្ចៀនចំនួនប៉ុន្មាននៅលើទង់ជាតិអូឡាំពិក?",
+            "explanation": "The 5 interlocked rings represent the five continents of the world.",
+            "explanation_km": "ចិញ្ចៀនដែលភ្ជាប់គ្នាទាំង ៥ តំណាងឱ្យទ្វីបទាំង ៥ នៃពិភពលោក។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "4",
+                    "text_km": "៤",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "6",
+                    "text_km": "៦",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "5",
+                    "text_km": "៥",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "3",
+                    "text_km": "៣",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-e-3",
+            "categoryId": "sports",
+            "difficulty": "Easy",
+            "text": "In which sport do players try to hit a ball into a hole?",
+            "text_km": "តើនៅក្នុងកីឡាមួយណាដែលកីឡាករព្យាយាមវាយបាល់បញ្ចូលទៅក្នុងរណ្តៅ?",
+            "explanation": "Golf is played on a course with the objective of hitting a ball into a series of holes.",
+            "explanation_km": "កីឡាវាយកូនហ្គោលត្រូវបានលេងនៅលើទីលានដែលមានគោលបំណងវាយបាល់បញ្ចូលទៅក្នុងរណ្តៅជាបន្តបន្ទាប់។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Cricket",
+                    "text_km": "គ្រីឃីត (Cricket)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Tennis",
+                    "text_km": "តិន្នីស (Tennis)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Golf",
+                    "text_km": "វាយកូនហ្គោល (Golf)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Baseball",
+                    "text_km": "បាល់បោះ (Baseball)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-e-4",
+            "categoryId": "sports",
+            "difficulty": "Easy",
+            "text": "How many points does a touchdown score in American football?",
+            "text_km": "តើការរកបាន touchdown មួយទទួលបានពិន្ទុប៉ុន្មាននៅក្នុងកីឡាបាល់ទាត់អាមេរិក?",
+            "explanation": "A touchdown scores 6 points, plus an opportunity for an extra point.",
+            "explanation_km": "Touchdown មួយទទួលបាន ៦ ពិន្ទុ បូករួមទាំងឱកាសទទួលបានពិន្ទុបន្ថែមទៀត។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "3",
+                    "text_km": "៣",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "7",
+                    "text_km": "៧",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "6",
+                    "text_km": "៦",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "4",
+                    "text_km": "៤",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-e-5",
+            "categoryId": "sports",
+            "difficulty": "Easy",
+            "text": "Which country invented the sport of basketball?",
+            "text_km": "តើប្រទេសណាដែលបានបង្កើតកីឡាបាល់បោះ?",
+            "explanation": "Basketball was invented by Canadian-American Dr. James Naismith in 1891 in the USA.",
+            "explanation_km": "កីឡាបាល់បោះត្រូវបានបង្កើតឡើងដោយលោកបណ្ឌិត James Naismith ជនជាតិកាណាដា-អាមេរិក ក្នុងឆ្នាំ ១៨៩១ នៅសហរដ្ឋអាមេរិក។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Canada",
+                    "text_km": "កាណាដា",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "United States",
+                    "text_km": "សហរដ្ឋអាមេរិក",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "United Kingdom",
+                    "text_km": "ចក្រភពអង់គ្លេស",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Brazil",
+                    "text_km": "ប្រេស៊ីល",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-e-1",
+            "categoryId": "arts",
+            "difficulty": "Easy",
+            "text": "Who painted the Mona Lisa?",
+            "text_km": "តើនរណាជាអ្នកគូរគំនូរ ម៉ូណាលីសា (Mona Lisa)?",
+            "explanation": "Leonardo da Vinci painted the Mona Lisa between c.1503 and c.1519.",
+            "explanation_km": "លោក លីអូណាដូ ដា វីនឈី (Leonardo da Vinci) បានគូរគំនូរ ម៉ូណាលីសា ចន្លោះឆ្នាំ ១៥០៣ និង ១៥១៩។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Michelangelo",
+                    "text_km": "មីឆេឡង់ជេឡូ (Michelangelo)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Pablo Picasso",
+                    "text_km": "ប៉ាប្លូ ពីកាសូ (Pablo Picasso)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Rembrandt",
+                    "text_km": "រ៉េមប្រេនត៍ (Rembrandt)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Leonardo da Vinci",
+                    "text_km": "លីអូណាដូ ដា វីនឈី (Leonardo da Vinci)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "art-e-2",
+            "categoryId": "arts",
+            "difficulty": "Easy",
+            "text": "Which instrument has 88 keys?",
+            "text_km": "តើឧបករណ៍តន្ត្រីមួយណាដែលមានកូនសោ (keys) ចំនួន ៨៨?",
+            "explanation": "A standard piano has 52 white keys and 36 black keys totalling 88.",
+            "explanation_km": "ព្យាណូស្តង់ដារមានកូនសោពណ៌ស ៥២ និងកូនសោពណ៌ខ្មៅ ៣៦ សរុបទាំងអស់ ចំនួន ៨៨។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Organ",
+                    "text_km": "អ័ក (Organ)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Piano",
+                    "text_km": "ព្យាណូ (Piano)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Harpsichord",
+                    "text_km": "ហាបស៊ីខត (Harpsichord)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Accordion",
+                    "text_km": "អាខ័រដេអូ (Accordion)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-e-3",
+            "categoryId": "arts",
+            "difficulty": "Easy",
+            "text": "Who wrote the play \"Romeo and Juliet\"?",
+            "text_km": "តើនរណាជាអ្នកសរសេររឿងល្ខោន \"រ៉ូមេអូ និង ជូលីត\" (Romeo and Juliet)?",
+            "explanation": "William Shakespeare wrote Romeo and Juliet around 1594–1596.",
+            "explanation_km": "លោក វីល្លៀម សេកស្ពៀរ (William Shakespeare) បានសរសេររឿង រ៉ូមេអូ និង ជូលីត នៅចន្លោះឆ្នាំ ១៥៩៤-១៥៩៦។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Charles Dickens",
+                    "text_km": "ឆាលស៍ ឌីកឃីនស៍ (Charles Dickens)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Homer",
+                    "text_km": "ហូម័រ (Homer)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "William Shakespeare",
+                    "text_km": "វីល្លៀម សេកស្ពៀរ (William Shakespeare)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Jane Austen",
+                    "text_km": "ជេន អូស្ទីន (Jane Austen)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-e-4",
+            "categoryId": "arts",
+            "difficulty": "Easy",
+            "text": "How many colors are in a rainbow?",
+            "text_km": "តើឥន្ទធនូមានពណ៌ចំនួនប៉ុន្មាន?",
+            "explanation": "The traditional rainbow has 7 colors: red, orange, yellow, green, blue, indigo, violet.",
+            "explanation_km": "ឥន្ទធនូតាមបែបប្រពៃណីមាន ៧ ពណ៌គឺ៖ ក្រហម, ទឹកក្រូច, លឿង, បៃតង, ខៀវ, គ្រាប់ត្នោត និងស្វាយ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "6",
+                    "text_km": "៦",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "5",
+                    "text_km": "៥",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "8",
+                    "text_km": "៨",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "7",
+                    "text_km": "៧",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "art-e-5",
+            "categoryId": "arts",
+            "difficulty": "Easy",
+            "text": "What genre of music is associated with the artist Elvis Presley?",
+            "text_km": "តើប្រភេទតន្ត្រីមួយណាដែលផ្សារភ្ជាប់ជាមួយសិល្បករ អេលវីស ព្រែស្លី (Elvis Presley)?",
+            "explanation": "Elvis Presley, the \"King of Rock and Roll\", popularized rock and roll music in the 1950s.",
+            "explanation_km": "អេលវីស ព្រែស្លី ដែលជា \"ស្តេចតន្ត្រី រ៉ក អែន រ៉ូល\" (Rock and Roll) បានធ្វើឱ្យតន្ត្រីប្រភេទនេះល្បីល្បាញក្នុងទសវត្សរ៍ឆ្នាំ ១៩៥០។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Jazz",
+                    "text_km": "ហ្សាស (Jazz)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Country",
+                    "text_km": "ខាន់ទ្រី (Country)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Rock and Roll",
+                    "text_km": "រ៉ក អែន រ៉ូល (Rock and Roll)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Blues",
+                    "text_km": "ប៊្លូស៍ (Blues)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-m-1",
+            "categoryId": "science",
+            "difficulty": "Medium",
+            "text": "What is the chemical symbol for Gold?",
+            "text_km": "តើនិមិត្តសញ្ញាគីមីសម្រាប់មាសគឺជាអ្វី?",
+            "explanation": "Gold's symbol Au comes from the Latin word \"Aurum\".",
+            "explanation_km": "និមិត្តសញ្ញា Au របស់មាសបានមកពីពាក្យឡាតាំង \"Aurum\"។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Go",
+                    "text_km": "Go",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Gd",
+                    "text_km": "Gd",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Au",
+                    "text_km": "Au",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Ag",
+                    "text_km": "Ag",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-m-2",
+            "categoryId": "science",
+            "difficulty": "Medium",
+            "text": "What is the atomic number of Carbon?",
+            "text_km": "តើចំនួនអាតូមនៃកាបូនគឺជាអ្វី?",
+            "explanation": "Carbon has 6 protons in its nucleus, giving it atomic number 6.",
+            "explanation_km": "កាបូនមានប្រូតុង ៦ នៅក្នុងស្នូលរបស់វា ដែលផ្តល់នូវចំនួនអាតូម ៦។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "8",
+                    "text_km": "៨",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "6",
+                    "text_km": "៦",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "4",
+                    "text_km": "៤",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "12",
+                    "text_km": "១២",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-m-3",
+            "categoryId": "science",
+            "difficulty": "Medium",
+            "text": "Approximately how fast does light travel in a vacuum (km/s)?",
+            "text_km": "តើពន្លឺធ្វើដំណើរក្នុងល្បឿនប្រហែលប៉ុន្មានក្នុងសុញ្ញាកាស (គីឡូម៉ែត្រ/វិនាទី)?",
+            "explanation": "Light travels at approximately 299,792 km/s in a vacuum.",
+            "explanation_km": "ពន្លឺធ្វើដំណើរក្នុងល្បឿនប្រហែល ២៩៩,៧៩២ គីឡូម៉ែត្រ/វិនាទី ក្នុងសុញ្ញាកាស។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "150,000 km/s",
+                    "text_km": "១៥០,០០០ គីឡូម៉ែត្រ/វិនាទី",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "300,000 km/s",
+                    "text_km": "៣០០,០០០ គីឡូម៉ែត្រ/វិនាទី",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "500,000 km/s",
+                    "text_km": "៥០០,០០០ គីឡូម៉ែត្រ/វិនាទី",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "1,000,000 km/s",
+                    "text_km": "១,០០០,០០០ គីឡូម៉ែត្រ/វិនាទី",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-m-4",
+            "categoryId": "science",
+            "difficulty": "Medium",
+            "text": "What planet has the most confirmed moons in our Solar System?",
+            "text_km": "តើភពណាដែលមានព្រះច័ន្ទច្រើនជាងគេនៅក្នុងប្រព័ន្ធព្រះអាទិត្យរបស់យើង?",
+            "explanation": "Saturn has 146 confirmed moons as of 2023, surpassing Jupiter.",
+            "explanation_km": "ភពសៅរ៍មានព្រះច័ន្ទចំនួន ១៤៦ ដែលត្រូវបានបញ្ជាក់គិតត្រឹមឆ្នាំ ២០២៣ ដោយលើសភពព្រហស្បតិ៍។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Jupiter",
+                    "text_km": "ភពព្រហស្បតិ៍",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Uranus",
+                    "text_km": "ភពអ៊ុយរ៉ានុស",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Neptune",
+                    "text_km": "ភពណិបទូន",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Saturn",
+                    "text_km": "ភពសៅរ៍",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "sci-m-5",
+            "categoryId": "science",
+            "difficulty": "Medium",
+            "text": "What force keeps planets in orbit around the Sun?",
+            "text_km": "តើកម្លាំងអ្វីដែលរក្សាភពឱ្យស្ថិតក្នុងគន្លងជុំវិញព្រះអាទិត្យ?",
+            "explanation": "Gravity is the attractive force that governs the motion of celestial bodies.",
+            "explanation_km": "ទំនាញផែនដីគឺជាកម្លាំងទាញដែលគ្រប់គ្រងចលនានៃអង្គសេឡេស្ទាល។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Magnetism",
+                    "text_km": "ដែកឆក់",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Electromagnetism",
+                    "text_km": "អេឡិចត្រូឆក់",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Gravity",
+                    "text_km": "ទំនាញ",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Nuclear Force",
+                    "text_km": "កម្លាំងនុយក្លេអ៊ែរ",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-m-1",
+            "categoryId": "history",
+            "difficulty": "Medium",
+            "text": "In which year did the French Revolution begin?",
+            "text_km": "តើបដិវត្តន៍បារាំងបានចាប់ផ្តើមនៅឆ្នាំណា?",
+            "explanation": "The French Revolution began in 1789 with the storming of the Bastille on July 14.",
+            "explanation_km": "បដិវត្តន៍បារាំងបានចាប់ផ្តើមនៅឆ្នាំ ១៧៨៩ ជាមួយនឹងការវាយលុកបន្ទាយបាសទី (Bastille) នៅថ្ងៃទី ១៤ ខែកក្កដា។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1776",
+                    "text_km": "១៧៧៦",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1789",
+                    "text_km": "១៧៨៩",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "1804",
+                    "text_km": "១៨០៤",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "1799",
+                    "text_km": "១៧៩៩",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-m-2",
+            "categoryId": "history",
+            "difficulty": "Medium",
+            "text": "Who wrote the political treatise \"The Prince\" (Il Principe)?",
+            "text_km": "តើនរណាជាអ្នកសរសេរស្នាដៃនយោបាយ \"The Prince\" (Il Principe)?",
+            "explanation": "Niccolò Machiavelli wrote \"The Prince\" around 1513, offering advice to rulers.",
+            "explanation_km": "នីកូឡូ ម៉ាគីយ៉ាវីលី (Niccolò Machiavelli) បានសរសេរ \"The Prince\" នៅប្រហែលឆ្នាំ ១៥១៣ ដោយផ្តល់ដំបូន្មានដល់អ្នកគ្រប់គ្រង។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Voltaire",
+                    "text_km": "វ៉ុលទែរ (Voltaire)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Thomas Hobbes",
+                    "text_km": "ថូម៉ាស ហបប៍ (Thomas Hobbes)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Niccolò Machiavelli",
+                    "text_km": "នីកូឡូ ម៉ាគីយ៉ាវីលី (Niccolò Machiavelli)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "John Locke",
+                    "text_km": "ចន ឡុក (John Locke)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-m-3",
+            "categoryId": "history",
+            "difficulty": "Medium",
+            "text": "Which empire was ruled by Genghis Khan?",
+            "text_km": "តើអាណាចក្រណាដែលត្រូវបានគ្រប់គ្រងដោយសង់ស៊ីខាន់ (Genghis Khan)?",
+            "explanation": "Genghis Khan founded and ruled the Mongol Empire, the largest contiguous empire in history.",
+            "explanation_km": "សង់ស៊ីខាន់បានបង្កើត និងគ្រប់គ្រងអាណាចក្រម៉ុងហ្គោល ដែលជាអាណាចក្រជាប់គ្នាធំបំផុតក្នុងប្រវត្តិសាស្ត្រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Ottoman Empire",
+                    "text_km": "អាណាចក្រអូតូម៉ង់",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Roman Empire",
+                    "text_km": "អាណាចក្ររ៉ូម៉ាំង",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Mongol Empire",
+                    "text_km": "អាណាចក្រម៉ុងហ្គោល",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Persian Empire",
+                    "text_km": "អាណាចក្រពែរ្ស",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-m-4",
+            "categoryId": "history",
+            "difficulty": "Medium",
+            "text": "Who was the Soviet Union leader during WWII?",
+            "text_km": "តើនរណាជាអ្នកដឹកនាំសហភាពសូវៀតក្នុងអំឡុងសង្គ្រាមលោកលើកទី ២?",
+            "explanation": "Joseph Stalin led the Soviet Union from 1924 until his death in 1953.",
+            "explanation_km": "ហ្សូសែភ ស្តាលីន (Joseph Stalin) បានដឹកនាំសហភាពសូវៀតពីឆ្នាំ ១៩២៤ រហូតដល់មរណភាពរបស់លោកក្នុងឆ្នាំ ១៩៥៣។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Lenin",
+                    "text_km": "លេនីន (Lenin)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Khrushchev",
+                    "text_km": "គ្រូឆេវ (Khrushchev)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Trotsky",
+                    "text_km": "ត្រុតស្គី (Trotsky)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Stalin",
+                    "text_km": "ស្តាលីន (Stalin)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "his-m-5",
+            "categoryId": "history",
+            "difficulty": "Medium",
+            "text": "Which country was the first to grant women the right to vote nationally?",
+            "text_km": "តើប្រទេសណាដែលដំបូងគេបង្អស់បានផ្តល់សិទ្ធិបោះឆ្នោតដល់ស្ត្រីនៅកម្រិតជាតិ?",
+            "explanation": "New Zealand granted women the right to vote in 1893.",
+            "explanation_km": "ប្រទេសនូវែលសេឡង់បានផ្តល់សិទ្ធិឱ្យស្ត្រីបោះឆ្នោតនៅឆ្នាំ ១៨៩៣។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Australia",
+                    "text_km": "អូស្ត្រាលី",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "New Zealand",
+                    "text_km": "នូវែលសេឡង់",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "United States",
+                    "text_km": "សហរដ្ឋអាមេរិក",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Finland",
+                    "text_km": "ហ្វាំងឡង់",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-m-1",
+            "categoryId": "technology",
+            "difficulty": "Medium",
+            "text": "Who is credited with inventing the World Wide Web?",
+            "text_km": "តើនរណាដែលត្រូវបានទទួលស្គាល់ថាជាអ្នកបង្កើត World Wide Web?",
+            "explanation": "Tim Berners-Lee invented the WWW in 1989 while working at CERN.",
+            "explanation_km": "លោក ធីម បឺណឺស-លី (Tim Berners-Lee) បានបង្កើត WWW ក្នុងឆ្នាំ ១៩៨៩ ពេលកំពុងបម្រើការនៅ CERN។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Bill Gates",
+                    "text_km": "ប៊ីល ហ្គេតស៍ (Bill Gates)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Linus Torvalds",
+                    "text_km": "លីណូស ថរវ៉ាល់ស៍ (Linus Torvalds)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "a",
+                    "text": "Tim Berners-Lee",
+                    "text_km": "ធីម បឺណឺស-លី (Tim Berners-Lee)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Steve Jobs",
+                    "text_km": "ស្ទីវ ចុបស៍ (Steve Jobs)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-m-2",
+            "categoryId": "technology",
+            "difficulty": "Medium",
+            "text": "What does \"HTTP\" stand for?",
+            "text_km": "តើ \"HTTP\" តំណាងឱ្យអ្វី?",
+            "explanation": "HTTP stands for HyperText Transfer Protocol, the foundation of data communication on the web.",
+            "explanation_km": "HTTP តំណាងឱ្យ HyperText Transfer Protocol ដែលជាមូលដ្ឋានគ្រឹះនៃការទំនាក់ទំនងទិន្នន័យលើបណ្តាញអុីនធឺណិត។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "High-Tech Transfer Protocol",
+                    "text_km": "High-Tech Transfer Protocol",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "HyperText Transfer Protocol",
+                    "text_km": "HyperText Transfer Protocol",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "HyperText Transmission Program",
+                    "text_km": "HyperText Transmission Program",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Host Transfer Tracking Protocol",
+                    "text_km": "Host Transfer Tracking Protocol",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-m-3",
+            "categoryId": "technology",
+            "difficulty": "Medium",
+            "text": "Which programming language runs natively in web browsers?",
+            "text_km": "តើភាសាកម្មវិធីមួយណាដែលដំណើរការដោយផ្ទាល់ (natively) នៅក្នុងកម្មវិធីរុករកបណ្តាញ (web browsers)?",
+            "explanation": "JavaScript is the only programming language executed natively by web browsers.",
+            "explanation_km": "JavaScript គឺជាភាសាកម្មវិធីតែមួយគត់ដែលត្រូវបានប្រតិបត្តិដោយផ្ទាល់ដោយកម្មវិធីរុករកបណ្តាញ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Python",
+                    "text_km": "Python",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Ruby",
+                    "text_km": "Ruby",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Java",
+                    "text_km": "Java",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "JavaScript",
+                    "text_km": "JavaScript",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "tec-m-4",
+            "categoryId": "technology",
+            "difficulty": "Medium",
+            "text": "What does \"RAM\" stand for in computing?",
+            "text_km": "តើ \"RAM\" នៅក្នុងវិស័យកុំព្យូទ័រតំណាងឱ្យអ្វី?",
+            "explanation": "RAM stands for Random Access Memory, the short-term memory of a computer.",
+            "explanation_km": "RAM តំណាងឱ្យ Random Access Memory ដែលជាអង្គចងចាំរយៈពេលខ្លីរបស់កុំព្យូទ័រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Read and Memory",
+                    "text_km": "Read and Memory",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Random Access Memory",
+                    "text_km": "Random Access Memory",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Rapid Application Module",
+                    "text_km": "Rapid Application Module",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Random Application Memory",
+                    "text_km": "Random Application Memory",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-m-5",
+            "categoryId": "technology",
+            "difficulty": "Medium",
+            "text": "Which company developed the Android operating system?",
+            "text_km": "តើក្រុមហ៊ុនណាដែលបានបង្កើតប្រព័ន្ធប្រតិបត្តិការ Android?",
+            "explanation": "Android was developed by Android Inc., which was acquired by Google in 2005.",
+            "explanation_km": "Android ត្រូវបានបង្កើតឡើងដោយក្រុមហ៊ុន Android Inc. ដែលត្រូវបានទិញដោយក្រុមហ៊ុន Google ក្នុងឆ្នាំ ២០០៥។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Microsoft",
+                    "text_km": "ម៉ៃក្រូសូហ្វ (Microsoft)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Samsung",
+                    "text_km": "សាំស៊ុង (Samsung)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Google",
+                    "text_km": "ហ្គូហ្កល (Google)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Apple",
+                    "text_km": "អាផល (Apple)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-m-1",
+            "categoryId": "geography",
+            "difficulty": "Medium",
+            "text": "What is the longest river in the world?",
+            "text_km": "តើទន្លេណាដែលវែងជាងគេបំផុតនៅលើពិភពលោក?",
+            "explanation": "The Nile River in Africa stretches approximately 6,650 km.",
+            "explanation_km": "ទន្លេនីល (Nile) នៅអាហ្វ្រិកមានប្រវែងប្រហែល ៦,៦៥០ គីឡូម៉ែត្រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Amazon",
+                    "text_km": "អាម៉ាហ្សូន (Amazon)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Mississippi",
+                    "text_km": "មីស៊ីស៊ីពី (Mississippi)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Nile",
+                    "text_km": "នីល (Nile)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Yangtze",
+                    "text_km": "យ៉ាងសេ (Yangtze)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-m-2",
+            "categoryId": "geography",
+            "difficulty": "Medium",
+            "text": "What country has the most natural lakes in the world?",
+            "text_km": "តើប្រទេសណាដែលមានបឹងធម្មជាតិច្រើនជាងគេបំផុតនៅលើពិភពលោក?",
+            "explanation": "Canada has more than 60% of the world's natural lakes.",
+            "explanation_km": "ប្រទេសកាណាដាមានបឹងធម្មជាតិច្រើនជាង ៦០% នៃពិភពលោក។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Russia",
+                    "text_km": "រុស្ស៊ី",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "United States",
+                    "text_km": "សហរដ្ឋអាមេរិក",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Canada",
+                    "text_km": "កាណាដា",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Finland",
+                    "text_km": "ហ្វាំងឡង់",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-m-3",
+            "categoryId": "geography",
+            "difficulty": "Medium",
+            "text": "What is the tallest mountain in Africa?",
+            "text_km": "តើភ្នំណាដែលខ្ពស់ជាងគេបំផុតនៅអាហ្វ្រិក?",
+            "explanation": "Mount Kilimanjaro in Tanzania stands at 5,895 metres.",
+            "explanation_km": "ភ្នំគីលីម៉ាន់ចារ៉ូ (Mount Kilimanjaro) ក្នុងប្រទេសតង់សានី មានកម្ពស់ ៥,៨៩៥ ម៉ែត្រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Mount Kenya",
+                    "text_km": "ភ្នំកេនយ៉ា",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Mount Atlas",
+                    "text_km": "ភ្នំអាត្លាស",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Mount Kilimanjaro",
+                    "text_km": "ភ្នំគីលីម៉ាន់ចារ៉ូ",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Ras Dashen",
+                    "text_km": "រ៉ាស ដាសហែន (Ras Dashen)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-m-4",
+            "categoryId": "geography",
+            "difficulty": "Medium",
+            "text": "Which country has the most time zones?",
+            "text_km": "តើប្រទេសណាដែលមានតំបន់ម៉ោង (time zones) ច្រើនជាងគេ?",
+            "explanation": "France has 12 time zones when including its overseas territories.",
+            "explanation_km": "ប្រទេសបារាំងមានតំបន់ម៉ោងចំនួន ១២ ប្រសិនបើយើងរាប់បញ្ចូលទាំងទឹកដីឯនាយសមុទ្ររបស់ខ្លួន។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Russia",
+                    "text_km": "រុស្ស៊ី",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "USA",
+                    "text_km": "សហរដ្ឋអាមេរិក",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "France",
+                    "text_km": "បារាំង",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "China",
+                    "text_km": "ចិន",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-m-5",
+            "categoryId": "geography",
+            "difficulty": "Medium",
+            "text": "What is the capital city of Australia?",
+            "text_km": "តើអ្វីទៅជារដ្ឋធានីរបស់អូស្ត្រាលី?",
+            "explanation": "Canberra became Australia's capital in 1927, chosen as a compromise between Sydney and Melbourne.",
+            "explanation_km": "ទីក្រុងកង់បេរ៉ា (Canberra) បានក្លាយជារដ្ឋធានីរបស់អូស្ត្រាលីក្នុងឆ្នាំ ១៩២៧ ដែលត្រូវបានជ្រើសរើសដើម្បីសម្រុះសម្រួលរវាងទីក្រុងស៊ីដនី និងទីក្រុងមែលប៊ន។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Sydney",
+                    "text_km": "ស៊ីដនី (Sydney)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Melbourne",
+                    "text_km": "មែលប៊ន (Melbourne)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Brisbane",
+                    "text_km": "ប្រ៊ីសបាន (Brisbane)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Canberra",
+                    "text_km": "កង់បេរ៉ា (Canberra)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "spo-m-1",
+            "categoryId": "sports",
+            "difficulty": "Medium",
+            "text": "Which country won the first FIFA World Cup in 1930?",
+            "text_km": "តើប្រទេសណាដែលបានឈ្នះពានរង្វាន់ FIFA World Cup ដំបូងបង្អស់ក្នុងឆ្នាំ ១៩៣០?",
+            "explanation": "Uruguay hosted and won the inaugural FIFA World Cup in 1930.",
+            "explanation_km": "អ៊ុយរូហ្គាយ (Uruguay) បានធ្វើជាម្ចាស់ផ្ទះ និងបានឈ្នះពានរង្វាន់ FIFA World Cup ដំបូងបង្អស់ក្នុងឆ្នាំ ១៩៣០។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Brazil",
+                    "text_km": "ប្រេស៊ីល",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Argentina",
+                    "text_km": "អាហ្សង់ទីន",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Uruguay",
+                    "text_km": "អ៊ុយរូហ្គាយ",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Italy",
+                    "text_km": "អ៊ីតាលី",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-m-2",
+            "categoryId": "sports",
+            "difficulty": "Medium",
+            "text": "How long is an Olympic marathon (in km)?",
+            "text_km": "តើការរត់ម៉ារ៉ាតុងអូឡាំពិកមានចម្ងាយប៉ុន្មាន (គីឡូម៉ែត្រ)?",
+            "explanation": "The marathon distance is exactly 42.195 km (26 miles 385 yards).",
+            "explanation_km": "ចម្ងាយរត់ម៉ារ៉ាតុងគឺមានប្រវែងពិតប្រាកដ ៤២.១៩៥ គីឡូម៉ែត្រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "40 km",
+                    "text_km": "៤០ គីឡូម៉ែត្រ",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "42.195 km",
+                    "text_km": "៤២.១៩៥ គីឡូម៉ែត្រ",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "45 km",
+                    "text_km": "៤៥ គីឡូម៉ែត្រ",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "38.5 km",
+                    "text_km": "៣៨.៥ គីឡូម៉ែត្រ",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-m-3",
+            "categoryId": "sports",
+            "difficulty": "Medium",
+            "text": "In basketball, how many points is a shot beyond the three-point arc worth?",
+            "text_km": "នៅក្នុងកីឡាបាល់បោះ តើការបោះបាល់ពីចម្ងាយហួសខ្សែបីពិន្ទុ (three-point arc) ទទួលបានពិន្ទុប៉ុន្មាន?",
+            "explanation": "A field goal made from beyond the three-point line scores 3 points.",
+            "explanation_km": "ការបោះបាល់បញ្ចូលកន្ត្រកពីខាងក្រៅខ្សែបីពិន្ទុទទួលបាន ៣ ពិន្ទុ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "2",
+                    "text_km": "២",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "4",
+                    "text_km": "៤",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "3",
+                    "text_km": "៣",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "1",
+                    "text_km": "១",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-m-4",
+            "categoryId": "sports",
+            "difficulty": "Medium",
+            "text": "Which country has won the most FIFA World Cup titles?",
+            "text_km": "តើប្រទេសណាដែលបានឈ្នះពានរង្វាន់ FIFA World Cup ច្រើនជាងគេបំផុត?",
+            "explanation": "Brazil has won the FIFA World Cup five times (1958, 1962, 1970, 1994, 2002).",
+            "explanation_km": "ប្រេស៊ីលបានឈ្នះពានរង្វាន់ FIFA World Cup ចំនួន ៥ ដង (១៩៥៨, ១៩៦២, ១៩៧០, ១៩៩៤, ២០០២)។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Germany",
+                    "text_km": "អាល្លឺម៉ង់",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Italy",
+                    "text_km": "អ៊ីតាលី",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Brazil",
+                    "text_km": "ប្រេស៊ីល",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Argentina",
+                    "text_km": "អាហ្សង់ទីន",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-m-5",
+            "categoryId": "sports",
+            "difficulty": "Medium",
+            "text": "In tennis, what is the term for a score of 40-40?",
+            "text_km": "នៅក្នុងកីឡាតិន្នីស តើពាក្យអ្វីដែលប្រើសម្រាប់ពិន្ទុ ៤០-៤០?",
+            "explanation": "When both players reach 40 points, the score is called \"Deuce.\"",
+            "explanation_km": "នៅពេលដែលកីឡាករទាំងពីរទទួលបាន ៤០ ពិន្ទុស្មើគ្នា គេហៅពិន្ទុនោះថា \"Deuce\"។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Tie",
+                    "text_km": "Tie (ស្មើ)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Advantage",
+                    "text_km": "Advantage",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Deuce",
+                    "text_km": "Deuce",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Tiebreak",
+                    "text_km": "Tiebreak",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-m-1",
+            "categoryId": "arts",
+            "difficulty": "Medium",
+            "text": "Who composed \"The Four Seasons\"?",
+            "text_km": "តើនរណាជាអ្នកនិពន្ធបទភ្លេង \"The Four Seasons\"?",
+            "explanation": "Antonio Vivaldi composed \"The Four Seasons\" around 1720–1721.",
+            "explanation_km": "លោក អាន់តូនីញ៉ូ វីវ៉ាល់ឌី (Antonio Vivaldi) បាននិពន្ធបទ \"The Four Seasons\" នៅចន្លោះឆ្នាំ ១៧២០-១៧២១។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Johann Sebastian Bach",
+                    "text_km": "Johann Sebastian Bach",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Wolfgang Amadeus Mozart",
+                    "text_km": "Wolfgang Amadeus Mozart",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Antonio Vivaldi",
+                    "text_km": "Antonio Vivaldi",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Ludwig van Beethoven",
+                    "text_km": "Ludwig van Beethoven",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-m-2",
+            "categoryId": "arts",
+            "difficulty": "Medium",
+            "text": "Which artist painted \"The Starry Night\"?",
+            "text_km": "តើសិល្បករម្នាក់ណាដែលបានគូរគំនូរ \"The Starry Night\"?",
+            "explanation": "Vincent van Gogh painted \"The Starry Night\" in June 1889.",
+            "explanation_km": "លោក វ៉ាំងសង់ វ៉ែន ហ្កុក (Vincent van Gogh) បានគូរគំនូរ \"The Starry Night\" ក្នុងខែមិថុនា ឆ្នាំ ១៨៨៩។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Paul Gauguin",
+                    "text_km": "Paul Gauguin",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Claude Monet",
+                    "text_km": "Claude Monet",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Vincent van Gogh",
+                    "text_km": "វ៉ាំងសង់ វ៉ែន ហ្កុក (Vincent van Gogh)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Édouard Manet",
+                    "text_km": "Édouard Manet",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-m-3",
+            "categoryId": "arts",
+            "difficulty": "Medium",
+            "text": "In which year was the Sistine Chapel ceiling completed by Michelangelo?",
+            "text_km": "តើនៅឆ្នាំណាដែលពិដាននៃវិហារ ស៊ីស្ទីន (Sistine Chapel) ត្រូវបានបញ្ចប់ដោយ មីឆេឡង់ជេឡូ (Michelangelo)?",
+            "explanation": "Michelangelo completed the Sistine Chapel ceiling in 1512.",
+            "explanation_km": "មីឆេឡង់ជេឡូ បានបញ្ចប់ការគូរពិដានវិហារ ស៊ីស្ទីន ក្នុងឆ្នាំ ១៥១២។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1480",
+                    "text_km": "១៤៨០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1512",
+                    "text_km": "១៥១២",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "1550",
+                    "text_km": "១៥៥០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "1526",
+                    "text_km": "១៥២៦",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-h-1",
+            "categoryId": "technology",
+            "difficulty": "Hard",
+            "text": "What does \"ACID\" stand for in the context of database transactions?",
+            "text_km": "តើ \"ACID\" តំណាងឱ្យអ្វីនៅក្នុងបរិបទនៃប្រតិបត្តិការមូលដ្ឋានទិន្នន័យ (database transactions)?",
+            "explanation": "ACID stands for Atomicity, Consistency, Isolation, and Durability — properties ensuring reliable transactions.",
+            "explanation_km": "ACID តំណាងឱ្យ Atomicity, Consistency, Isolation, និង Durability ដែលជាលក្ខណៈសម្បត្តិធានាបាននូវប្រតិបត្តិការគួរឱ្យទុកចិត្ត។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Access, Control, Integrity, Data",
+                    "text_km": "Access, Control, Integrity, Data",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Atomicity, Concurrency, Isolation, Durability",
+                    "text_km": "Atomicity, Concurrency, Isolation, Durability",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Atomicity, Consistency, Isolation, Durability",
+                    "text_km": "Atomicity, Consistency, Isolation, Durability",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Asynchronous, Consistency, Index, Data",
+                    "text_km": "Asynchronous, Consistency, Index, Data",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-h-2",
+            "categoryId": "technology",
+            "difficulty": "Hard",
+            "text": "What is the name of the critical security vulnerability discovered in OpenSSL in 2014?",
+            "text_km": "តើអ្វីទៅជាឈ្មោះនៃភាពងាយរងគ្រោះសន្តិសុខដ៏សំខាន់ដែលត្រូវបានរកឃើញនៅក្នុង OpenSSL ក្នុងឆ្នាំ ២០១៤?",
+            "explanation": "The Heartbleed bug (CVE-2014-0160) allowed attackers to read memory of servers running OpenSSL.",
+            "explanation_km": "មេរោគ Heartbleed (CVE-2014-0160) បានអនុញ្ញាតឱ្យអ្នកវាយប្រហារអានអង្គចងចាំនៃម៉ាស៊ីនមេដែលដំណើរការ OpenSSL។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Shellshock",
+                    "text_km": "Shellshock",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Spectre",
+                    "text_km": "Spectre",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Heartbleed",
+                    "text_km": "Heartbleed",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "POODLE",
+                    "text_km": "POODLE",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-h-3",
+            "categoryId": "technology",
+            "difficulty": "Hard",
+            "text": "What is the time complexity of the Merge Sort algorithm in the worst case?",
+            "text_km": "តើអ្វីជាភាពស្មុគស្មាញនៃពេលវេលា (time complexity) នៃក្បួនដោះស្រាយ Merge Sort ក្នុងករណីអាក្រក់បំផុត?",
+            "explanation": "Merge Sort has O(n log n) time complexity in all cases due to its divide-and-conquer approach.",
+            "explanation_km": "Merge Sort មានភាពស្មុគស្មាញនៃពេលវេលា O(n log n) ក្នុងគ្រប់ករណីទាំងអស់ ដោយសារតែវិធីសាស្ត្របែងចែក និងសញ្ជ័យ (divide-and-conquer) របស់វា។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "O(n²)",
+                    "text_km": "O(n²)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "O(n log n)",
+                    "text_km": "O(n log n)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "O(n)",
+                    "text_km": "O(n)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "O(log n)",
+                    "text_km": "O(log n)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-h-4",
+            "categoryId": "science",
+            "difficulty": "Hard",
+            "text": "Which element has the highest melting point of all known elements?",
+            "text_km": "តើធាតុណាដែលមានចំណុចរលាយខ្ពស់បំផុតក្នុងចំណោមធាតុទាំងអស់ដែលគេស្គាល់?",
+            "explanation": "Tungsten (W) has the highest melting point of any metal at 3,422°C.",
+            "explanation_km": "តង់ស្ដែន (Tungsten - W) មានចំណុចរលាយខ្ពស់ជាងគេក្នុងចំណោមលោហៈទាំងអស់ក្នុងសីតុណ្ហភាព ៣,៤២២ អង្សាសេ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Carbon",
+                    "text_km": "កាបូន",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Osmium",
+                    "text_km": "អូស្មស្យូម (Osmium)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Tungsten",
+                    "text_km": "តង់ស្ដែន (Tungsten)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Iridium",
+                    "text_km": "អ៊ីរីដ្យូម (Iridium)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "sci-h-5",
+            "categoryId": "science",
+            "difficulty": "Hard",
+            "text": "What is the name of the quantum mechanical effect where particles tunnel through energy barriers?",
+            "text_km": "តើអ្វីទៅជាឈ្មោះនៃឥទ្ធិពលមេកានិចកង់ទិច ដែលភាគល្អិតឆ្លងកាត់របាំងថាមពល?",
+            "explanation": "Quantum tunneling allows particles to penetrate barriers they classically shouldn't be able to pass.",
+            "explanation_km": "ការចុះរូងតាមកង់ទិច (Quantum tunneling) អនុញ្ញាតឱ្យភាគល្អិតទម្លុះរបាំងដែលតាមទ្រឹស្តីមេកានិចបុរាណពួកគេមិនអាចឆ្លងកាត់បាន។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Quantum entanglement",
+                    "text_km": "ការជំពាក់ជំពិនតាមកង់ទិច (Quantum entanglement)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Quantum tunneling",
+                    "text_km": "ការចុះរូងតាមកង់ទិច (Quantum tunneling)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Quantum superposition",
+                    "text_km": "ការត្រួតស៊ីគ្នាតាមកង់ទិច (Quantum superposition)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Quantum decoherence",
+                    "text_km": "ការបាត់បង់ការចុះសម្រុងតាមកង់ទិច (Quantum decoherence)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-h-1",
+            "categoryId": "history",
+            "difficulty": "Hard",
+            "text": "What was the code name for the Allied invasion of Normandy on D-Day?",
+            "text_km": "តើអ្វីទៅជាឈ្មោះកូដសម្រាប់ការលុកលុយរបស់សម្ព័ន្ធមិត្តនៅណ័រម៉ង់ឌី (Normandy) ក្នុងថ្ងៃ D-Day?",
+            "explanation": "Operation Overlord was the code name for the Battle of Normandy, launched on June 6, 1944.",
+            "explanation_km": "ប្រតិបត្តិការអូវើឡត (Operation Overlord) គឺជាឈ្មោះកូដសម្រាប់សមរភូមិណ័រម៉ង់ឌី ដែលបានចាប់ផ្តើមនៅថ្ងៃទី ៦ ខែមិថុនា ឆ្នាំ ១៩៤៤។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Operation Neptune",
+                    "text_km": "ប្រតិបត្តិការណិបទូន (Operation Neptune)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Operation Barbarossa",
+                    "text_km": "ប្រតិបត្តិការបាបារ៉ូស្សា (Operation Barbarossa)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Operation Overlord",
+                    "text_km": "ប្រតិបត្តិការអូវើឡត (Operation Overlord)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Operation Market Garden",
+                    "text_km": "ប្រតិបត្តិការម៉ាកឃីតហ្កាឌិន (Operation Market Garden)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-h-2",
+            "categoryId": "history",
+            "difficulty": "Hard",
+            "text": "Who was the last ruling Pharaoh of Ancient Egypt?",
+            "text_km": "តើនរណាជាផារ៉ាអុងដែលគ្រប់គ្រងចុងក្រោយបង្អស់នៃប្រទេសអេស៊ីបបុរាណ?",
+            "explanation": "Cleopatra VII was the last active ruler of the Ptolemaic Kingdom of Egypt, dying in 30 BC.",
+            "explanation_km": "ក្លេអូប៉ត្រាទី ៧ (Cleopatra VII) គឺជាអ្នកគ្រប់គ្រងសកម្មចុងក្រោយនៃព្រះរាជាណាចក្រប្តូលេមេ (Ptolemaic) នៃប្រទេសអេស៊ីប ដោយបានសោយទិវង្គតនៅឆ្នាំ ៣០ មុនគ្រិស្តសករាជ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Nefertiti",
+                    "text_km": "ណេហ្វឺទីទី (Nefertiti)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Hatshepsut",
+                    "text_km": "ហាតសិបស៊ុត (Hatshepsut)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Cleopatra VII",
+                    "text_km": "ក្លេអូប៉ត្រាទី ៧ (Cleopatra VII)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Ramesses II",
+                    "text_km": "រ៉ាមេសសឹសទី ២ (Ramesses II)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-h-3",
+            "categoryId": "history",
+            "difficulty": "Hard",
+            "text": "The Treaty of Westphalia in 1648 ended which major European conflict?",
+            "text_km": "តើសន្ធិសញ្ញាវិសត្វហ្វាលី (Treaty of Westphalia) ក្នុងឆ្នាំ ១៦៤៨ បានបញ្ចប់ជម្លោះអឺរ៉ុបដ៏ធំមួយណា?",
+            "explanation": "The Peace of Westphalia ended the Thirty Years' War and established the modern state system.",
+            "explanation_km": "សន្តិភាពវិសត្វហ្វាលីបានបញ្ចប់សង្គ្រាមសាមសិបឆ្នាំ និងបានបង្កើតប្រព័ន្ធរដ្ឋទំនើប។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "The Hundred Years' War",
+                    "text_km": "សង្គ្រាមមួយរយឆ្នាំ",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "The Thirty Years' War",
+                    "text_km": "សង្គ្រាមសាមសិបឆ្នាំ",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "The Seven Years' War",
+                    "text_km": "សង្គ្រាមប្រាំពីរឆ្នាំ",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "The War of Spanish Succession",
+                    "text_km": "សង្គ្រាមនៃការស្នងរាជ្យរបស់អេស្ប៉ាញ",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "his-h-4",
+            "categoryId": "history",
+            "difficulty": "Hard",
+            "text": "Which civilization built the city of Teotihuacan in present-day Mexico?",
+            "text_km": "តើអារ្យធម៌មួយណាដែលបានសាងសង់ទីក្រុង តេអូទីហួខាន (Teotihuacan) នៅក្នុងប្រទេសម៉ិកស៊ិកបច្ចុប្បន្ន?",
+            "explanation": "The Teotihuacan civilization, whose identity is still debated, built the city around 100 BC.",
+            "explanation_km": "អារ្យធម៌តេអូទីហួខាន ដែលអត្តសញ្ញាណរបស់ពួកគេនៅតែត្រូវបានជជែកវែកញែក បានសាងសង់ទីក្រុងនេះនៅប្រហែលឆ្នាំ ១០០ មុនគ្រិស្តសករាជ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Aztec",
+                    "text_km": "អាស្តិក (Aztec)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Maya",
+                    "text_km": "ម៉ាយ៉ា (Maya)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Olmec",
+                    "text_km": "អុលម៉ិក (Olmec)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Teotihuacanos",
+                    "text_km": "តេអូទីហួខាណូស (Teotihuacanos)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "his-h-5",
+            "categoryId": "history",
+            "difficulty": "Hard",
+            "text": "In what year did the Byzantine Empire fall to the Ottoman Turks?",
+            "text_km": "តើអាណាចក្រប៊ីហ្សង់ទីនបានដួលរលំក្រោមដៃរបស់តួកគីអូតូម៉ង់នៅឆ្នាំណា?",
+            "explanation": "Constantinople fell to Sultan Mehmed II on May 29, 1453, ending the Byzantine Empire.",
+            "explanation_km": "ទីក្រុងកុងស្តង់ទីណូប (Constantinople) បានធ្លាក់ចូលក្នុងដៃរបស់ស៊ុលតង់ មេមេដទី ២ (Sultan Mehmed II) នៅថ្ងៃទី ២៩ ខែឧសភា ឆ្នាំ ១៤៥៣ ដែលជាការបញ្ចប់អាណាចក្រប៊ីហ្សង់ទីន។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1389",
+                    "text_km": "១៣៨៩",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1453",
+                    "text_km": "១៤៥៣",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "1492",
+                    "text_km": "១៤៩២",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "1521",
+                    "text_km": "១៥២១",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-1",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "Who composed \"The Rite of Spring,\" whose 1913 premiere reportedly caused a riot?",
+            "text_km": "តើនរណាជាអ្នកនិពន្ធបទភ្លេង \"The Rite of Spring\" ដែលការសម្ដែងលើកដំបូងក្នុងឆ្នាំ ១៩១៣ ត្រូវបានគេរាយការណ៍ថាបានបង្កឱ្យមានការចលាចល?",
+            "explanation": "Igor Stravinsky's \"The Rite of Spring\" premiered on May 29, 1913 in Paris.",
+            "explanation_km": "បទ \"The Rite of Spring\" របស់លោក អ៊ីហ្ក័រ ស្ត្រាវីនស្គី (Igor Stravinsky) បានសម្ដែងដំបូងនៅថ្ងៃទី ២៩ ខែឧសភា ឆ្នាំ ១៩១៣ នៅទីក្រុងប៉ារីស។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Claude Debussy",
+                    "text_km": "Claude Debussy",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Sergei Prokofiev",
+                    "text_km": "Sergei Prokofiev",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Igor Stravinsky",
+                    "text_km": "Igor Stravinsky",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Béla Bartók",
+                    "text_km": "Béla Bartók",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-2",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "In which year was William Shakespeare born?",
+            "text_km": "តើលោក វីល្លៀម សេកស្ពៀរ (William Shakespeare) កើតនៅឆ្នាំណា?",
+            "explanation": "William Shakespeare was baptized on April 26, 1564, in Stratford-upon-Avon.",
+            "explanation_km": "លោក វីល្លៀម សេកស្ពៀរ ត្រូវបានទទួលបុណ្យជ្រមុជទឹកនៅថ្ងៃទី ២៦ ខែមេសា ឆ្នាំ ១៥៦៤ នៅ Stratford-upon-Avon។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1542",
+                    "text_km": "១៥៤២",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1590",
+                    "text_km": "១៥៩០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "1564",
+                    "text_km": "១៥៦៤",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "1574",
+                    "text_km": "១៥៧៤",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-3",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "What is the Japanese art of paper folding called?",
+            "text_km": "តើសិល្បៈនៃការបត់ក្រដាសរបស់ជប៉ុនត្រូវបានគេហៅថាអ្វី?",
+            "explanation": "Origami is the traditional Japanese art of folding paper into decorative shapes.",
+            "explanation_km": "អូរីហ្គាមី (Origami) គឺជាសិល្បៈប្រពៃណីរបស់ជប៉ុនក្នុងការបត់ក្រដាសទៅជាទម្រង់តុបតែងផ្សេងៗ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Ikebana",
+                    "text_km": "អ៊ីគីបានី (Ikebana)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Origami",
+                    "text_km": "អូរីហ្គាមី (Origami)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Bonsai",
+                    "text_km": "ប៊ុនសៃ (Bonsai)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Haiku",
+                    "text_km": "ហៃគូ (Haiku)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-4",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "Which artist created the \"Campbell's Soup Cans\" series in 1962?",
+            "text_km": "តើសិល្បករម្នាក់ណាដែលបានបង្កើតស៊េរីគំនូរ \"Campbell's Soup Cans\" ក្នុងឆ្នាំ ១៩៦២?",
+            "explanation": "Andy Warhol created 32 canvases of Campbell's Soup Cans, a defining work of Pop Art.",
+            "explanation_km": "លោក អ៊ែនឌី វ៉ាហុល (Andy Warhol) បានបង្កើតផ្ទាំងគំនូរចំនួន ៣២ នៃកំប៉ុងស៊ុប Campbell ដែលជាស្នាដៃដ៏សំខាន់នៃសិល្បៈ ប៉ុបអាត (Pop Art)។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Roy Lichtenstein",
+                    "text_km": "Roy Lichtenstein",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Jasper Johns",
+                    "text_km": "Jasper Johns",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Andy Warhol",
+                    "text_km": "Andy Warhol",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Robert Rauschenberg",
+                    "text_km": "Robert Rauschenberg",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-5",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "What literary term describes a narrative technique where the story is told out of chronological order?",
+            "text_km": "តើស័ព្ទអក្សរសិល្ប៍អ្វីដែលពិពណ៌នាអំពីបច្ចេកទេសនិទានរឿងដែលរឿងរ៉ាវត្រូវបានប្រាប់មិនតាមលំដាប់លំដោយពេលវេលា?",
+            "explanation": "Anachrony (or non-linear narrative) is a technique where events are presented out of order.",
+            "explanation_km": "Anachrony (ឬនិទានរឿងមិនតាមលំដាប់លំដោយ) គឺជាបច្ចេកទេសដែលព្រឹត្តិការណ៍ផ្សេងៗត្រូវបានបង្ហាញមិនតាមលំដាប់លំដោយ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Analepsis",
+                    "text_km": "Analepsis",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Stream of Consciousness",
+                    "text_km": "Stream of Consciousness",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Anachrony",
+                    "text_km": "Anachrony",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Prolepsis",
+                    "text_km": "Prolepsis",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-h-3",
+            "categoryId": "technology",
+            "difficulty": "Hard",
+            "text": "What is the time complexity of the Merge Sort algorithm in the worst case?",
+            "text_km": "តើអ្វីជាភាពស្មុគស្មាញនៃពេលវេលា (time complexity) នៃក្បួនដោះស្រាយ Merge Sort ក្នុងករណីអាក្រក់បំផុត?",
+            "explanation": "Merge Sort has O(n log n) time complexity in all cases due to its divide-and-conquer approach.",
+            "explanation_km": "Merge Sort មានភាពស្មុគស្មាញនៃពេលវេលា O(n log n) ក្នុងគ្រប់ករណីទាំងអស់ ដោយសារតែវិធីសាស្ត្របែងចែក និងសញ្ជ័យ (divide-and-conquer) របស់វា។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "O(n²)",
+                    "text_km": "O(n²)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "O(n log n)",
+                    "text_km": "O(n log n)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "O(n)",
+                    "text_km": "O(n)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "O(log n)",
+                    "text_km": "O(log n)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-h-4",
+            "categoryId": "technology",
+            "difficulty": "Hard",
+            "text": "In computer networking, what does \"BGP\" stand for?",
+            "text_km": "នៅក្នុងបណ្តាញកុំព្យូទ័រ តើ \"BGP\" តំណាងឱ្យអ្វី?",
+            "explanation": "BGP (Border Gateway Protocol) is the routing protocol used to exchange routing information between autonomous systems on the internet.",
+            "explanation_km": "BGP (Border Gateway Protocol) គឺជាពិធីការនាំផ្លូវ (routing protocol) ដែលប្រើសម្រាប់ផ្លាស់ប្តូរព័ត៌មានរវាងប្រព័ន្ធស្វយ័តនៅលើអ៊ីនធឺណិត។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Binary Gateway Protocol",
+                    "text_km": "Binary Gateway Protocol",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Border Gateway Protocol",
+                    "text_km": "Border Gateway Protocol",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Backbone Grid Protocol",
+                    "text_km": "Backbone Grid Protocol",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Broadcast Gateway Process",
+                    "text_km": "Broadcast Gateway Process",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "tec-h-5",
+            "categoryId": "technology",
+            "difficulty": "Hard",
+            "text": "In which year was the first version of the Linux kernel released by Linus Torvalds?",
+            "text_km": "តើលីណូស ថរវ៉ាល់ស៍ (Linus Torvalds) បានបញ្ចេញកំណែដំបូងនៃ Linux kernel នៅឆ្នាំណា?",
+            "explanation": "Linus Torvalds released the first version of Linux (v0.01) on September 17, 1991.",
+            "explanation_km": "លោក លីណូស ថរវ៉ាល់ស៍ បានបញ្ចេញកំណែដំបូងនៃ Linux (v0.01) នៅថ្ងៃទី ១៧ ខែកញ្ញា ឆ្នាំ ១៩៩១។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1989",
+                    "text_km": "១៩៨៩",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1994",
+                    "text_km": "១៩៩៤",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "1991",
+                    "text_km": "១៩៩១",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "1993",
+                    "text_km": "១៩៩៣",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-h-1",
+            "categoryId": "geography",
+            "difficulty": "Hard",
+            "text": "What is the deepest lake in the world?",
+            "text_km": "តើបឹងណាដែលជ្រៅជាងគេបំផុតនៅលើពិភពលោក?",
+            "explanation": "Lake Baikal in Siberia, Russia reaches a depth of 1,642 metres.",
+            "explanation_km": "បឹងបៃកាល់ (Lake Baikal) នៅស៊ីបេរី ប្រទេសរុស្ស៊ី មានជម្រៅរហូតដល់ ១,៦៤២ ម៉ែត្រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Lake Tanganyika",
+                    "text_km": "បឹងតង់ហ្គានីកា (Lake Tanganyika)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Caspian Sea",
+                    "text_km": "សមុទ្រកាសព្យែន (Caspian Sea)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Lake Superior",
+                    "text_km": "បឹងស៊ូភីរៀ (Lake Superior)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Lake Baikal",
+                    "text_km": "បឹងបៃកាល់ (Lake Baikal)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "geo-h-2",
+            "categoryId": "geography",
+            "difficulty": "Hard",
+            "text": "What is the smallest country in the world by total area?",
+            "text_km": "តើប្រទេសណាដែលតូចជាងគេបំផុតនៅលើពិភពលោកតាមផ្ទៃដីសរុប?",
+            "explanation": "Vatican City covers just 0.44 km², making it the world's smallest country.",
+            "explanation_km": "បុរីវ៉ាទីកង់ (Vatican City) គ្របដណ្តប់លើផ្ទៃដីត្រឹមតែ ០.៤៤ គីឡូម៉ែត្រការ៉េប៉ុណ្ណោះ ដែលធ្វើឱ្យវាក្លាយជាប្រទេសតូចជាងគេបំផុតក្នុងលោក។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Monaco",
+                    "text_km": "ម៉ូណាកូ (Monaco)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "San Marino",
+                    "text_km": "សាន ម៉ារីណូ (San Marino)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Vatican City",
+                    "text_km": "បុរីវ៉ាទីកង់ (Vatican City)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Liechtenstein",
+                    "text_km": "លីចតេនស្តាញ (Liechtenstein)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-h-3",
+            "categoryId": "geography",
+            "difficulty": "Hard",
+            "text": "The Mariana Trench is located in which ocean?",
+            "text_km": "តើជ្រលងម៉ារីយ៉ាណា (Mariana Trench) ស្ថិតនៅក្នុងមហាសមុទ្រមួយណា?",
+            "explanation": "The Mariana Trench is in the western Pacific Ocean and is the deepest oceanic trench on Earth.",
+            "explanation_km": "ជ្រលងម៉ារីយ៉ាណា ស្ថិតនៅក្នុងមហាសមុទ្រប៉ាស៊ីហ្វិកភាគខាងលិច ហើយជាជ្រលងមហាសមុទ្រដែលជ្រៅបំផុតនៅលើផែនដី។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Indian Ocean",
+                    "text_km": "មហាសមុទ្រឥណ្ឌា",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Atlantic Ocean",
+                    "text_km": "មហាសមុទ្រអាត្លង់ទិក",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Pacific Ocean",
+                    "text_km": "មហាសមុទ្រប៉ាស៊ីហ្វិក",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Arctic Ocean",
+                    "text_km": "មហាសមុទ្រអាកទិក",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-h-4",
+            "categoryId": "geography",
+            "difficulty": "Hard",
+            "text": "Which two countries share the world's longest land border?",
+            "text_km": "តើប្រទេសពីរណាដែលរួមចំណែកព្រំដែនគោកវែងជាងគេបំផុតនៅលើពិភពលោក?",
+            "explanation": "Canada and the United States share the world's longest land border at approximately 8,891 km.",
+            "explanation_km": "ប្រទេសកាណាដា និងសហរដ្ឋអាមេរិក រួមចំណែកព្រំដែនគោកវែងជាងគេបំផុតនៅលើពិភពលោក ដែលមានប្រវែងប្រហែល ៨,៨៩១ គីឡូម៉ែត្រ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Russia and Kazakhstan",
+                    "text_km": "រុស្ស៊ី និងកាហ្សាក់ស្ថាន",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Brazil and Argentina",
+                    "text_km": "ប្រេស៊ីល និងអាហ្សង់ទីន",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Canada and USA",
+                    "text_km": "កាណាដា និងសហរដ្ឋអាមេរិក",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "China and Mongolia",
+                    "text_km": "ចិន និងម៉ុងហ្គោលី",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "geo-h-5",
+            "categoryId": "geography",
+            "difficulty": "Hard",
+            "text": "What percentage of Earth's surface is covered by water?",
+            "text_km": "តើផ្ទៃដីរបស់ផែនដីប៉ុន្មានភាគរយត្រូវបានគ្របដណ្តប់ដោយទឹក?",
+            "explanation": "Approximately 71% of Earth's surface is covered by water.",
+            "explanation_km": "ប្រហែល ៧១% នៃផ្ទៃរបស់ផែនដីត្រូវបានគ្របដណ្តប់ដោយទឹក។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "60%",
+                    "text_km": "៦០%",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "80%",
+                    "text_km": "៨០%",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "71%",
+                    "text_km": "៧១%",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "55%",
+                    "text_km": "៥៥%",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-h-1",
+            "categoryId": "sports",
+            "difficulty": "Hard",
+            "text": "What is the maximum score achievable in a single game of ten-pin bowling?",
+            "text_km": "តើពិន្ទុអតិបរមាដែលអាចទទួលបាននៅក្នុងហ្គេមប៊ូលីង (ten-pin bowling) មួយគឺប៉ុន្មាន?",
+            "explanation": "A perfect game in bowling scores 300 (12 consecutive strikes).",
+            "explanation_km": "ហ្គេមដែលល្អឥតខ្ចោះនៅក្នុងប៊ូលីងទទួលបាន ៣០០ ពិន្ទុ (វាយដួលទាំងអស់ ១២ ដងជាប់គ្នា)។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "270",
+                    "text_km": "២៧០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "300",
+                    "text_km": "៣០០",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "290",
+                    "text_km": "២៩០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "330",
+                    "text_km": "៣៣០",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-h-2",
+            "categoryId": "sports",
+            "difficulty": "Hard",
+            "text": "In which year were women first allowed to compete in the modern Olympic Games?",
+            "text_km": "តើនៅឆ្នាំណាដែលស្ត្រីត្រូវបានអនុញ្ញាតឱ្យចូលរួមប្រកួតក្នុងកីឡាអូឡាំពិកសម័យទំនើបជាលើកដំបូង?",
+            "explanation": "Women first competed in the modern Olympics at the 1900 Paris Games.",
+            "explanation_km": "ស្ត្រីបានចូលរួមប្រកួតក្នុងកីឡាអូឡាំពិកសម័យទំនើបជាលើកដំបូងនៅក្នុងព្រឹត្តិការណ៍ឆ្នាំ ១៩០០ នៅទីក្រុងប៉ារីស។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1896",
+                    "text_km": "១៨៩៦",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1908",
+                    "text_km": "១៩០៨",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "1920",
+                    "text_km": "១៩២០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "1900",
+                    "text_km": "១៩០០",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "id": "spo-h-3",
+            "categoryId": "sports",
+            "difficulty": "Hard",
+            "text": "What is the term for three consecutive strikes in bowling?",
+            "text_km": "តើពាក្យអ្វីដែលប្រើសម្រាប់ការវាយដួលទាំងអស់ ៣ ដងជាប់គ្នា (strikes) នៅក្នុងប៊ូលីង?",
+            "explanation": "Three consecutive strikes in bowling is called a \"turkey.\"",
+            "explanation_km": "ការវាយដួលទាំងអស់ ៣ ដងជាប់គ្នានៅក្នុងប៊ូលីងត្រូវបានគេហៅថា \"turkey\"។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Hat-trick",
+                    "text_km": "Hat-trick",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Turkey",
+                    "text_km": "Turkey",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Triple Crown",
+                    "text_km": "Triple Crown",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Grand Slam",
+                    "text_km": "Grand Slam",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-h-4",
+            "categoryId": "sports",
+            "difficulty": "Hard",
+            "text": "How many dimples does a regulation golf ball have on average?",
+            "text_km": "តើបាល់វាយកូនហ្គោលស្តង់ដារមធ្យមមានស្នាមខូង (dimples) ចំនួនប៉ុន្មាន?",
+            "explanation": "Most golf balls have between 300 and 500 dimples; 336 is a common number.",
+            "explanation_km": "បាល់វាយកូនហ្គោលភាគច្រើនមានស្នាមខូងចន្លោះពី ៣០០ ដល់ ៥០០; ៣៣៦ គឺជាចំនួនទូទៅបំផុត។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "200",
+                    "text_km": "២០០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "500",
+                    "text_km": "៥០០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "336",
+                    "text_km": "៣៣៦",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "100",
+                    "text_km": "១០០",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "spo-h-5",
+            "categoryId": "sports",
+            "difficulty": "Hard",
+            "text": "In the Tour de France, what color jersey does the overall leader wear?",
+            "text_km": "នៅក្នុងការប្រកួត Tour de France តើអាវពណ៌អ្វីដែលអ្នកដឹកនាំរួម (overall leader) ពាក់?",
+            "explanation": "The leader of the general classification in the Tour de France wears the yellow jersey (maillot jaune).",
+            "explanation_km": "អ្នកដឹកនាំចំណាត់ថ្នាក់ទូទៅនៅក្នុង Tour de France ពាក់អាវពណ៌លឿង (maillot jaune)។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Green",
+                    "text_km": "បៃតង",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Red",
+                    "text_km": "ក្រហម",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Yellow",
+                    "text_km": "លឿង",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "White",
+                    "text_km": "ស",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-1",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "Who composed \"The Rite of Spring,\" whose 1913 premiere reportedly caused a riot?",
+            "text_km": "តើនរណាជាអ្នកនិពន្ធបទភ្លេង \"The Rite of Spring\" ដែលការសម្ដែងលើកដំបូងក្នុងឆ្នាំ ១៩១៣ ត្រូវបានគេរាយការណ៍ថាបានបង្កឱ្យមានការចលាចល?",
+            "explanation": "Igor Stravinsky's \"The Rite of Spring\" premiered on May 29, 1913 in Paris.",
+            "explanation_km": "បទ \"The Rite of Spring\" របស់លោក អ៊ីហ្ក័រ ស្ត្រាវីនស្គី (Igor Stravinsky) បានសម្ដែងដំបូងនៅថ្ងៃទី ២៩ ខែឧសភា ឆ្នាំ ១៩១៣ នៅទីក្រុងប៉ារីស។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Claude Debussy",
+                    "text_km": "Claude Debussy",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Sergei Prokofiev",
+                    "text_km": "Sergei Prokofiev",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Igor Stravinsky",
+                    "text_km": "Igor Stravinsky",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Béla Bartók",
+                    "text_km": "Béla Bartók",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-2",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "In which year was William Shakespeare born?",
+            "text_km": "តើលោក វីល្លៀម សេកស្ពៀរ (William Shakespeare) កើតនៅឆ្នាំណា?",
+            "explanation": "William Shakespeare was baptized on April 26, 1564, in Stratford-upon-Avon.",
+            "explanation_km": "លោក វីល្លៀម សេកស្ពៀរ ត្រូវបានទទួលបុណ្យជ្រមុជទឹកនៅថ្ងៃទី ២៦ ខែមេសា ឆ្នាំ ១៥៦៤ នៅ Stratford-upon-Avon។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "1542",
+                    "text_km": "១៥៤២",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "1590",
+                    "text_km": "១៥៩០",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "1564",
+                    "text_km": "១៥៦៤",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "1574",
+                    "text_km": "១៥៧៤",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-3",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "What is the Japanese art of paper folding called?",
+            "text_km": "តើសិល្បៈនៃការបត់ក្រដាសរបស់ជប៉ុនត្រូវបានគេហៅថាអ្វី?",
+            "explanation": "Origami is the traditional Japanese art of folding paper into decorative shapes.",
+            "explanation_km": "អូរីហ្គាមី (Origami) គឺជាសិល្បៈប្រពៃណីរបស់ជប៉ុនក្នុងការបត់ក្រដាសទៅជាទម្រង់តុបតែងផ្សេងៗ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Ikebana",
+                    "text_km": "អ៊ីគីបានី (Ikebana)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Origami",
+                    "text_km": "អូរីហ្គាមី (Origami)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "c",
+                    "text": "Bonsai",
+                    "text_km": "ប៊ុនសៃ (Bonsai)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "d",
+                    "text": "Haiku",
+                    "text_km": "ហៃគូ (Haiku)",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-4",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "Which artist created the \"Campbell's Soup Cans\" series in 1962?",
+            "text_km": "តើសិល្បករម្នាក់ណាដែលបានបង្កើតស៊េរីគំនូរ \"Campbell's Soup Cans\" ក្នុងឆ្នាំ ១៩៦២?",
+            "explanation": "Andy Warhol created 32 canvases of Campbell's Soup Cans, a defining work of Pop Art.",
+            "explanation_km": "លោក អ៊ែនឌី វ៉ាហុល (Andy Warhol) បានបង្កើតផ្ទាំងគំនូរចំនួន ៣២ នៃកំប៉ុងស៊ុប Campbell ដែលជាស្នាដៃដ៏សំខាន់នៃសិល្បៈ ប៉ុបអាត (Pop Art)។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Roy Lichtenstein",
+                    "text_km": "Roy Lichtenstein",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Jasper Johns",
+                    "text_km": "Jasper Johns",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Andy Warhol",
+                    "text_km": "Andy Warhol",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Robert Rauschenberg",
+                    "text_km": "Robert Rauschenberg",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "id": "art-h-5",
+            "categoryId": "arts",
+            "difficulty": "Hard",
+            "text": "What literary term describes a narrative technique where the story is told out of chronological order?",
+            "text_km": "តើស័ព្ទអក្សរសិល្ប៍អ្វីដែលពិពណ៌នាអំពីបច្ចេកទេសនិទានរឿងដែលរឿងរ៉ាវត្រូវបានប្រាប់មិនតាមលំដាប់លំដោយពេលវេលា?",
+            "explanation": "Anachrony (or non-linear narrative) is a technique where events are presented out of order.",
+            "explanation_km": "Anachrony (ឬនិទានរឿងមិនតាមលំដាប់លំដោយ) គឺជាបច្ចេកទេសដែលព្រឹត្តិការណ៍ផ្សេងៗត្រូវបានបង្ហាញមិនតាមលំដាប់លំដោយ។",
+            "answers": [
+                {
+                    "id": "a",
+                    "text": "Analepsis",
+                    "text_km": "Analepsis",
+                    "isCorrect": false
+                },
+                {
+                    "id": "b",
+                    "text": "Stream of Consciousness",
+                    "text_km": "Stream of Consciousness",
+                    "isCorrect": false
+                },
+                {
+                    "id": "c",
+                    "text": "Anachrony",
+                    "text_km": "Anachrony",
+                    "isCorrect": true
+                },
+                {
+                    "id": "d",
+                    "text": "Prolepsis",
+                    "text_km": "Prolepsis",
+                    "isCorrect": false
+                }
+            ]
+        }
+    ]
+}

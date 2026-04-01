@@ -10,6 +10,13 @@ const DEFAULT_LIFELINES = { fifty: false, skip: false, audience: false, phone: f
 export function GameProvider({ children }) {
     const [gameState, setGameState] = useState(null);
     const { currentUser } = useAuth();
+    
+    // Clear game state when user logs out
+    useEffect(() => {
+        if (!currentUser) {
+            setGameState(null);
+        }
+    }, [currentUser]);
 
     // Map frontend lifelines (true=used) to backend format (missing or false=used, true=available) or parse them
     const parseLifelines = (backendLifelines) => {
@@ -343,17 +350,24 @@ export function GameProvider({ children }) {
     // Fallbacks to remove mocked calls
     const switchToRandom = cancelMatchmake;
     const startSmallRoomGame = useCallback(async () => startBattle(), [startBattle]);
-    const addAIPlayers = () => {};
-    const extendLobbyTimer = () => {};
-    const createRandomSmallRoom = (categories) => createBattle(5, false, categories);
+    const addAIPlayers = useCallback(() => {}, []);
+    const extendLobbyTimer = useCallback(() => {}, []);
+    const createRandomSmallRoom = useCallback((categories) => createBattle(5, false, categories), [createBattle]);
+
+    const contextValue = React.useMemo(() => ({
+        gameState, 
+        initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame,
+        createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
+        createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle
+    }), [
+        gameState, 
+        initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame,
+        createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
+        createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle
+    ]);
 
     return (
-        <GameContext.Provider value={{
-            gameState, 
-            initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame,
-            createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
-            createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle
-        }}>
+        <GameContext.Provider value={contextValue}>
             {children}
         </GameContext.Provider>
     );

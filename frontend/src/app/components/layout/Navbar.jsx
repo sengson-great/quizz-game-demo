@@ -26,8 +26,8 @@ export function Navbar() {
 
     const showMusicBtn = currentUser?.musicEnabled && isPlaying;
 
-    return (<nav className="fixed top-0 left-0 right-0 z-50 border-b" style={{ background: 'rgba(255,245,245,0.85)', backdropFilter: 'blur(24px) saturate(1.4)', borderColor: 'rgba(0,0,0,0.06)' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    return (<nav className="fixed top-0 left-0 right-0 z-50 border-b" style={{ background: 'rgba(255,245,245,0.85)', backdropFilter: 'blur(24px) saturate(1.4)', borderColor: 'rgba(0,0,0,0.06)', paddingTop: 'var(--safe-area-top)' }}>
+      <div className="max-w-7xl mx-auto" style={{ paddingLeft: 'calc(0.75rem + var(--safe-area-left))', paddingRight: 'calc(0.75rem + var(--safe-area-right))' }}>
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 group">
@@ -96,7 +96,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile nav */}
-        {currentUser && (<div className="md:hidden flex items-center gap-1 pb-2 overflow-x-auto">
+        {currentUser && (<div className="md:hidden flex items-center gap-1 pb-2 overflow-x-auto no-scrollbar scrollbar-hide px-2">
             {navLinks.map(({ to, label, icon: Icon }) => {
                 const active = location.pathname === to;
                 return (<Link key={to} to={to} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all ${active ? 'bg-[#E84C6A]/10 text-[#E84C6A]' : 'text-slate-500 hover:text-[#1A1A2E]'}`}>

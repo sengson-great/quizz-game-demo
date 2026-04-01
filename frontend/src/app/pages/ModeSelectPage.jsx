@@ -115,7 +115,7 @@ export default function ModeSelectPage() {
       </motion.div>
 
       {/* Difficulty Info */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex items-center justify-center gap-3 mb-8 text-sm">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-wrap items-center justify-center gap-3 mb-8 text-sm">
         {[
             { label: `5 ${t('difficultyEasy')}`, bg: 'rgba(52,211,153,0.08)', color: '#059669', border: 'rgba(52,211,153,0.15)' },
             { label: `5 ${t('difficultyMedium')}`, bg: 'rgba(251,191,36,0.08)', color: '#d97706', border: 'rgba(251,191,36,0.15)' },

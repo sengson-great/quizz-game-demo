@@ -1,6 +1,10 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Users, Phone } from 'lucide-react';
+import { useTranslation } from '../../hooks/useTranslation';
+
 export function AudienceModal({ type, answers, audienceData, phoneMessage, onClose }) {
+    const { t, lang } = useTranslation();
+    const isKhmer = lang === 'km';
     const labels = ['A', 'B', 'C', 'D'];
     return (<AnimatePresence>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }} onClick={onClose}>
@@ -13,9 +17,9 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
               </div>
               <div>
                 <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
-                  {type === 'audience' ? 'Ask the Audience' : 'Phone a Friend'}
+                  {type === 'audience' ? t('askAudience') : t('phoneFriend')}
                 </h3>
-                <p className="text-slate-500 text-sm">{type === 'audience' ? 'Audience votes are in!' : 'Your friend says...'}</p>
+                <p className="text-slate-500 text-sm">{type === 'audience' ? t('audienceVotesIn') : t('friendSays')}</p>
               </div>
             </div>
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors">
@@ -30,7 +34,7 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-[#1A1A2E]">
                         <span className="text-[#E84C6A] mr-2" style={{ fontWeight: 700 }}>{labels[i]}</span>
-                        {answer.text}
+                        {(isKhmer && answer.text_km) ? answer.text_km : answer.text}
                       </span>
                       <span className="text-[#1A1A2E]" style={{ fontWeight: 600 }}>{votes}%</span>
                     </div>
@@ -54,7 +58,7 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
             </div>)}
 
           <button onClick={onClose} className="mt-6 w-full py-3 rounded-xl text-white text-sm transition-all hover:scale-[1.01]" style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)' }}>
-            Got it!
+            {t('gotIt')}
           </button>
         </motion.div>
       </motion.div>

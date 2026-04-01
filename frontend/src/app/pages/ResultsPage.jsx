@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, Star, CheckCircle, XCircle, Home, RotateCcw, Medal } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useAudio } from '../contexts/AudioContext';
 import { CATEGORIES } from '../data/questions';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -12,15 +13,34 @@ const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)'
 export default function ResultsPage() {
     const { gameState, resetGame } = useGame();
     const { currentUser } = useAuth();
-    const { t } = useTranslation();
+    const { playSFX } = useAudio();
+    const { t, lang } = useTranslation();
+    const isKhmer = lang === 'km';
     const navigate = useNavigate();
     const [showReview, setShowReview] = useState(false);
     const [animScore, setAnimScore] = useState(0);
 
-    useEffect(() => { if (!gameState || !currentUser) {
-        navigate('/dashboard');
-        return;
-    } }, []);
+    useEffect(() => { 
+        if (!gameState || !currentUser) {
+            navigate('/dashboard');
+            return;
+        } 
+        
+        // Play result sound
+        const correctCount = (gameState?.answers || []).filter(a => a.isCorrect).length;
+        const totalQuestions = (gameState?.questions || []).length || 1;
+        const accuracy = (correctCount / totalQuestions) * 100;
+        const playerRank = [
+            { score: gameState?.playerScore || 0, isPlayer: true }, 
+            ...(gameState?.opponents || []).map(o => ({ score: o.score || 0, isPlayer: false }))
+        ].sort((a, b) => b.score - a.score).findIndex(s => s.isPlayer) + 1;
+
+        if (playerRank === 1 || accuracy >= 70) {
+            playSFX('victory');
+        } else {
+            playSFX('loss');
+        }
+    }, []);
 
     useEffect(() => {
         if (!gameState)
@@ -142,8 +162,12 @@ export default function ResultsPage() {
                 return (<div key={`${answer.questionId}-${i}`} className="flex items-start gap-3 p-3 rounded-xl text-sm" style={{ background: answer.isCorrect ? 'rgba(52,211,153,0.04)' : 'rgba(239,68,68,0.04)' }}>
                       {answer.isCorrect ? <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"/> : <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"/>}
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-600 text-xs mb-0.5">{cat?.icon} {q.text.substring(0, 60)}...</p>
-                        {!answer.isCorrect && <p className="text-emerald-500 text-xs">✓ {q.answers.find(a => a.isCorrect)?.text}</p>}
+                        <p className="text-slate-600 text-xs mb-0.5">{cat?.icon} {(isKhmer && q.text_km) ? q.text_km : q.text}</p>
+                        {!answer.isCorrect && (
+                          <p className="text-emerald-500 text-xs">
+                            ✓ {(isKhmer && q.answers.find(a => a.isCorrect)?.text_km) ? q.answers.find(a => a.isCorrect)?.text_km : q.answers.find(a => a.isCorrect)?.text}
+                          </p>
+                        )}
                       </div>
                       {answer.isCorrect && <span className="text-amber-500 text-xs flex-shrink-0" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>+{answer.pointsEarned}</span>}
                     </div>);

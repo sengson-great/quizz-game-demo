@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GreatQuiz</string>
+    <string name="title_activity_main">GreatQuiz</string>
+    <string name="package_name">com.greatquiz.app</string>
+    <string name="custom_url_scheme">com.greatquiz.app</string>
+</resources>

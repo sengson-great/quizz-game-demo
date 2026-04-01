@@ -1,26 +1,31 @@
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Trophy, Zap, Target, TrendingUp, ChevronRight, Star, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useGame } from '../contexts/GameContext';
+import { CATEGORIES } from '../data/questions';
 import { MOCK_GAME_HISTORY } from '../data/mockData';
 import { useTranslation } from '../hooks/useTranslation';
 
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 
-function CategoryBar({ subject, value, icon, color, index }) {
+const CategoryBar = memo(({ subject, value, icon, color, index }) => {
     return (<motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + index * 0.06 }} className="flex items-center gap-2">
       <span className="text-base w-5 flex-shrink-0">{icon}</span>
-      <span className="text-slate-500 text-xs w-16 flex-shrink-0">{subject}</span>
+      <span className="text-slate-500 text-xs w-20 flex-shrink-0 truncate" title={subject}>{subject}</span>
       <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
         <motion.div initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.8, delay: 0.5 + index * 0.06 }} className="h-full rounded-full" style={{ background: color }}/>
       </div>
       <span className="text-xs w-8 text-right flex-shrink-0" style={{ color }}>{value}%</span>
     </motion.div>);
-}
+});
+
+CategoryBar.displayName = 'CategoryBar';
 
 export default function DashboardPage() {
     const { currentUser } = useAuth();
+    const { initGame } = useGame();
     const { t } = useTranslation();
     const navigate = useNavigate();
     
@@ -37,7 +42,7 @@ export default function DashboardPage() {
     ];
 
     const gameModes = [
-        { icon: '🎯', title: t('soloPractice'), desc: t('classicDesc'), badge: t('readyForChallenge'), badgeStyle: { background: 'rgba(251,191,36,0.1)', color: '#d97706' }, action: () => navigate('/mode-select', { state: { preMode: 'Solo' } }) },
+        { icon: '🎯', title: t('soloPractice'), desc: t('classicDesc'), badge: t('readyForChallenge'), badgeStyle: { background: 'rgba(251,191,36,0.1)', color: '#d97706' }, action: () => { initGame('Solo', null, currentUser?.preferredCategories || CATEGORIES.map(c => c.id)); navigate('/matchmaking'); } },
         { icon: '⚔️', title: t('battle1v1'), desc: t('battleDescShort'), badge: t('battle1v1'), badgeStyle: { background: 'rgba(232,76,106,0.08)', color: '#E84C6A' }, action: () => navigate('/mode-select', { state: { preMode: '1v1' } }) },
         { icon: '🏆', title: t('roomMode'), desc: t('privateRoomDesc'), badge: t('roomMode'), badgeStyle: { background: 'rgba(52,211,153,0.08)', color: '#059669' }, action: () => navigate('/mode-select', { state: { preMode: 'Room' } }) },
     ];
@@ -80,11 +85,13 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map(({ label, value, icon: Icon, color, bgStyle }, i) => (<motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="rounded-2xl p-5" style={{ ...bgStyle, backdropFilter: 'blur(20px)' }}>
             <Icon className={`w-5 h-5 ${color} mb-3`}/>
-            <p className="text-2xl text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{value}</p>
-            <p className="text-slate-400 text-sm mt-1">{label}</p>
+            <p className={`text-[#1A1A2E] leading-tight ${value.length > 10 ? 'text-lg' : 'text-2xl'}`} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
+              {value}
+            </p>
+            <p className="text-slate-400 text-sm mt-1 truncate">{label}</p>
           </motion.div>))}
       </div>
 

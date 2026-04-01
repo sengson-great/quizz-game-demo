@@ -134,6 +134,37 @@ export const translations = {
     catGeography: 'Geography',
     catSports: 'Sports',
     catArts: 'Arts & Culture',
+
+    // Difficulty
+    difficultyEasy: 'Easy',
+    difficultyMedium: 'Medium',
+    difficultyHard: 'Hard',
+
+    // Lifeline Modals
+    askAudience: 'Ask the Audience',
+    phoneFriend: 'Phone a Friend',
+    audienceVotesIn: 'Audience votes are in!',
+    friendSays: 'Your friend says...',
+    gotIt: 'Got it!',
+    hurryUp: 'Hurry Up!',
+
+    // Results
+    victory: 'Victory!',
+    gameComplete: 'Game Complete!',
+    finalStandings: 'Final Standings',
+    rank: 'Rank',
+    you: 'You',
+    grade: 'Grade',
+    accuracy: 'Accuracy',
+    answerReview: 'Answer Review',
+    home: 'Home',
+
+    // Grades
+    gradePerfect: 'Perfect Performance!',
+    gradeExcellent: 'Excellent Job!',
+    gradeGreat: 'Great Effort!',
+    gradeGood: 'Good Work!',
+    gradeKeepPracticing: 'Keep Practicing!',
   },
   km: {
     // Navbar
@@ -270,5 +301,36 @@ export const translations = {
     catGeography: 'ភូមិសាស្ត្រ',
     catSports: 'កីឡា',
     catArts: 'សិល្បៈ និងវប្បធម៌',
+
+    // Difficulty
+    difficultyEasy: 'ងាយស្រួល',
+    difficultyMedium: 'មធ្យម',
+    difficultyHard: 'ពិបាក',
+
+    // Lifeline Modals
+    askAudience: 'សួរទស្សនិកជន',
+    phoneFriend: 'តេទូរស័ព្ទទៅមិត្តភក្តិ',
+    audienceVotesIn: 'លទ្ធផលបោះឆ្នោតពីទស្សនិកជន!',
+    friendSays: 'មិត្តភក្តិរបស់អ្នកនិយាយថា...',
+    gotIt: 'យល់ព្រម!',
+    hurryUp: 'រួសរាន់ឡើង!',
+
+    // Results
+    victory: 'ជោគជ័យ!',
+    gameComplete: 'ហ្គេមបានបញ្ចប់!',
+    finalStandings: 'ចំណាត់ថ្នាក់ចុងក្រោយ',
+    rank: 'ចំណាត់ថ្នាក់',
+    you: 'អ្នក',
+    grade: 'និទ្ទេស',
+    accuracy: 'ភាពត្រឹមត្រូវ',
+    answerReview: 'ពិនិត្យចម្លើយឡើងវិញ',
+    home: 'ទំព័រដើម',
+
+    // Grades
+    gradePerfect: 'លទ្ធផលដ៏អស្ចារ្យ!',
+    gradeExcellent: 'ការងារល្អណាស់!',
+    gradeGreat: 'ព្យាយាមបានល្អ!',
+    gradeGood: 'ល្អបង្គួរ!',
+    gradeKeepPracticing: 'ព្យាយាមបន្តទៀត!',
   }
 };

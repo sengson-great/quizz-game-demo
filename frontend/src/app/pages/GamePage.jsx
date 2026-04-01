@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useAudio } from '../contexts/AudioContext';
 import { CATEGORIES } from '../data/questions';
 import { loadSystemConfig } from '../data/systemConfig';
 import { CircularTimer } from '../components/game/CircularTimer';
@@ -19,7 +20,8 @@ const RESULT_DELAY = 2200;
 export default function GamePage() {
     const { gameState, answerQuestion, useLifeline, nextQuestion, finalizeGame } = useGame();
     const { currentUser } = useAuth();
-    const { t } = useTranslation();
+    const { playSFX } = useAudio();
+    const { t, lang } = useTranslation();
     const navigate = useNavigate();
     const sysConfig = useMemo(() => loadSystemConfig(), []);
     const TOTAL_TIME = sysConfig.timerDuration;
@@ -95,11 +97,12 @@ export default function GamePage() {
         if (timerRef.current) clearInterval(timerRef.current);
         
         setSelectedAnswer(answerId);
-        setRevealed(true);
 
         // ── TIMEOUT CASE ──────────────────────────────────────────────────────────
         if (answerId === null) {
+            setRevealed(true);
             answeredRef.current = true;
+            playSFX('timeout');
             const timeoutResult = {
                 questionId: gameState.currentQuestion?.id,
                 selectedAnswerId: null,
@@ -132,14 +135,17 @@ export default function GamePage() {
             
             // Handle Double Chance "try again"
             if (doubleDipActiveRef.current && !doubleDipFirstAnswerRef.current && result.status === 'try_again') {
+                setLastAnswer(result);
+                setRevealed(true);
                 doubleDipFirstAnswerRef.current = answerId;
                 setDoubleDipWrongId(answerId);
                 setTimeout(() => {
                     setSelectedAnswer(null);
                     setRevealed(false);
-                    setTimerActive(true); // Resume timer for second try? Or use remaining time?
-                    // Note: In real Double Chance, you usually get one more click immediately.
+                    setLastAnswer(null); // Clear result for second try
+                    setTimerActive(true); 
                 }, 800);
+                playSFX('wrong');
                 return;
             }
 
@@ -147,6 +153,8 @@ export default function GamePage() {
             answeredRef.current = true;
             doubleDipActiveRef.current = false;
             setLastAnswer(result);
+            setRevealed(true);
+            playSFX(result.isCorrect ? 'correct' : 'wrong');
 
             setTimeout(() => {
                 const isFinished = result.status === 'finished' || 
@@ -162,19 +170,21 @@ export default function GamePage() {
         } catch (error) {
             console.error(error);
             answeredRef.current = false;
+            setSelectedAnswer(null);
             setTimerActive(true);
         }
-    }, [gameState, answerQuestion, nextQuestion, finalizeGame, navigate]);
+    }, [gameState, answerQuestion, nextQuestion, finalizeGame, navigate, playSFX]);
 
     const handleTimerExpire = useCallback(() => { if (!answeredRef.current)
         submitAnswer(null, 0); }, [submitAnswer]);
 
     const handleLifeline = async (type) => {
-        if (!gameState || revealed)
+        if (!gameState || revealed || selectedAnswer)
             return;
         const lifelineConfigMap = { fifty: sysConfig.enableFiftyFifty, skip: sysConfig.enableSkip, audience: sysConfig.enableAudience, phone: sysConfig.enablePhone, doubleDip: sysConfig.enableDoubleDip };
         if (!lifelineConfigMap[type])
             return;
+        playSFX('lifeline');
         const result = await useLifeline(type);
         if (type === 'skip') {
             nextQuestion();
@@ -203,7 +213,6 @@ export default function GamePage() {
     const progressPct = (qNum / total) * 100;
     const questionDifficulty = (question.difficulty || question.difficulty_level || 'Easy').toLowerCase();
     
-    // Normalize difficulty keys to handle both casings
     const difficultyStyles = {
         easy: { bg: 'rgba(52,211,153,0.08)', color: '#059669', border: 'rgba(52,211,153,0.15)', label: t('difficultyEasy') },
         medium: { bg: 'rgba(251,191,36,0.08)', color: '#d97706', border: 'rgba(251,191,36,0.15)', label: t('difficultyMedium') },
@@ -211,7 +220,6 @@ export default function GamePage() {
     };
     
     const ds = difficultyStyles[questionDifficulty] || difficultyStyles.easy;
-    // enabledTypes: which lifelines are allowed by admin config (to show/hide)
     const enabledTypes = {
         fifty: sysConfig.enableFiftyFifty,
         skip: sysConfig.enableSkip,
@@ -219,8 +227,9 @@ export default function GamePage() {
         phone: sysConfig.enablePhone,
         doubleDip: sysConfig.enableDoubleDip,
     };
-    // lifelines from gameState are already in frontend format (true = used/spent)
     const enabledLifelines = gameState.lifelines;
+    const isKhmer = lang === 'km';
+
     return (<div className="min-h-screen flex flex-col px-4 py-5 max-w-3xl mx-auto relative" style={{ background: LIGHT_BG, fontFamily: 'Poppins, Inter, sans-serif' }}>
       
       <AnimatePresence>
@@ -231,7 +240,7 @@ export default function GamePage() {
         {oppScorePulse && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.3 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="fixed inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse at top right, rgba(232,76,106,0.08), transparent 60%)' }}/>)}
       </AnimatePresence>
 
-      <div className="fixed top-4 left-4 z-[60]"><ReturnButton context="game"/></div>
+      <div className="fixed z-[60]" style={{ top: 'calc(1rem + var(--safe-area-top))', left: 'calc(1rem + var(--safe-area-left))' }}><ReturnButton context="game"/></div>
 
       <div className="flex items-start justify-between mb-3 relative z-30 pt-1">
         <div className="flex items-center gap-2 ml-14">
@@ -250,7 +259,6 @@ export default function GamePage() {
         <LiveScorePanel playerScore={gameState.playerScore} playerAvatar={currentUser.avatar} playerName={currentUser.username} opponents={gameState.opponents} mode={gameState.mode}/>
       </div>
 
-      {/* Player chips for 1v1/Room */}
       {(gameState.mode === '1v1' || gameState.mode === 'Room') && gameState.opponents.length > 0 && (<div className="mb-3 relative z-20">
           <div className="flex items-center gap-2 overflow-x-auto py-1 px-1">
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0" style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' }}>
@@ -269,25 +277,32 @@ export default function GamePage() {
       <AnimatePresence mode="wait">
         <motion.div key={question.id} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.3 }} className="relative z-10 flex-1 flex flex-col">
           <div className="rounded-2xl p-6 mb-4" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-            <p className="text-[#1A1A2E] text-lg leading-relaxed" style={{ fontFamily: 'Poppins, sans-serif' }}>{question.text}</p>
+            <p className="text-[#1A1A2E] text-lg leading-relaxed" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                {(isKhmer && question.text_km) ? question.text_km : question.text}
+            </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             {question.answers.map((answer, i) => {
             const isDoubleDipWrong = doubleDipWrongId === answer.id;
             const answeredAndCorrect = revealed && lastAnswer && lastAnswer.correctAnswerId === answer.id;
-            return (<AnswerOption key={answer.id} id={answer.id} text={answer.text} label={labels[i]} isSelected={selectedAnswer === answer.id} isCorrect={answeredAndCorrect} isEliminated={gameState.eliminatedAnswers.includes(answer.id) || isDoubleDipWrong} revealed={revealed} disabled={revealed || answeredRef.current || isDoubleDipWrong} onClick={() => !revealed && !answeredRef.current && !isDoubleDipWrong && submitAnswer(answer.id, timeRemaining)} index={i}/>);
+            const displayText = (isKhmer && answer.text_km) ? answer.text_km : answer.text;
+            return (<AnswerOption key={answer.id} id={answer.id} text={displayText} label={labels[i]} isSelected={selectedAnswer === answer.id} isCorrect={answeredAndCorrect} isEliminated={gameState.eliminatedAnswers.includes(answer.id) || isDoubleDipWrong} revealed={revealed} disabled={revealed || answeredRef.current || !!selectedAnswer || isDoubleDipWrong} onClick={() => !revealed && !answeredRef.current && !selectedAnswer && !isDoubleDipWrong && submitAnswer(answer.id, timeRemaining)} index={i}/>);
         })}
           </div>
           <AnimatePresence>
             {revealed && lastAnswer && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="rounded-2xl p-4 mb-4" style={{ background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.06)' : 'rgba(239,68,68,0.06)', border: `1px solid ${lastAnswer.isCorrect ? 'rgba(52,211,153,0.15)' : 'rgba(239,68,68,0.15)'}` }}>
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1">
                     <p className={`text-sm ${lastAnswer.isCorrect ? 'text-emerald-600' : 'text-red-600'}`} style={{ fontWeight: 600, fontFamily: 'Poppins, sans-serif' }}>
-                      {lastAnswer.isCorrect ? `✓ ${t('correct')}!` : selectedAnswer === null ? `⏰ ${t('timesUp')}!` : `✗ ${t('wrong')}!`}
+                      {lastAnswer.isCorrect ? `✓ ${t('correct')}!` : selectedAnswer === null ? `⏰ ${t('timeOut')}!` : `✗ ${t('wrong')}!`}
                     </p>
-                    {question.explanation && <p className="text-slate-500 text-xs mt-1">{question.explanation}</p>}
+                    {((isKhmer && question.explanation_km) || question.explanation) && (
+                        <p className="text-slate-500 text-xs mt-1">
+                            {(isKhmer && question.explanation_km) ? question.explanation_km : question.explanation}
+                        </p>
+                    )}
                   </div>
-                  {lastAnswer.isCorrect && (<motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }} className="text-amber-500 text-right">
+                  {lastAnswer.isCorrect && (<motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }} className="text-amber-500 text-right ml-4">
                       <p className="text-xs text-slate-400">{t('points')}</p>
                       <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>+{lastAnswer.pointsEarned}</p>
                     </motion.div>)}
@@ -305,7 +320,7 @@ export default function GamePage() {
       </div>
 
       <div className="relative z-10 mt-auto pt-2 pb-2">
-        <LifelineButtons lifelines={enabledLifelines} enabledTypes={enabledTypes} onUse={handleLifeline} disabled={revealed}/>
+        <LifelineButtons lifelines={enabledLifelines} enabledTypes={enabledTypes} onUse={handleLifeline} disabled={revealed || !!selectedAnswer}/>
       </div>
 
       <AnimatePresence>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Settings, Volume2, Music, Globe, Tag, Save, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useAudio } from '../contexts/AudioContext';
 import { CATEGORIES } from '../data/questions';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -16,8 +17,18 @@ const ToggleSwitch = memo(({ value, onChange }) => (<button onClick={() => onCha
   <motion.div animate={{ x: value ? 24 : 2 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"/>
 </button>));
 
+const VolumeSlider = memo(({ value, onChange }) => (
+  <input 
+      type="range" min="0" max="1" step="0.01" 
+      value={value} onChange={(e) => onChange(parseFloat(e.target.value))}
+      className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#E84C6A]" 
+      style={{ background: 'rgba(0,0,0,0.08)' }} 
+  />
+));
+
 export default function SettingsPage() {
     const { currentUser, updateUser } = useAuth();
+    const { sfxVolume, setSfxVolume, volume, setMusicVolume } = useAudio();
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [saved, setSaved] = useState(false);
@@ -62,20 +73,35 @@ export default function SettingsPage() {
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-6" style={CARD}>
           <h2 className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('audio')}</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.12)' }}><Volume2 className="w-4 h-4 text-amber-500"/></div>
-                <div><p className="text-[#1A1A2E] text-sm">{t('soundEffects')}</p><p className="text-slate-400 text-xs">{t('soundDesc')}</p></div>
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.12)' }}><Volume2 className="w-4 h-4 text-amber-500"/></div>
+                  <div><p className="text-[#1A1A2E] text-sm">{t('soundEffects')}</p></div>
+                </div>
+                <ToggleSwitch value={form.soundEnabled} onChange={v => setForm(f => ({ ...f, soundEnabled: v }))}/>
               </div>
-              <ToggleSwitch value={form.soundEnabled} onChange={v => setForm(f => ({ ...f, soundEnabled: v }))}/>
+              <div className="flex items-center gap-3 px-1">
+                 <span className="text-[10px] text-slate-400 w-4">0%</span>
+                 <VolumeSlider value={sfxVolume} onChange={setSfxVolume} />
+                 <span className="text-[10px] text-slate-400 w-4">100%</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' }}><Music className="w-4 h-4 text-[#E84C6A]"/></div>
-                <div><p className="text-[#1A1A2E] text-sm">{t('backgroundMusic')}</p><p className="text-slate-400 text-xs">{t('musicDesc')}</p></div>
+
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' }}><Music className="w-4 h-4 text-[#E84C6A]"/></div>
+                  <div><p className="text-[#1A1A2E] text-sm">{t('backgroundMusic')}</p></div>
+                </div>
+                <ToggleSwitch value={form.musicEnabled} onChange={v => setForm(f => ({ ...f, musicEnabled: v }))}/>
               </div>
-              <ToggleSwitch value={form.musicEnabled} onChange={v => setForm(f => ({ ...f, musicEnabled: v }))}/>
+              <div className="flex items-center gap-3 px-1">
+                 <span className="text-[10px] text-slate-400 w-4">0%</span>
+                 <VolumeSlider value={volume} onChange={setMusicVolume} />
+                 <span className="text-[10px] text-slate-400 w-4">100%</span>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -92,7 +118,7 @@ export default function SettingsPage() {
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-6" style={CARD}>
           <div className="flex items-center gap-2 mb-4"><Tag className="w-4 h-4 text-emerald-500"/><h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('defaultCategories')}</h2></div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {CATEGORIES.map(({ id, name, icon, color }) => {
                 const isSelected = form.preferredCategories.includes(id);
                 const tKey = `cat${id.charAt(0).toUpperCase() + id.slice(1)}`;
@@ -101,7 +127,7 @@ export default function SettingsPage() {
                         border: isSelected ? '1px solid rgba(232,76,106,0.15)' : '1px solid rgba(0,0,0,0.06)',
                     }}>
                     <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center text-sm ${isSelected ? '' : 'opacity-40'}`}>{icon}</div>
-                    <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`}>{t(tKey)}</span>
+                    <span className={`text-sm transition-colors truncate min-w-0 ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`} title={t(tKey)}>{t(tKey)}</span>
                     {isSelected && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#E84C6A] shadow-[0_0_8px_rgba(232,76,106,0.5)]"/>}
                   </button>);
             })}

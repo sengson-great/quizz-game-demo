@@ -10,7 +10,15 @@ export function Layout() {
         <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full opacity-[0.12]" style={{ background: 'radial-gradient(circle, #F48FB1, transparent)', filter: 'blur(100px)' }}/>
       </div>
       <Navbar />
-      <main className="relative pt-16">
+      <main 
+        className="relative mx-auto max-w-7xl" 
+        style={{ 
+          paddingTop: 'calc(var(--safe-area-top) + var(--navbar-height))',
+          paddingBottom: 'calc(var(--safe-area-bottom) + 2rem)',
+          paddingLeft: 'calc(1rem + var(--safe-area-left))',
+          paddingRight: 'calc(1rem + var(--safe-area-right))'
+        }}
+      >
         <Outlet />
       </main>
     </div>);
@@ -22,7 +30,15 @@ export function FullLayout() {
         <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full opacity-[0.18]" style={{ background: 'radial-gradient(circle, #F8BBD0, transparent)', filter: 'blur(120px)' }}/>
         <div className="absolute top-1/3 left-0 w-[350px] h-[350px] rounded-full opacity-[0.12]" style={{ background: 'radial-gradient(circle, #F48FB1, transparent)', filter: 'blur(100px)' }}/>
       </div>
-      <main className="relative">
+      <main 
+        className="relative mx-auto max-w-7xl" 
+        style={{ 
+          paddingTop: 'var(--safe-area-top)', 
+          paddingBottom: 'calc(var(--safe-area-bottom) + 2rem)',
+          paddingLeft: 'calc(1rem + var(--safe-area-left))',
+          paddingRight: 'calc(1rem + var(--safe-area-right))'
+        }}
+      >
         <Outlet />
       </main>
     </div>);

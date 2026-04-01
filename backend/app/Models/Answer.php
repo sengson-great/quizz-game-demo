@@ -9,7 +9,7 @@ class Answer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['question_id', 'text', 'is_correct'];
+    protected $fillable = ['question_id', 'text', 'text_km', 'is_correct'];
 
     protected $casts = [
         'is_correct' => 'boolean',

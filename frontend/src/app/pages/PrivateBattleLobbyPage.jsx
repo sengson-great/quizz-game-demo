@@ -97,7 +97,7 @@ export default function PrivateBattleLobbyPage() {
     const minutes = Math.floor(countdown / 60);
     const seconds = countdown % 60;
     return (<div className="min-h-screen px-4 py-10" style={{ background: LIGHT_BG, fontFamily: 'Poppins, Inter, sans-serif' }}>
-      <div className="fixed top-6 left-6 z-50"><ReturnButton context="lobby"/></div>
+      <div className="fixed z-50" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}><ReturnButton context="lobby"/></div>
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.2]" style={{ background: 'radial-gradient(circle, #F8BBD0, transparent)', filter: 'blur(100px)' }}/>
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.15]" style={{ background: 'radial-gradient(circle, #FCE4EC, transparent)', filter: 'blur(100px)' }}/>

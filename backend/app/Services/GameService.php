@@ -74,7 +74,7 @@ class GameService
                 
                 $question = Question::with([
                     'answers' => function ($q) {
-                        $q->select('id', 'question_id', 'text')->orderBy('id');
+                        $q->select('id', 'question_id', 'text', 'text_km')->orderBy('id');
                     }
                 ])->find($questionId);
 
@@ -116,7 +116,7 @@ class GameService
             ->whereNotIn('id', $usedQuestionIds)
             ->with([
                 'answers' => function ($q) {
-                    $q->select('id', 'question_id', 'text')->inRandomOrder(); // Hide is_correct
+                    $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder(); // Hide is_correct
                 }
             ])
             ->inRandomOrder()

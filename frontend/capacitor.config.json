@@ -1,0 +1,9 @@
+{
+  "appId": "com.greatquiz.app",
+  "appName": "GreatQuiz",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "hostname": "localhost"
+  }
+}

@@ -1,20 +1,33 @@
+import React, { Suspense, lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { RootProvider } from './components/layout/RootProvider';
 import { Layout, FullLayout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import LandingPage from './pages/LandingPage';
-import AuthPage from './pages/AuthPage';
-import DashboardPage from './pages/DashboardPage';
-import ModeSelectPage from './pages/ModeSelectPage';
-import MatchmakingPage from './pages/MatchmakingPage';
-import SmallRoomLobbyPage from './pages/SmallRoomLobbyPage';
-import PrivateBattleLobbyPage from './pages/PrivateBattleLobbyPage';
-import GamePage from './pages/GamePage';
-import ResultsPage from './pages/ResultsPage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import SettingsPage from './pages/SettingsPage';
-import AdminPage from './pages/AdminPage';
-import NotFoundPage from './pages/NotFoundPage';
+
+// Lazy load pages
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ModeSelectPage = lazy(() => import('./pages/ModeSelectPage'));
+const MatchmakingPage = lazy(() => import('./pages/MatchmakingPage'));
+const SmallRoomLobbyPage = lazy(() => import('./pages/SmallRoomLobbyPage'));
+const PrivateBattleLobbyPage = lazy(() => import('./pages/PrivateBattleLobbyPage'));
+const GamePage = lazy(() => import('./pages/GamePage'));
+const ResultsPage = lazy(() => import('./pages/ResultsPage'));
+const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+
+// A simple loading component for suspense fallback
+const PageLoader = () => (
+    <div className="flex items-center justify-center min-h-screen bg-[#F8FAFC]">
+        <div className="relative">
+            <div className="w-12 h-12 border-4 border-[#E84C6A]/20 border-t-[#E84C6A] rounded-full animate-spin"></div>
+            <div className="mt-4 text-slate-500 font-medium text-sm animate-pulse text-center">Loading...</div>
+        </div>
+    </div>
+);
 
 export const router = createBrowserRouter([
     {
@@ -23,15 +36,15 @@ export const router = createBrowserRouter([
             {
                 Component: FullLayout,
                 children: [
-                    { path: '/', Component: LandingPage },
-                    { path: '/auth', Component: AuthPage },
+                    { path: '/', element: <Suspense fallback={<PageLoader />}><LandingPage /></Suspense> },
+                    { path: '/auth', element: <Suspense fallback={<PageLoader />}><AuthPage /></Suspense> },
                     {
                         element: <ProtectedRoute />,
                         children: [
-                            { path: '/matchmaking', Component: MatchmakingPage },
-                            { path: '/lobby', Component: SmallRoomLobbyPage },
-                            { path: '/battle-lobby', Component: PrivateBattleLobbyPage },
-                            { path: '/game', Component: GamePage },
+                            { path: '/matchmaking', element: <Suspense fallback={<PageLoader />}><MatchmakingPage /></Suspense> },
+                            { path: '/lobby', element: <Suspense fallback={<PageLoader />}><SmallRoomLobbyPage /></Suspense> },
+                            { path: '/battle-lobby', element: <Suspense fallback={<PageLoader />}><PrivateBattleLobbyPage /></Suspense> },
+                            { path: '/game', element: <Suspense fallback={<PageLoader />}><GamePage /></Suspense> },
                         ]
                     }
                 ],
@@ -40,15 +53,15 @@ export const router = createBrowserRouter([
                 Component: Layout,
                 element: <ProtectedRoute />,
                 children: [
-                    { path: '/dashboard', Component: DashboardPage },
-                    { path: '/mode-select', Component: ModeSelectPage },
-                    { path: '/results', Component: ResultsPage },
-                    { path: '/leaderboard', Component: LeaderboardPage },
-                    { path: '/settings', Component: SettingsPage },
-                    { path: '/admin', Component: AdminPage },
+                    { path: '/dashboard', element: <Suspense fallback={<PageLoader />}><DashboardPage /></Suspense> },
+                    { path: '/mode-select', element: <Suspense fallback={<PageLoader />}><ModeSelectPage /></Suspense> },
+                    { path: '/results', element: <Suspense fallback={<PageLoader />}><ResultsPage /></Suspense> },
+                    { path: '/leaderboard', element: <Suspense fallback={<PageLoader />}><LeaderboardPage /></Suspense> },
+                    { path: '/settings', element: <Suspense fallback={<PageLoader />}><SettingsPage /></Suspense> },
+                    { path: '/admin', element: <Suspense fallback={<PageLoader />}><AdminPage /></Suspense> },
                 ],
             },
-            { path: '*', Component: NotFoundPage },
+            { path: '*', element: <Suspense fallback={<PageLoader />}><NotFoundPage /></Suspense> },
         ],
     },
 ]);

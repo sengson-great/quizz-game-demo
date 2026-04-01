@@ -39,6 +39,21 @@
   --sidebar-accent-foreground: #E84C6A;
   --sidebar-border: rgba(0, 0, 0, 0.06);
   --sidebar-ring: #E84C6A;
+  
+  /* Navbar Height - Adjusted by media query */
+  --navbar-height: 112px;
+  
+  /* Safe Area Insets */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --navbar-height: 64px;
+  }
 }
 
 .dark {

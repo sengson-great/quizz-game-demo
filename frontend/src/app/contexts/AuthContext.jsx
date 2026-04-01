@@ -99,7 +99,7 @@ export function AuthProvider({ children }) {
         } catch (error) {
             console.error("Logout Error:", error);
         } finally {
-            localStorage.removeItem(STORAGE_KEY);
+            localStorage.clear();
             setCurrentUser(null);
         }
     }, []);
@@ -115,8 +115,12 @@ export function AuthProvider({ children }) {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
     }, [currentUser]);
 
+    const contextValue = React.useMemo(() => ({
+        currentUser, loading, login, register, logout, updateUser
+    }), [currentUser, loading, login, register, logout, updateUser]);
+
     return (
-        <AuthContext.Provider value={{ currentUser, loading, login, register, logout, updateUser }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

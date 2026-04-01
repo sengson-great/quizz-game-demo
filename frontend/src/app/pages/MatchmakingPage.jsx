@@ -83,7 +83,7 @@ export default function MatchmakingPage() {
     const totalPlayersInRoom = gameState.lobbyPlayers?.length || 3;
     const allPlayers = [{ username: currentUser.username, avatar: currentUser.avatar, isYou: true }, ...gameState.opponents.map(o => ({ username: o.username, avatar: o.avatar, isYou: false }))];
     return (<div className="min-h-screen flex items-center justify-center px-4" style={{ background: LIGHT_BG, fontFamily: 'Poppins, Inter, sans-serif' }}>
-      <div className="fixed top-6 left-6 z-50"><ReturnButton context="matchmaking"/></div>
+      <div className="fixed z-50" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}><ReturnButton context="matchmaking"/></div>
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-[0.25]" style={{ background: 'radial-gradient(circle, #FCE4EC, transparent)', filter: 'blur(120px)' }}/>
       </div>
