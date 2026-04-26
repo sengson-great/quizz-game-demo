@@ -21,10 +21,10 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // A simple loading component for suspense fallback
 const PageLoader = () => (
-    <div className="flex items-center justify-center min-h-screen bg-[#F8FAFC]">
+    <div className="flex items-center justify-center min-h-screen bg-[#0a0a2e]">
         <div className="relative">
-            <div className="w-12 h-12 border-4 border-[#E84C6A]/20 border-t-[#E84C6A] rounded-full animate-spin"></div>
-            <div className="mt-4 text-slate-500 font-medium text-sm animate-pulse text-center">Loading...</div>
+            <div className="w-16 h-16 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin"></div>
+            <div className="mt-4 text-yellow-500 font-medium text-sm animate-pulse text-center">Loading Millionaire Quiz...</div>
         </div>
     </div>
 );
@@ -65,4 +65,3 @@ export const router = createBrowserRouter([
         ],
     },
 ]);
-

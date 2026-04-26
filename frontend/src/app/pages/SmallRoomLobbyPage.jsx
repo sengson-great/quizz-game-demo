@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Users, Copy, CheckCircle, Clock, Send, UserPlus, AlertCircle, Play, Bot } from 'lucide-react';
+import { Users, Copy, CheckCircle, UserPlus, Play } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ReturnButton } from '../components/ui/ReturnButton';
@@ -9,76 +9,94 @@ import { loadSystemConfig } from '../data/systemConfig';
 const LIGHT_BG = 'linear-gradient(145deg, #FFF5F5 0%, #FDE8EC 40%, #FCE4EC 70%, #FFF0F3 100%)';
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 export default function SmallRoomLobbyPage() {
-    const { gameState, joinSmallRoom, startSmallRoomGame, extendLobbyTimer, resetGame, addAIPlayers } = useGame();
+    const { gameState, joinSmallRoom, startSmallRoomGame, resetGame } = useGame();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [copied, setCopied] = useState(false);
-    const [inviteSent, setInviteSent] = useState(false);
+    const [joining, setJoining] = useState(!!location.state?.joinCode);
+    const [joinError, setJoinError] = useState(null);
     const sysConfig = loadSystemConfig();
-    const [countdown, setCountdown] = useState(sysConfig.lobbyTimeout);
-    const minPlayers = sysConfig.minRoomPlayers;
-    const maxPlayers = sysConfig.maxRoomPlayers;
+    const maxPlayers = gameState?.roomSize || sysConfig.maxRoomPlayers;
+    const minPlayers = 2;
+
+    // Handle joining via invite code passed from ModeSelectPage
+    useEffect(() => {
+        const joinCode = location.state?.joinCode;
+        if (!joinCode || (gameState && gameState.lobbyInviteCode === joinCode)) {
+            setJoining(false);
+            return;
+        }
+        if (!currentUser) { navigate('/auth'); return; }
+        
+        setJoining(true);
+        joinSmallRoom(joinCode)
+            .then(() => setJoining(false))
+            .catch((err) => {
+                setJoining(false);
+                setJoinError(err?.response?.data?.message || 'Invalid or expired invite code.');
+                setTimeout(() => navigate('/mode-select'), 2500);
+            });
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => { if (!gameState || gameState.mode !== 'Room') {
+        if (joining) return; // still joining, don't redirect yet
         navigate('/mode-select');
         return;
     } if (!currentUser) {
         navigate('/auth');
         return;
-    } }, [gameState, currentUser, navigate]);
-    useEffect(() => {
-        if (!gameState || gameState.lobbyStatus !== 'waiting')
-            return;
-        const interval = setInterval(() => { setCountdown(prev => { if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-        } return prev - 1; }); }, 1000);
-        return () => clearInterval(interval);
-    }, [gameState]);
-    useEffect(() => {
-        if (!gameState || !gameState.isHost)
-            return;
-        const currentCount = gameState.lobbyPlayers?.length || 0;
-        if (currentCount >= maxPlayers)
-            return;
-        const joinTimes = [4000, 10000, 18000, 28000];
-        const timeouts = [];
-        joinTimes.forEach((time, index) => {
-            if (index >= (maxPlayers - currentCount))
-                return;
-            if (Math.random() > 0.35) {
-                const t = setTimeout(() => { addAIPlayers(1); }, time);
-                timeouts.push(t);
-            }
-        });
-        return () => timeouts.forEach(clearTimeout);
-    }, [gameState?.isHost]);
-    useEffect(() => { if (gameState?.lobbyStatus === 'ready' && gameState?.status === 'active') {
+    } }, [gameState, currentUser, navigate, joining]);
+    // No auto-countdown needed — real players join via invite code
+    // Navigate when game starts
+    useEffect(() => { if (gameState?.status === 'active') {
         setTimeout(() => navigate('/game'), 1500);
-    } }, [gameState, navigate]);
-    const copyRoomCode = () => { if (gameState?.roomCode) {
-        navigator.clipboard.writeText(gameState.roomCode).catch(() => { });
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    } };
-    const sendInvite = () => { setInviteSent(true); setTimeout(() => setInviteSent(false), 2000); };
-    const handleStart = () => { if (!gameState?.isHost)
-        return; if ((gameState.lobbyPlayers?.length || 0) < minPlayers)
-        return; startSmallRoomGame(); };
-    const handleExtendTimer = () => { extendLobbyTimer(); setCountdown(sysConfig.lobbyTimeout); };
+    } }, [gameState?.status, navigate]);
+    const copyRoomCode = () => { 
+        const code = gameState?.lobbyInviteCode;
+        if (code) {
+            navigator.clipboard.writeText(code).catch(() => {});
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+    const handleStart = () => { if (!gameState?.isHost) return; startSmallRoomGame(); };
     const handleLeave = () => { resetGame(); navigate('/mode-select'); };
-    const handleFillWithAI = () => { const currentCount = gameState?.lobbyPlayers?.length || 0; const spotsRemaining = maxPlayers - currentCount; if (spotsRemaining <= 0)
-        return; const needed = Math.max(minPlayers - currentCount, 0); addAIPlayers(Math.max(needed, 1)); };
-    if (!gameState || !currentUser)
-        return null;
+    if (!gameState || !currentUser) return null;
     const isHost = gameState.isHost;
-    const playerCount = gameState.lobbyPlayers?.length || 0;
+    const lobbyPlayers = gameState.lobbyPlayers || [];
+    const playerCount = lobbyPlayers.length;
     const canStart = isHost && playerCount >= minPlayers;
     const thresholdMet = playerCount >= minPlayers;
-    const isExpired = countdown === 0 && playerCount < minPlayers;
-    const minutes = Math.floor(countdown / 60);
-    const seconds = countdown % 60;
     return (<div className="min-h-screen px-4 py-10" style={{ background: LIGHT_BG, fontFamily: 'Poppins, Inter, sans-serif' }}>
-      <div className="fixed z-50" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}><ReturnButton context="lobby"/></div>
+      <div className="fixed z-40" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}><ReturnButton context="lobby"/></div>
+      
+      <AnimatePresence>
+        {joining && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-[#E84C6A] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-[#1A1A2E] font-semibold">Joining Room...</p>
+            </div>
+          </motion.div>
+        )}
+
+        {joinError && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-[101] w-full max-w-sm px-4"
+          >
+            <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3">
+              <span className="text-xl">⚠️</span>
+              <p className="font-medium">{joinError}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.2]" style={{ background: 'radial-gradient(circle, #FCE4EC, transparent)', filter: 'blur(100px)' }}/>
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.15]" style={{ background: 'radial-gradient(circle, #F8BBD0, transparent)', filter: 'blur(100px)' }}/>
@@ -100,23 +118,16 @@ export default function SmallRoomLobbyPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-6 mb-6" style={CARD}>
           <p className="text-slate-500 text-sm mb-3 text-center">Share this code with friends</p>
           <div className="flex items-center justify-center gap-4 mb-4">
-            <span className="text-5xl text-[#1A1A2E] tracking-[0.2em]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800 }}>{gameState.roomCode}</span>
+            <span className="text-5xl text-[#E84C6A] tracking-[0.2em] font-mono" style={{ fontFamily: 'monospace', fontWeight: 800 }}>{gameState.lobbyInviteCode || '------'}</span>
             <button onClick={copyRoomCode} className="p-3 rounded-xl transition-all" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
               {copied ? <CheckCircle className="w-5 h-5 text-emerald-500"/> : <Copy className="w-5 h-5 text-slate-400"/>}
             </button>
           </div>
-          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={sendInvite} className="w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all" style={{ background: inviteSent ? 'rgba(52,211,153,0.08)' : 'rgba(232,76,106,0.06)', border: `1px solid ${inviteSent ? 'rgba(52,211,153,0.15)' : 'rgba(232,76,106,0.12)'}`, color: inviteSent ? '#059669' : '#E84C6A' }}>
-            {inviteSent ? <><CheckCircle className="w-4 h-4"/>Invite Sent!</> : <><Send className="w-4 h-4"/>Invite Friends</>}
-          </motion.button>
+          <p className="text-xs text-slate-400 text-center">Friends can join from Mode Select → Room → Join with code</p>
         </motion.div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 text-center" style={CARD}>
-            <Clock className={`w-6 h-6 mx-auto mb-2 ${countdown <= 15 ? 'text-red-500' : 'text-[#E84C6A]'}`}/>
-            <div className={`text-3xl mb-1 ${countdown <= 15 ? 'text-red-500' : 'text-[#1A1A2E]'}`} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{minutes}:{seconds.toString().padStart(2, '0')}</div>
-            <p className="text-slate-400 text-xs">Time Remaining</p>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 text-center" style={CARD}>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 text-center" style={CARD}>
             <Users className={`w-6 h-6 mx-auto mb-2 ${thresholdMet ? 'text-emerald-500' : 'text-amber-500'}`}/>
             <div className={`text-3xl mb-1 ${thresholdMet ? 'text-emerald-500' : 'text-amber-500'}`} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{playerCount} / {maxPlayers}</div>
             <p className="text-slate-400 text-xs">{thresholdMet ? 'Ready to start!' : `Need ${minPlayers - playerCount} more`}</p>
@@ -130,16 +141,15 @@ export default function SmallRoomLobbyPage() {
           </div>
           <div className="space-y-3">
             <AnimatePresence>
-              {gameState.lobbyPlayers?.map((player, index) => (<motion.div key={player.id} initial={{ opacity: 0, x: -20, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ delay: index * 0.1, type: 'spring', stiffness: 300 }} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.04)' }}>
+              {lobbyPlayers.map((player, index) => (<motion.div key={player.id} initial={{ opacity: 0, x: -20, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ delay: index * 0.1, type: 'spring', stiffness: 300 }} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.04)' }}>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.06)' }}>{player.avatar}</div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-[#1A1A2E]">{player.username}</p>
+                      <p className="text-[#1A1A2E]">{player.id === currentUser.id ? (player.name || player.username) : (player.name || player.username)}</p>
                       {player.id === currentUser.id && <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">You</span>}
-                      {isHost && player.id === currentUser.id && <span className="text-xs px-2 py-0.5 rounded-full bg-[#E84C6A]/5 text-[#E84C6A] border border-[#E84C6A]/15">Host</span>}
-                      {player.isBot && <span className="text-xs px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-200">Bot</span>}
+                      {player.host && <span className="text-xs px-2 py-0.5 rounded-full bg-[#E84C6A]/5 text-[#E84C6A] border border-[#E84C6A]/15">Host</span>}
                     </div>
-                    <p className="text-slate-400 text-xs">{player.joinType === 'Code' ? 'Joined via code' : player.joinType === 'Link' ? 'Joined via link' : 'Ready to play'}</p>
+                    <p className="text-slate-400 text-xs">Ready to play</p>
                   </div>
                   <CheckCircle className="w-5 h-5 text-emerald-500"/>
                 </motion.div>))}
@@ -151,26 +161,18 @@ export default function SmallRoomLobbyPage() {
           </div>
         </motion.div>
 
-        <AnimatePresence>
-          {isExpired && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="rounded-2xl p-4 mb-6 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
-              <AlertCircle className="w-5 h-5 text-red-500"/><div className="flex-1"><p className="text-red-600 text-sm">Timer expired! Not enough players to start.</p></div>
-            </motion.div>)}
-        </AnimatePresence>
+
 
         <div className="flex gap-4 flex-wrap">
-          {isHost && !isExpired && (<>
+          {isHost && (
               <motion.button whileHover={{ scale: canStart ? 1.02 : 1 }} whileTap={{ scale: canStart ? 0.98 : 1 }} onClick={handleStart} disabled={!canStart} className={`flex-1 py-4 rounded-xl text-white flex items-center justify-center gap-2 transition-all relative overflow-hidden ${canStart ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`} style={{ background: canStart ? 'linear-gradient(135deg, #E84C6A, #D43B59)' : 'rgba(0,0,0,0.1)', boxShadow: canStart ? '0 4px 20px rgba(232,76,106,0.3)' : 'none', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                 {canStart && <motion.div className="absolute inset-0 rounded-xl" animate={{ boxShadow: ['0 0 15px rgba(232,76,106,0.2)', '0 0 30px rgba(232,76,106,0.4)', '0 0 15px rgba(232,76,106,0.2)'] }} transition={{ duration: 1.5, repeat: Infinity }}/>}
                 <Play className="w-5 h-5 relative z-10"/>
                 <span className="relative z-10">{canStart ? 'Start Game' : `Need ${minPlayers - playerCount} More Player${minPlayers - playerCount === 1 ? '' : 's'}`}</span>
               </motion.button>
-              {playerCount < minPlayers && (<motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleFillWithAI} className="px-6 py-4 rounded-xl transition-all flex items-center gap-2" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)', fontFamily: 'Poppins, sans-serif', fontWeight: 600, color: '#d97706' }}>
-                  <Bot className="w-4 h-4"/>Fill with AI
-                </motion.button>)}
-              {countdown <= 120 && countdown > 0 && (<motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleExtendTimer} className="px-6 py-4 rounded-xl transition-all" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)', fontFamily: 'Poppins, sans-serif', fontWeight: 600, color: '#d97706' }}>+60 sec</motion.button>)}
-            </>)}
+          )}
           <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleLeave} className="py-4 rounded-xl text-slate-500 transition-all px-8" style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
-            {isExpired ? 'Return to Menu' : 'Leave Lobby'}
+            Leave Lobby
           </motion.button>
         </div>
         {!isHost && <p className="text-center text-slate-400 text-sm mt-4">Waiting for host to start the game...</p>}

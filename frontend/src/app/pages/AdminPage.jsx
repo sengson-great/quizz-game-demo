@@ -3,35 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Plus, Edit3, Trash2, Search, Filter, BarChart2, Trophy, Settings2, X, Check, AlertTriangle, ChevronDown, Layers, ToggleLeft, ToggleRight, FolderOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { QUESTIONS, CATEGORIES as DEFAULT_CATEGORIES } from '../data/questions';
-import { ANALYTICS_DATA, INITIAL_LEADERBOARD } from '../data/mockData';
-const STORAGE_KEY = 'quiz_admin_questions';
-const CATEGORY_STORAGE_KEY = 'quiz_admin_categories';
+import { getFixedAvatar } from '../utils/avatar';
+import api from '../../api/axios';
+import { ANALYTICS_DATA } from '../data/mockData';
 const SYSTEM_CONFIG_STORAGE_KEY = 'quiz_admin_system_config';
-function loadQuestions() {
-    try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : QUESTIONS;
-    }
-    catch {
-        return QUESTIONS;
-    }
-}
-function saveQuestions(qs) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(qs));
-}
-function loadCategories() {
-    try {
-        const stored = localStorage.getItem(CATEGORY_STORAGE_KEY);
-        if (stored)
-            return JSON.parse(stored);
-    }
-    catch { }
-    return DEFAULT_CATEGORIES.map(c => ({ ...c, enabled: true }));
-}
-function saveCategories(cats) {
-    localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(cats));
-}
+
 const DEFAULT_SYSTEM_CONFIG = {
     timerDuration: 30,
     easyCount: 5,
@@ -63,12 +39,14 @@ const emptyForm = () => ({
     categoryId: 'science',
     difficulty: 'Easy',
     text: '',
+    textKm: '',
     explanation: '',
+    explanationKm: '',
     answers: [
-        { text: '', isCorrect: true },
-        { text: '', isCorrect: false },
-        { text: '', isCorrect: false },
-        { text: '', isCorrect: false },
+        { text: '', textKm: '', isCorrect: true },
+        { text: '', textKm: '', isCorrect: false },
+        { text: '', textKm: '', isCorrect: false },
+        { text: '', textKm: '', isCorrect: false },
     ],
 });
 const emptyCategoryForm = () => ({
@@ -183,8 +161,8 @@ export default function AdminPage() {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [tab, setTab] = useState('questions');
-    const [questions, setQuestions] = useState(loadQuestions);
-    const [categories, setCategories] = useState(loadCategories);
+    const [questions, setQuestions] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [search, setSearch] = useState('');
     const [diffFilter, setDiffFilter] = useState('All');
     const [catFilter, setCatFilter] = useState('All');
@@ -193,10 +171,14 @@ export default function AdminPage() {
     const [form, setForm] = useState(emptyForm());
     const [formError, setFormError] = useState('');
     const [systemConfig, setSystemConfig] = useState(loadSystemConfig);
-    const [leaderboard, setLeaderboard] = useState(INITIAL_LEADERBOARD);
+    const [leaderboard, setLeaderboard] = useState([]);
+    const [stats, setStats] = useState({ total_users: 0, total_games: 0, avg_score: 0 });
     const [confirmReset, setConfirmReset] = useState(false);
     const [configSaved, setConfigSaved] = useState(false);
     const [configDirty, setConfigDirty] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [catActionLoading, setCatActionLoading] = useState(false);
+
     // Category CRUD state
     const [catModal, setCatModal] = useState(null);
     const [catForm, setCatForm] = useState(emptyCategoryForm());
@@ -204,6 +186,7 @@ export default function AdminPage() {
     const [catDeleteConfirm, setCatDeleteConfirm] = useState(null);
     const [catDeleteAction, setCatDeleteAction] = useState('reassign');
     const [catReassignTarget, setCatReassignTarget] = useState('');
+
     useEffect(() => {
         if (!currentUser) {
             navigate('/auth');
@@ -213,7 +196,56 @@ export default function AdminPage() {
             navigate('/dashboard');
             return;
         }
+
+        let mounted = true;
+        const loadData = async () => {
+            try {
+                const [qRes, cRes, lRes, sRes] = await Promise.all([
+                    api.get('/admin/questions?limit=1000'),
+                    api.get('/admin/categories'),
+                    api.get('/leaderboard'),
+                    api.get('/admin/stats')
+                ]);
+                if (!mounted) return;
+                
+                const qsMap = (qRes.data.data || qRes.data || []).map(q => ({
+                    id: q.id,
+                    categoryId: q.category_id,
+                    difficulty: q.difficulty_level === 'easy' ? 'Easy' : q.difficulty_level === 'medium' ? 'Medium' : 'Hard',
+                    text: q.text,
+                    textKm: q.text_km || '',
+                    explanation: q.explanation || '',
+                    explanationKm: q.explanation_km || '',
+                    answers: (q.answers || []).map(a => ({
+                        id: a.id,
+                        text: a.text,
+                        textKm: a.text_km || '',
+                        isCorrect: a.is_correct
+                    }))
+                }));
+                setQuestions(qsMap);
+                
+                const catsMap = (cRes.data.data || cRes.data || []).map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    icon: c.icon || '📚',
+                    color: c.color || 'from-blue-500 to-cyan-400',
+                    description: c.description || '',
+                    enabled: true
+                }));
+                setCategories(catsMap);
+                setLeaderboard(lRes.data || []);
+                setStats(sRes.data || { total_users: 0, total_games: 0, avg_score: 0 });
+            } catch (err) {
+                console.error('Failed to load admin data', err);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        loadData();
+        return () => { mounted = false; };
     }, [currentUser, navigate]);
+
     // Questions helpers
     const filteredQs = questions.filter(q => {
         const matchSearch = q.text.toLowerCase().includes(search.toLowerCase());
@@ -221,41 +253,83 @@ export default function AdminPage() {
         const matchCat = catFilter === 'All' || q.categoryId === catFilter;
         return matchSearch && matchDiff && matchCat;
     });
+
     const openAdd = () => { setForm(emptyForm()); setFormError(''); setModal({ mode: 'add' }); };
+    
     const openEdit = (q) => {
-        setForm({ categoryId: q.categoryId, difficulty: q.difficulty, text: q.text, explanation: q.explanation || '', answers: q.answers.map(a => ({ text: a.text, isCorrect: a.isCorrect })) });
+        setForm({ 
+            categoryId: q.categoryId, 
+            difficulty: q.difficulty, 
+            text: q.text, 
+            textKm: q.textKm || '',
+            explanation: q.explanation || '', 
+            explanationKm: q.explanationKm || '',
+            answers: (q.answers || []).map(a => ({ id: a.id, text: a.text, textKm: a.textKm || '', isCorrect: a.isCorrect })) 
+        });
         setFormError('');
         setModal({ mode: 'edit', question: q });
     };
-    const handleDelete = (id) => { const updated = questions.filter(q => q.id !== id); setQuestions(updated); saveQuestions(updated); setDeleteConfirm(null); };
+
+    const handleDelete = async (id) => { 
+        try { 
+            await api.delete(`/admin/questions/${id}`); 
+            setQuestions(q => q.filter(x => x.id !== id)); 
+            setDeleteConfirm(null); 
+        } catch (e) { 
+            console.error(e); 
+        } 
+    };
+
     const validateForm = () => {
-        if (!form.text.trim())
-            return 'Question text is required';
-        if (form.answers.some(a => !a.text.trim()))
-            return 'All answer options must be filled';
-        if (!form.answers.some(a => a.isCorrect))
-            return 'At least one correct answer required';
+        if (!form.text.trim()) return 'Question text is required';
+        if (form.answers.some(a => !a.text.trim())) return 'All answer options must be filled';
+        if (!form.answers.some(a => a.isCorrect)) return 'At least one correct answer required';
         return '';
     };
-    const handleSave = () => {
+
+    const handleSave = async () => {
         const err = validateForm();
-        if (err) {
-            setFormError(err);
-            return;
+        if (err) { setFormError(err); return; }
+        
+        try {
+            const payload = {
+                category_id: form.categoryId,
+                difficulty_level: form.difficulty.toLowerCase(),
+                text: form.text,
+                text_km: form.textKm,
+                explanation: form.explanation,
+                explanation_km: form.explanationKm,
+                answers: form.answers.map(a => ({ text: a.text, text_km: a.textKm, is_correct: a.isCorrect }))
+            };
+            
+            if (modal?.mode === 'add') {
+                const res = await api.post('/admin/questions', payload);
+                const q = res.data;
+                const newQ = { 
+                    id: q.id, categoryId: q.category_id, 
+                    difficulty: q.difficulty_level === 'easy' ? 'Easy' : q.difficulty_level === 'medium' ? 'Medium' : 'Hard', 
+                    text: q.text, textKm: q.text_km || '', 
+                    explanation: q.explanation || '', explanationKm: q.explanation_km || '', 
+                    answers: (q.answers || []).map(a => ({ id: a.id, text: a.text, textKm: a.text_km || '', isCorrect: a.is_correct })) 
+                };
+                setQuestions([...questions, newQ]);
+            } else if (modal?.question) {
+                const res = await api.put(`/admin/questions/${modal.question.id}`, payload);
+                const q = res.data;
+                const updated = questions.map(x => x.id === q.id ? { 
+                    id: q.id, categoryId: q.category_id, 
+                    difficulty: q.difficulty_level === 'easy' ? 'Easy' : q.difficulty_level === 'medium' ? 'Medium' : 'Hard', 
+                    text: q.text, textKm: q.text_km || '', 
+                    explanation: q.explanation || '', explanationKm: q.explanation_km || '', 
+                    answers: (q.answers || []).map(a => ({ id: a.id, text: a.text, textKm: a.text_km || '', isCorrect: a.is_correct })) 
+                } : x);
+                setQuestions(updated);
+            }
+            setModal(null);
+        } catch (error) {
+            console.error('Failed to save question', error);
+            setFormError('Failed to save question to server.');
         }
-        const answers = form.answers.map((a, i) => ({ id: ['a', 'b', 'c', 'd'][i], text: a.text, isCorrect: a.isCorrect }));
-        if (modal?.mode === 'add') {
-            const newQ = { id: `custom-${Date.now()}`, categoryId: form.categoryId, difficulty: form.difficulty, text: form.text, explanation: form.explanation, answers };
-            const updated = [...questions, newQ];
-            setQuestions(updated);
-            saveQuestions(updated);
-        }
-        else if (modal?.question) {
-            const updated = questions.map(q => q.id === modal.question.id ? { ...q, categoryId: form.categoryId, difficulty: form.difficulty, text: form.text, explanation: form.explanation, answers } : q);
-            setQuestions(updated);
-            saveQuestions(updated);
-        }
-        setModal(null);
     };
     const markCorrect = (idx) => { setForm(f => ({ ...f, answers: f.answers.map((a, i) => ({ ...a, isCorrect: i === idx })) })); };
     // Category CRUD helpers
@@ -283,63 +357,70 @@ export default function AdminPage() {
             return 'Category name already exists';
         return '';
     };
-    const handleSaveCategory = () => {
+    const handleSaveCategory = async () => {
         const err = validateCatForm();
         if (err) {
             setCatFormError(err);
             return;
         }
-        if (catModal?.mode === 'add') {
-            const newCat = {
-                id: `cat-${Date.now()}`,
+        setCatActionLoading(true);
+        try {
+            const payload = {
                 name: catForm.name,
                 icon: catForm.icon,
                 color: catForm.color,
                 description: catForm.description,
-                enabled: true,
-                createdBy: currentUser?.id,
             };
-            const updated = [...categories, newCat];
-            setCategories(updated);
-            saveCategories(updated);
+            if (catModal?.mode === 'add') {
+                const res = await api.post('/admin/categories', payload);
+                const c = res.data;
+                setCategories(prev => [...prev, {
+                    id: c.id, name: c.name, icon: c.icon || '📚',
+                    color: c.color || 'from-blue-500 to-cyan-400',
+                    description: c.description || '', enabled: true,
+                }]);
+            } else if (catModal?.category) {
+                const res = await api.put(`/admin/categories/${catModal.category.id}`, payload);
+                const c = res.data;
+                setCategories(prev => prev.map(x => x.id === c.id
+                    ? { ...x, name: c.name, icon: c.icon || x.icon, color: c.color || x.color, description: c.description || '' }
+                    : x
+                ));
+            }
+            setCatModal(null);
+        } catch (e) {
+            setCatFormError(e?.response?.data?.message || 'Failed to save category.');
+        } finally {
+            setCatActionLoading(false);
         }
-        else if (catModal?.category) {
-            const updated = categories.map(c => c.id === catModal.category.id
-                ? { ...c, name: catForm.name, icon: catForm.icon, color: catForm.color, description: catForm.description }
-                : c);
-            setCategories(updated);
-            saveCategories(updated);
-        }
-        setCatModal(null);
     };
     const toggleCategoryEnabled = (catId) => {
-        const updated = categories.map(c => c.id === catId ? { ...c, enabled: !c.enabled } : c);
-        setCategories(updated);
-        saveCategories(updated);
+        // Local-only toggle (no 'enabled' column on backend); persisted in-memory
+        setCategories(prev => prev.map(c => c.id === catId ? { ...c, enabled: !c.enabled } : c));
     };
-    const handleDeleteCategory = (catId) => {
+    const handleDeleteCategory = async (catId) => {
         const qCount = getQuestionCount(catId);
-        if (qCount > 0) {
-            if (catDeleteAction === 'reassign' && catReassignTarget) {
-                const updatedQs = questions.map(q => q.categoryId === catId ? { ...q, categoryId: catReassignTarget } : q);
-                setQuestions(updatedQs);
-                saveQuestions(updatedQs);
+        if (qCount > 0 && catDeleteAction === 'reassign' && !catReassignTarget) return;
+        setCatActionLoading(true);
+        try {
+            await api.delete(`/admin/categories/${catId}`);
+            setCategories(prev => prev.filter(c => c.id !== catId));
+            // Update local question list to reflect orphans
+            if (qCount > 0) {
+                if (catDeleteAction === 'reassign' && catReassignTarget) {
+                    setQuestions(prev => prev.map(q => q.categoryId === catId ? { ...q, categoryId: catReassignTarget } : q));
+                } else {
+                    setQuestions(prev => prev.filter(q => q.categoryId !== catId));
+                }
             }
-            else if (catDeleteAction === 'delete') {
-                const updatedQs = questions.filter(q => q.categoryId !== catId);
-                setQuestions(updatedQs);
-                saveQuestions(updatedQs);
-            }
-            else {
-                return; // Need a reassignment target
-            }
+        } catch (e) {
+            console.error('Failed to delete category', e);
+        } finally {
+            setCatActionLoading(false);
+            setCatDeleteConfirm(null);
+            setCatDeleteAction('reassign');
+            setCatReassignTarget('');
         }
-        const updatedCats = categories.filter(c => c.id !== catId);
-        setCategories(updatedCats);
-        saveCategories(updatedCats);
-        setCatDeleteConfirm(null);
-        setCatDeleteAction('reassign');
-        setCatReassignTarget('');
     };
     const tabs = [
         { id: 'questions', label: 'Questions', icon: Filter },
@@ -373,8 +454,8 @@ export default function AdminPage() {
         {[
             { label: 'Total Questions', value: questions.length, color: '#E84C6A', bgStyle: { background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' } },
             { label: 'Categories', value: categories.filter(c => c.enabled).length, color: '#8b5cf6', bgStyle: { background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.12)' } },
-            { label: 'Total Players', value: ANALYTICS_DATA.totalStats.totalPlayers.toLocaleString(), color: '#059669', bgStyle: { background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.12)' } },
-            { label: 'Games Played', value: ANALYTICS_DATA.totalStats.totalGames.toLocaleString(), color: '#d97706', bgStyle: { background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' } },
+            { label: 'Total Players', value: (stats?.total_users || 0).toLocaleString(), color: '#059669', bgStyle: { background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.12)' } },
+            { label: 'Games Played', value: (stats?.total_games || 0).toLocaleString(), color: '#d97706', bgStyle: { background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' } },
         ].map(({ label, value, color, bgStyle }) => (<div key={label} className="rounded-2xl p-5" style={bgStyle}>
             <p className="text-2xl" style={{ color, fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{value}</p>
             <p className="text-slate-500 text-sm mt-1">{label}</p>
@@ -602,7 +683,7 @@ export default function AdminPage() {
             <div className="divide-y max-h-[450px] overflow-y-auto" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
               {leaderboard.map((entry, i) => (<div key={entry.id} className="grid grid-cols-10 items-center px-5 py-3 hover:bg-black/[0.01] transition-colors">
                   <span className="col-span-1 text-slate-400 text-sm">{i + 1}</span>
-                  <div className="col-span-4 flex items-center gap-2"><span className="text-xl">{entry.avatar}</span><span className="text-[#1A1A2E] text-sm">{entry.username}</span></div>
+                  <div className="col-span-4 flex items-center gap-2"><span className="text-xl">{getFixedAvatar(entry.userId || entry.username, entry.avatar)}</span><span className="text-[#1A1A2E] text-sm">{entry.username}</span></div>
                   <span className="col-span-2 text-right text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{entry.totalScore.toLocaleString()}</span>
                   <span className="col-span-1 text-right text-slate-400 text-sm">{entry.gamesPlayed}</span>
                   <span className="col-span-1 text-right text-slate-400 text-sm">{entry.wins}</span>
@@ -779,18 +860,31 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <label className="text-slate-500 text-xs mb-1 block">Question Text</label>
-                  <textarea value={form.text} onChange={e => setForm(f => ({ ...f, text: e.target.value }))} rows={3} placeholder="Enter your question..." className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none resize-none placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                  <textarea value={form.text} onChange={e => setForm(f => ({ ...f, text: e.target.value }))} rows={2} placeholder="Enter your question..." className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none resize-none placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
                 </div>
                 <div>
-                  <label className="text-slate-500 text-xs mb-1 block">Explanation (optional)</label>
-                  <input type="text" value={form.explanation} onChange={e => setForm(f => ({ ...f, explanation: e.target.value }))} placeholder="Brief explanation..." className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                  <label className="text-slate-500 text-xs mb-1 block">Question Text (Khmer)</label>
+                  <textarea value={form.textKm} onChange={e => setForm(f => ({ ...f, textKm: e.target.value }))} rows={2} placeholder="Enter your question in Khmer..." className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none resize-none placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-500 text-xs mb-1 block">Explanation</label>
+                    <input type="text" value={form.explanation} onChange={e => setForm(f => ({ ...f, explanation: e.target.value }))} placeholder="Brief explanation..." className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                  </div>
+                  <div>
+                    <label className="text-slate-500 text-xs mb-1 block">Explanation (Khmer)</label>
+                    <input type="text" value={form.explanationKm} onChange={e => setForm(f => ({ ...f, explanationKm: e.target.value }))} placeholder="Explanation in Khmer..." className="w-full px-3 py-2.5 rounded-xl text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}/>
+                  </div>
                 </div>
                 <div>
                   <label className="text-slate-500 text-xs mb-2 block">Answer Options (click check to mark correct)</label>
                   <div className="space-y-2">
                     {form.answers.map((ans, i) => (<div key={i} className="flex items-center gap-2 p-2 rounded-xl transition-all" style={{ background: ans.isCorrect ? 'rgba(52,211,153,0.06)' : 'rgba(0,0,0,0.02)', border: ans.isCorrect ? '1px solid rgba(52,211,153,0.15)' : '1px solid rgba(0,0,0,0.06)' }}>
                         <span className="w-6 h-6 rounded-md flex items-center justify-center text-xs" style={{ fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: '#64748b' }}>{['A', 'B', 'C', 'D'][i]}</span>
-                        <input type="text" value={ans.text} onChange={e => { const updated = [...form.answers]; updated[i] = { ...updated[i], text: e.target.value }; setForm(f => ({ ...f, answers: updated })); }} placeholder={`Option ${['A', 'B', 'C', 'D'][i]}`} className="flex-1 bg-transparent text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400"/>
+                        <div className="flex-1 flex flex-col gap-1">
+                          <input type="text" value={ans.text} onChange={e => { const updated = [...form.answers]; updated[i] = { ...updated[i], text: e.target.value }; setForm(f => ({ ...f, answers: updated })); }} placeholder={`Option ${['A', 'B', 'C', 'D'][i]}`} className="w-full bg-transparent text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400 border-b border-transparent focus:border-slate-300"/>
+                          <input type="text" value={ans.textKm} onChange={e => { const updated = [...form.answers]; updated[i] = { ...updated[i], textKm: e.target.value }; setForm(f => ({ ...f, answers: updated })); }} placeholder={`Khmer Option ${['A', 'B', 'C', 'D'][i]}`} className="w-full bg-transparent text-[#1A1A2E] text-sm focus:outline-none placeholder-slate-400 border-b border-transparent focus:border-slate-300"/>
+                        </div>
                         <button onClick={() => markCorrect(i)} className="w-7 h-7 rounded-lg flex items-center justify-center transition-all" style={{ background: ans.isCorrect ? 'rgba(52,211,153,0.2)' : 'transparent', color: ans.isCorrect ? '#34d399' : '#475569' }}>
                           <Check className="w-3.5 h-3.5"/>
                         </button>
@@ -880,8 +974,9 @@ export default function AdminPage() {
                   </div>)}
 
                 <div className="flex gap-3 pt-2">
-                  <button onClick={() => setCatModal(null)} className="flex-1 py-3 rounded-xl text-slate-500 hover:text-[#1A1A2E] text-sm transition-colors" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>Cancel</button>
-                  <button onClick={handleSaveCategory} className="flex-1 py-3 rounded-xl text-white text-sm" style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)' }}>
+                  <button onClick={() => setCatModal(null)} disabled={catActionLoading} className="flex-1 py-3 rounded-xl text-slate-500 hover:text-[#1A1A2E] text-sm transition-colors" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>Cancel</button>
+                  <button onClick={handleSaveCategory} disabled={catActionLoading} className="flex-1 py-3 rounded-xl text-white text-sm flex items-center justify-center gap-2" style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)', opacity: catActionLoading ? 0.7 : 1 }}>
+                    {catActionLoading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : null}
                     {catModal.mode === 'add' ? 'Create Category' : 'Save Changes'}
                   </button>
                 </div>

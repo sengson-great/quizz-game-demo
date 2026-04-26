@@ -10,5 +10,5 @@ use OpenApi\Attributes as OA;
 #[OA\OpenApi(security: [["bearerAuth" => []]])]
 abstract class Controller
 {
-    //
+    use \App\Traits\ApiResponse;
 }

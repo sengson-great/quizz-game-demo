@@ -32,10 +32,12 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories',
+            'name'        => 'required|string|max:255|unique:categories',
             'description' => 'nullable|string',
+            'icon'        => 'nullable|string|max:10',
+            'color'       => 'nullable|string|max:100',
         ]);
-        return response()->json(Category::create($request->only('name', 'description')), 201);
+        return response()->json(Category::create($request->only('name', 'description', 'icon', 'color')), 201);
     }
 
     #[OA\Get(path: "/admin/categories/{category}", summary: "Get a specific category", tags: ["Admin: Categories"])]
@@ -64,10 +66,12 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
         $request->validate([
-            'name' => 'sometimes|string|max:255|unique:categories,name,' . $id,
+            'name'        => 'sometimes|string|max:255|unique:categories,name,' . $id,
             'description' => 'nullable|string',
+            'icon'        => 'nullable|string|max:10',
+            'color'       => 'nullable|string|max:100',
         ]);
-        $category->update($request->only('name', 'description'));
+        $category->update($request->only('name', 'description', 'icon', 'color'));
         return response()->json($category);
     }
 

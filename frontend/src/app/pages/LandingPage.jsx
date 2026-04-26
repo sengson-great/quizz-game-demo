@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap } from 'lucide-react';
+import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap, Download } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import { usePWA } from '../contexts/PWAContext';
 
 const LIGHT_BG = 'linear-gradient(145deg, #FFF5F5 0%, #FDE8EC 40%, #FCE4EC 70%, #FFF0F3 100%)';
 const CARD_STYLE = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
@@ -80,6 +81,16 @@ export default function LandingPage() {
               {t('playNow')}
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform"/>
             </Link>
+            {(isInstallable || isIOS) && (
+                <button 
+                    onClick={installPWA}
+                    className="flex items-center gap-2 px-8 py-4 rounded-2xl text-white transition-all hover:scale-[1.03]" 
+                    style={{ background: 'linear-gradient(135deg, #06B6D4, #0891B2)', boxShadow: '0 4px 25px rgba(6,182,212,0.3)' }}
+                >
+                    <Download className="w-5 h-5"/>
+                    {isIOS ? 'Add to Home' : 'Install App'}
+                </button>
+            )}
             <Link to="/leaderboard" className="flex items-center gap-2 px-8 py-4 rounded-2xl text-slate-600 transition-all hover:bg-white/60" style={{ border: '1px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)' }}>
               <Trophy className="w-5 h-5 text-amber-500"/>
               {t('viewLeaderboard')}

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\GameSession;
 use App\Models\Question;
+use App\Models\GameMatch;
+use App\Models\Category;
 use App\Services\GameService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -22,15 +24,42 @@ class GameController extends Controller
     #[OA\Response(response: 200, description: "Returns the newly created game session and first question")]
     public function store(Request $request)
     {
+        // Resolve category slugs (e.g. ['science', 'history']) → integer IDs
+        $categorySlugs = $request->input('categories', []);
+        $categoryIds = [];
+        if (!empty($categorySlugs)) {
+            $categoryIds = Category::whereIn('slug', $categorySlugs)
+                ->pluck('id')
+                ->toArray();
+        }
+
         $session = $this->gameService->createSession(
-            $request->user(), 
-            $request->input('match_id')
+            $request->user(),
+            $request->input('match_id'),
+            $categoryIds ?: null   // null = no filter (all categories)
         );
+
+        $opponent = null;
+        $opponents = [];
+        if ($session->match_id) {
+            $match = GameMatch::find($session->match_id);
+            if ($match && $match->mode === '1v1') {
+                $opponent = collect($match->players)->firstWhere('id', '!=', $request->user()->id);
+            } elseif ($match && $match->mode === 'battle') {
+                $opponents = collect($match->players)->filter(function($p) use ($request) {
+                    return $p['id'] !== $request->user()->id;
+                })->values()->all();
+            }
+        }
+
         return response()->json([
-            'session' => $session,
-            'question' => $this->gameService->getNextQuestion($session)
+            'session'  => $session,
+            'question' => $this->gameService->getNextQuestion($session),
+            'opponent' => $opponent,
+            'opponents' => $opponents
         ]);
     }
+
 
     #[OA\Get(path: "/games/{session}", summary: "Get an active game session state", tags: ["Game"])]
     #[OA\Parameter(name: "session", in: "path", required: true, description: "Game Session ID")]

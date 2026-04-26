@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import api from '../../api/axios';
 import echo from '../../api/echo';
 import { useAuth } from './AuthContext';
+import { getFixedAvatar } from '../utils/avatar';
 
 const GameContext = createContext(null);
 
@@ -51,20 +52,27 @@ export function GameProvider({ children }) {
             });
             const { session, question } = res.data;
             
-            setGameState({
-                status: 'active',
+            setGameState(prev => ({
+                ...(prev || {}),
+                status: (session.status === 'completed' || session.status === 'failed') ? 'finished' : 'active',
                 mode,
                 matchId,
                 currentQuestion: question,
                 questions: [question],
                 currentQuestionIndex: 0,
-                playerScore: 0,
+                playerScore: session.score || 0,
                 answers: [],
                 lifelines: parseLifelines(session.lifelines),
                 eliminatedAnswers: [],
-                opponents: mode === '1v1' ? (res.data.opponent ? [{ ...res.data.opponent, score: 0 }] : []) : [],
+                opponents: mode === '1v1' 
+                    ? (res.data.opponent 
+                        ? [{ ...res.data.opponent, avatar: getFixedAvatar(res.data.opponent.id || res.data.opponent.name || res.data.opponent.username, res.data.opponent.avatar), score: 0, answered: false }]
+                        : (prev?.opponents?.length ? prev.opponents : []))
+                    : (res.data.opponents && res.data.opponents.length > 0
+                        ? res.data.opponents.map(o => ({ ...o, avatar: getFixedAvatar(o.id || o.name || o.username, o.avatar), score: 0, answered: false }))
+                        : (prev?.opponents?.length ? prev.opponents : [])),
                 session,
-            });
+            }));
         } catch (error) {
             console.error("Failed to start game", error);
         }
@@ -87,6 +95,15 @@ export function GameProvider({ children }) {
                 pointsEarned: isCorrect ? result.score - gameState.playerScore : 0,
                 status: result.status,
             };
+
+            // Broadcast score update if correct
+            if (isCorrect && gameState.matchId) {
+                api.post('/multiplayer/action', {
+                    match_id: gameState.matchId,
+                    action_type: 'score_update',
+                    payload: { score: result.score }
+                }).catch(console.error);
+            }
 
             setGameState(prev => {
                 if (!prev) return prev;
@@ -179,14 +196,19 @@ export function GameProvider({ children }) {
         setGameState(null);
     }, []);
 
+    const finalizedRef = useRef(new Set());
     const finalizeGame = useCallback(() => {
-        if (gameState && gameState.matchId) {
+        if (gameState && gameState.matchId && !finalizedRef.current.has(gameState.matchId)) {
+            finalizedRef.current.add(gameState.matchId);
             // Signal to others we finished
             api.post('/multiplayer/action', {
                 match_id: gameState.matchId,
                 action_type: 'player_finished',
                 payload: { score: gameState.playerScore }
-            }).catch(console.error);
+            }).catch(error => {
+                console.error(error);
+                finalizedRef.current.delete(gameState.matchId); // allow retry on failure
+            });
         }
     }, [gameState]);
 
@@ -201,35 +223,68 @@ export function GameProvider({ children }) {
            So we listen on the user channel instead! */
     }, []);
 
+    const bindMatchChannel = useCallback((matchId) => {
+        if (!matchId) return;
+        const channel = echo.private(`match.${matchId}`);
+        
+        channel.listen('.game.action', (e) => {
+            if (e.action === 'player_finished' || e.action === 'score_update') {
+                setGameState(prev => {
+                    if (!prev || !prev.opponents) return prev;
+                    const newOpponents = prev.opponents.map(opp => {
+                        if (opp.id === e.user_id) {
+                            return { 
+                                ...opp, 
+                                score: e.data?.score ?? opp.score, 
+                                answered: e.action === 'player_finished' ? true : opp.answered 
+                            };
+                        }
+                        return opp;
+                    });
+                    return { ...prev, opponents: newOpponents };
+                });
+            }
+        });
+        
+        return () => echo.leave(`match.${matchId}`);
+    }, []);
+
     const bindUserChannel = useCallback(() => {
         if (!currentUser) return;
         const channel = echo.private(`user.${currentUser.id}`);
         
-        channel.listen('BattleLobbyUpdate', (e) => {
+        channel.listen('.battle.lobby.update', (e) => {
             setGameState(prev => {
-                if (!prev || prev.lobbyInviteCode !== e.battle_id /* Note backend uses battle_id vs inviteCode ambiguously, we need to adapt */) return prev;
+                if (!prev || prev.lobbyBattleId !== e.battle_id) return prev;
                 // Update players
                 if (e.action === 'player_joined' || e.action === 'player_left' || e.action === 'player_ready') {
-                    return { ...prev, lobbyPlayers: e.data.players };
+                    const mappedPlayers = (e.data.players || []).map(p => ({ ...p, avatar: getFixedAvatar(p.id || p.name || p.username, p.avatar) }));
+                    
+                    let newIsHost = prev.isHost;
+                    if (e.action === 'player_left' && e.data.new_host_id && currentUser?.id === e.data.new_host_id) {
+                        newIsHost = true;
+                    }
+                    
+                    return { ...prev, lobbyPlayers: mappedPlayers, isHost: newIsHost };
                 }
                 return prev;
             });
         });
 
-        channel.listen('BattleStarted', (e) => {
+        channel.listen('.battle.started', (e) => {
             // Transition to active game
             initGame('battle', e.match_id);
         });
 
-        channel.listen('BattleLobbyClosed', (e) => {
+        channel.listen('.battle.lobby.closed', (e) => {
             setGameState(null);
         });
 
-        channel.listen('MatchFound', (e) => {
+        channel.listen('.match.found', (e) => {
             initGame('1v1', e.match_id);
             setGameState(prev => prev ? { 
                 ...prev, 
-                opponents: [{ id: e.opponent.id, name: e.opponent.name, score: 0 }],
+                opponents: [{ id: e.opponent.id, name: e.opponent.name, username: e.opponent.name, avatar: getFixedAvatar(e.opponent.id || e.opponent.name, e.opponent.avatar), score: 0 }],
                 status: 'active' 
             } : prev);
         });
@@ -244,6 +299,13 @@ export function GameProvider({ children }) {
         }
     }, [bindUserChannel]);
 
+    useEffect(() => {
+        if (gameState?.matchId) {
+            const unbind = bindMatchChannel(gameState.matchId);
+            return unbind;
+        }
+    }, [gameState?.matchId, bindMatchChannel]);
+
     // Used for 1v1 Ranked Matchmaking
     const startRanked1v1 = useCallback(async (categories = []) => {
         try {
@@ -251,7 +313,8 @@ export function GameProvider({ children }) {
                 mode: '1v1',
                 status: 'matchmaking',
                 is_ranked: true,
-                preferredCategories: categories
+                preferredCategories: categories,
+                opponents: []
             });
             await api.post('/multiplayer/matchmake', { mode: '1v1', categories: categories });
             return 'searching';
@@ -276,14 +339,17 @@ export function GameProvider({ children }) {
                 categories: categories
             });
             const data = res.data;
+            const mappedPlayers = (data.players || []).map(p => ({ ...p, avatar: getFixedAvatar(p.id || p.name || p.username, p.avatar) }));
             setGameState({
-                mode: 'Room',
+                mode: playerCount === 2 ? '1v1' : 'Room',
                 status: 'matchmaking',
+                lobbyBattleId: data.battle_id,
                 lobbyInviteCode: data.invite_code,
-                lobbyPlayers: data.players,
-                isHost: true,
+                lobbyPlayers: mappedPlayers,
+                isHost: data.is_host !== false,
                 roomSize: playerCount,
-                isPrivate
+                isPrivate,
+                opponents: []
             });
             return data.invite_code;
         } catch (error) {
@@ -295,11 +361,13 @@ export function GameProvider({ children }) {
         try {
             const res = await api.post(`/multiplayer/battle/join/${inviteCode}`);
             const data = res.data;
+            const mappedPlayers = (data.players || []).map(p => ({ ...p, avatar: getFixedAvatar(p.id || p.name || p.username, p.avatar) }));
             setGameState({
-                mode: 'Room',
+                mode: data.total_needed === 2 ? '1v1' : 'Room',
                 status: 'matchmaking',
+                lobbyBattleId: data.battle_id,
                 lobbyInviteCode: inviteCode,
-                lobbyPlayers: data.players,
+                lobbyPlayers: mappedPlayers,
                 isHost: data.is_host,
                 roomSize: data.total_needed
             });
@@ -329,16 +397,12 @@ export function GameProvider({ children }) {
     }, [gameState]);
 
     const leaveBattle = useCallback(async () => {
-        if (!gameState || !gameState.lobbyInviteCode) {
-            setGameState(null);
-            return;
-        }
-        try {
-             await api.post(`/multiplayer/battle/leave/${gameState.lobbyInviteCode}`);
-             setGameState(null);
-        } catch (error) {
-             console.error("Leave battle failed", error);
-        }
+        const inviteCode = gameState?.lobbyInviteCode;
+        // Reset state immediately so UI doesn't wait on network
+        setGameState(null);
+        if (!inviteCode) return;
+        // Fire leave in background — server will broadcast to remaining players
+        api.post(`/multiplayer/battle/leave/${inviteCode}`).catch(console.error);
     }, [gameState]);
 
     // Aliases to fit the old mocked names used in UI forms
@@ -358,13 +422,51 @@ export function GameProvider({ children }) {
         gameState, 
         initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame,
         createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
-        createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle
+        createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle, joinBattle
     }), [
         gameState, 
         initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame,
         createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
-        createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle
+        createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle, joinBattle
     ]);
+
+    // Ping loop to keep presence active in lobbies
+    useEffect(() => {
+        if (!gameState?.lobbyInviteCode || gameState.status !== 'matchmaking') return;
+        
+        const interval = setInterval(() => {
+            api.post(`/multiplayer/battle/ping/${gameState.lobbyInviteCode}`).catch(() => {});
+        }, 2000);
+        
+        return () => clearInterval(interval);
+    }, [gameState?.lobbyInviteCode, gameState?.status]);
+
+    // Instant leave when tab is closed or hidden — uses keepalive fetch so it survives page unload
+    useEffect(() => {
+        if (!gameState?.lobbyInviteCode || gameState.status !== 'matchmaking') return;
+
+        const inviteCode = gameState.lobbyInviteCode;
+
+        const sendLeave = () => {
+            const token = localStorage.getItem('auth_token');
+            // VITE_API_BASE_URL is already '/api', so don't append '/api' again
+            const apiBase = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+            fetch(`${apiBase}/multiplayer/battle/leave/${inviteCode}`, {
+                method: 'POST',
+                keepalive: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({}),
+            }).catch(() => {});
+        };
+
+        // Only fire on actual close/refresh — NOT on tab switch (visibilitychange fires on tab switch too)
+        window.addEventListener('beforeunload', sendLeave);
+        return () => window.removeEventListener('beforeunload', sendLeave);
+    }, [gameState?.lobbyInviteCode, gameState?.status]);
 
     return (
         <GameContext.Provider value={contextValue}>

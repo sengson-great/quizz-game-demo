@@ -26,6 +26,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::put('/user', [AuthController::class, 'updateUser']);
+    Route::get('/me/stats', [AuthController::class, 'stats']);
 
     // Game routes
     Route::post('/games',                    [GameController::class, 'store']);
@@ -47,6 +49,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/battle/ready/{inviteCode}', [MultiplayerController::class, 'setReady']);
         Route::post('/battle/start/{inviteCode}', [MultiplayerController::class, 'startBattle']);
         Route::post('/battle/leave/{inviteCode}', [MultiplayerController::class, 'leaveBattle']);
+        Route::post('/battle/ping/{inviteCode}', [MultiplayerController::class, 'pingLobby']);
 
         // Score polling fallback
         Route::get('/scores/{matchId}', [MultiplayerController::class, 'getScores']);

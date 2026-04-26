@@ -20,4 +20,18 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+    (response) => {
+        // Automatically unwrap the 'data' field from our standardized Laravel ApiResponse
+        if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+            return {
+                ...response,
+                data: response.data.data
+            };
+        }
+        return response;
+    },
+    (error) => Promise.reject(error)
+);
+
 export default api;

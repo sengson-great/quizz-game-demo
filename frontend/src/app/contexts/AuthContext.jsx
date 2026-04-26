@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
+import { getFixedAvatar } from '../utils/avatar';
 
 const defaultAuthContext = {
     currentUser: null,
@@ -21,7 +22,7 @@ const loadSavedSettings = () => {
 };
 const applyDefaults = (user) => {
     const saved = loadSavedSettings();
-    if (!user.avatar) user.avatar = saved.avatar || '🦊';
+    user.avatar = getFixedAvatar(user.id || user.name, user.avatar);
     if (!user.username) user.username = saved.username || user.name;
     if (user.totalScore === undefined) user.totalScore = 0;
     if (user.gamesPlayed === undefined) user.gamesPlayed = 0;
@@ -104,11 +105,26 @@ export function AuthProvider({ children }) {
         }
     }, []);
 
-    const updateUser = useCallback((updates) => {
+    const updateUser = useCallback(async (updates) => {
         if (!currentUser) return;
+        
+        // Optimistic UI update
         setCurrentUser(prev => ({ ...prev, ...updates }));
+        
+        // Update DB if relevant fields change
+        if (updates.username !== undefined || updates.avatar !== undefined) {
+            try {
+                await api.put('/user', {
+                    name: updates.username !== undefined ? updates.username : currentUser.username,
+                    avatar: updates.avatar !== undefined ? updates.avatar : currentUser.avatar,
+                });
+            } catch (err) {
+                console.error("Failed to sync profile changes to backend", err);
+            }
+        }
+
         // Persist frontend-only settings to localStorage so they survive refresh
-        const settingsToSave = ['avatar', 'username', 'soundEnabled', 'musicEnabled', 'language', 'preferredCategories'];
+        const settingsToSave = ['username', 'soundEnabled', 'musicEnabled', 'language', 'preferredCategories'];
         const saved = loadSavedSettings();
         const next = { ...saved };
         settingsToSave.forEach(k => { if (updates[k] !== undefined) next[k] = updates[k]; });

@@ -23,13 +23,22 @@ export default function ModeSelectPage() {
     const [show1v1Options, setShow1v1Options] = useState(false);
     const [joinCode, setJoinCode] = useState('');
     const [joinCode1v1, setJoinCode1v1] = useState('');
+    const [toast, setToast] = useState(null);
+
+    const showToast = (message, type = 'warning') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3000);
+    };
     
     const toggleCategory = (id) => {
         setSelectedCategories(prev => prev.includes(id) ? (prev.length > 1 ? prev.filter(c => c !== id) : prev) : [...prev, id]);
     };
-    const handleStart = () => {
-        if (!selectedMode || selectedCategories.length === 0)
-            return;
+    const handleStart = async () => {
+        if (!selectedMode || selectedCategories.length === 0) {
+          showToast(t('pleaseSelectModeAndCategory'));
+          return;
+        }
+            
         if (selectedMode === 'Room') {
             setShowRoomOptions(true);
             return;
@@ -38,27 +47,70 @@ export default function ModeSelectPage() {
             setShow1v1Options(true);
             return;
         }
-        initGame(selectedMode, null, selectedCategories);
-        navigate('/matchmaking');
+        await initGame(selectedMode, null, selectedCategories);
+        navigate('/game');
     };
-    const handleCreateInviteRoom = () => { if (selectedCategories.length === 0)
-        return; createSmallRoom(selectedCategories); navigate('/lobby'); };
-    const handleCreateRandomRoom = () => { if (selectedCategories.length === 0)
-        return; createRandomSmallRoom(selectedCategories); navigate('/matchmaking'); };
-    const handleJoinRoom = () => { if (!joinCode.trim() || joinCode.length !== 6)
-        return; navigate('/lobby', { state: { joinCode } }); };
-    const handleInviteFriend1v1 = () => { if (selectedCategories.length === 0)
-        return; createPrivate1v1(selectedCategories); navigate('/battle-lobby'); };
-    const handleRandomMatch1v1 = () => { if (selectedCategories.length === 0)
-        return; startRanked1v1(selectedCategories); navigate('/matchmaking'); };
-    const handleJoin1v1 = () => { if (!joinCode1v1.trim() || joinCode1v1.length !== 6)
-        return; navigate('/battle-lobby', { state: { joinCode: joinCode1v1 } }); };
+    const handleCreateInviteRoom = async () => { if (selectedCategories.length === 0) return; await createSmallRoom(selectedCategories); navigate('/lobby'); };
+    const handleCreateRandomRoom = async () => { if (selectedCategories.length === 0) return; await createRandomSmallRoom(selectedCategories); navigate('/matchmaking'); };
+    const handleJoinRoom = () => { if (!joinCode.trim() || joinCode.length !== 6) return; navigate('/lobby', { state: { joinCode } }); };
+    const handleInviteFriend1v1 = async () => { if (selectedCategories.length === 0) return; await createPrivate1v1(selectedCategories); navigate('/battle-lobby'); };
+    const handleRandomMatch1v1 = async () => { if (selectedCategories.length === 0) return; await startRanked1v1(selectedCategories); navigate('/matchmaking'); };
+    const handleJoin1v1 = () => { if (!joinCode1v1.trim() || joinCode1v1.length !== 6) return; navigate('/battle-lobby', { state: { joinCode: joinCode1v1 } }); };
     const modes = [
         { mode: 'Solo', icon: '🎯', title: t('soloPractice'), desc: t('soloDesc'), badge: t('practiceMode'), badgeColor: '#d97706', activeColor: '#d97706', activeBorder: 'rgba(217,119,6,0.35)' },
         { mode: '1v1', icon: '⚔️', title: t('battle1v1'), desc: t('battleDesc'), badge: t('recommended'), badgeColor: '#E84C6A', activeColor: '#E84C6A', activeBorder: 'rgba(232,76,106,0.35)' },
         { mode: 'Room', icon: '🏆', title: t('roomMode'), desc: t('roomDesc'), badge: t('mostFun'), badgeColor: '#059669', activeColor: '#059669', activeBorder: 'rgba(5,150,105,0.35)' },
     ];
     return (<div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+
+      {/* Toast notification */}
+      <AnimatePresence>
+        {toast && (
+          <div className="fixed top-6 inset-x-0 z-[999] flex justify-center pointer-events-none px-4">
+            <motion.div
+              key="toast"
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -30, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+              className="relative flex items-center gap-3 px-5 py-4 rounded-2xl pointer-events-auto overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.97)',
+                backdropFilter: 'blur(24px)',
+                border: '1px solid rgba(251,191,36,0.35)',
+                boxShadow: '0 8px 32px rgba(251,191,36,0.18), 0 2px 10px rgba(0,0,0,0.08)',
+                maxWidth: 'calc(100vw - 2rem)',
+              }}
+            >
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>
+                <span style={{ fontSize: '1rem' }}>⚠️</span>
+              </div>
+              <p className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
+                {toast.message}
+              </p>
+              <button
+                onClick={() => setToast(null)}
+                className="ml-1 text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              </button>
+              {/* Progress bar */}
+              <motion.div
+                className="absolute bottom-0 left-0 h-[3px]"
+                style={{ background: 'linear-gradient(90deg, #fbbf24, #f59e0b)' }}
+                initial={{ width: '100%' }}
+                animate={{ width: '0%' }}
+                transition={{ duration: 3, ease: 'linear' }}
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <h1 className="text-[#1A1A2E] text-center mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.8rem' }}>
           {t('chooseBattle')}

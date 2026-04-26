@@ -30,10 +30,12 @@ export default function ResultsPage() {
         const correctCount = (gameState?.answers || []).filter(a => a.isCorrect).length;
         const totalQuestions = (gameState?.questions || []).length || 1;
         const accuracy = (correctCount / totalQuestions) * 100;
-        const playerRank = [
-            { score: gameState?.playerScore || 0, isPlayer: true }, 
-            ...(gameState?.opponents || []).map(o => ({ score: o.score || 0, isPlayer: false }))
-        ].sort((a, b) => b.score - a.score).findIndex(s => s.isPlayer) + 1;
+        const pScore = gameState?.playerScore || 0;
+        const allScoresRaw = [
+            pScore, 
+            ...(gameState?.opponents || []).map(o => o.score || 0)
+        ].sort((a, b) => b - a);
+        const playerRank = allScoresRaw.indexOf(pScore) + 1;
 
         if (playerRank === 1 || accuracy >= 70) {
             playSFX('victory');
@@ -68,7 +70,13 @@ export default function ResultsPage() {
             isPlayer: false 
         }))
     ].sort((a, b) => (b.score || 0) - (a.score || 0));
-    const playerRank = allScores.findIndex(s => s.isPlayer) + 1;
+
+    const scoreList = allScores.map(s => s.score);
+    allScores.forEach(s => {
+        s.rank = scoreList.indexOf(s.score) + 1;
+    });
+
+    const playerRank = allScores.find(s => s.isPlayer)?.rank || 1;
     const isWinner = playerRank === 1;
 
     const getRankIcon = (rank) => { if (rank === 1)
@@ -119,8 +127,8 @@ export default function ResultsPage() {
       {gameState.mode !== 'Solo' && allScores.length > 0 && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-5 mb-6 relative z-10" style={CARD}>
           <h3 className="text-[#1A1A2E] mb-4 flex items-center gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}><Medal className="w-4 h-4 text-amber-500"/> {t('finalStandings')}</h3>
           <div className="space-y-3">
-            {allScores.map((player, i) => (<motion.div key={player.name} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.1 }} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: player.isPlayer ? 'rgba(232,76,106,0.06)' : 'rgba(0,0,0,0.02)', border: player.isPlayer ? '1px solid rgba(232,76,106,0.12)' : '1px solid transparent' }}>
-                <span className="text-xl w-8 text-center">{getRankIcon(i + 1)}</span>
+            {allScores.map((player, i) => (<motion.div key={`${player.name}-${i}`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.1 }} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: player.isPlayer ? 'rgba(232,76,106,0.06)' : 'rgba(0,0,0,0.02)', border: player.isPlayer ? '1px solid rgba(232,76,106,0.12)' : '1px solid transparent' }}>
+                <span className="text-xl w-8 text-center">{getRankIcon(player.rank)}</span>
                 <span className="text-xl">{player.avatar}</span>
                 <span className={`flex-1 text-sm ${player.isPlayer ? 'text-[#E84C6A]' : 'text-[#1A1A2E]'}`}>{player.name} {player.isPlayer && <span className="text-xs text-[#E84C6A]">({t('you')})</span>}</span>
                 <span className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{player.score.toLocaleString()}</span>

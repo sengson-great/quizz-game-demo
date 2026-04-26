@@ -12,6 +12,7 @@ class GameSession extends Model
     protected $fillable = [
         'user_id',
         'match_id',
+        'category_ids',
         'current_level',
         'score',
         'status',
@@ -22,6 +23,7 @@ class GameSession extends Model
 
     protected $casts = [
         'lifelines' => 'array',
+        'category_ids' => 'array',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
     ];

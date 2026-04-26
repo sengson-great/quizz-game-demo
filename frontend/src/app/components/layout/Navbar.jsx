@@ -83,7 +83,7 @@ export function Navbar() {
                   <span className="text-xl">{currentUser.avatar}</span>
                   <div>
                     <p className="text-[#1A1A2E] text-sm leading-none">{currentUser.username}</p>
-                    <p className="text-[#E84C6A] text-xs">{currentUser.totalScore.toLocaleString()} {t('points')}</p>
+                    {/* <p className="text-[#E84C6A] text-xs">{currentUser.totalScore.toLocaleString()} {t('points')}</p> */}
                   </div>
                 </div>
                 <button onClick={handleLogout} className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200">

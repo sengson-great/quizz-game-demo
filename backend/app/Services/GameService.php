@@ -28,10 +28,9 @@ class GameService
         15 => 1000000
     ];
 
-    public function createSession($user, $matchId = null)
+    public function createSession($user, $matchId = null, $categoryIds = null)
     {
         // For multiplayer: reuse an existing active session for the same match.
-        // This prevents duplicate sessions if the player refreshes or reconnects.
         if ($matchId) {
             $existing = GameSession::where('user_id', $user->id)
                 ->where('match_id', $matchId)
@@ -46,15 +45,16 @@ class GameService
         $session = GameSession::create([
             'user_id'       => $user->id,
             'match_id'      => $matchId,
+            'category_ids'  => $categoryIds,   // null = all categories
             'current_level' => 1,
             'score'         => 0,
             'status'        => 'active',
             'lifelines'     => [
-                'fiftyFifty' => true, 
-                'skip' => true, 
+                'fiftyFifty'   => true,
+                'skip'         => true,
                 'doubleChance' => true,
                 'audienceVote' => true,
-                'phoneFriend' => true
+                'phoneFriend'  => true
             ],
             'started_at'    => now(),
         ]);
@@ -98,7 +98,7 @@ class GameService
             }
         }
 
-        // 2. Default: random question for the level
+        // 2. Default: random question filtered by difficulty (and optionally category)
         // Get already used questions
         $usedQuestionIds = GameSessionQuestion::where('game_session_id', $session->id)
             ->pluck('question_id')->toArray();
@@ -111,16 +111,34 @@ class GameService
             $difficulty = 'hard';
         }
 
-        // Difficulty matches current level
-        $question = Question::where('difficulty_level', $difficulty)
+        $query = Question::where('difficulty_level', $difficulty)
             ->whereNotIn('id', $usedQuestionIds)
             ->with([
                 'answers' => function ($q) {
-                    $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder(); // Hide is_correct
+                    $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
                 }
-            ])
-            ->inRandomOrder()
-            ->first();
+            ]);
+
+        // Filter by the categories the player chose (if any were specified)
+        if (!empty($session->category_ids)) {
+            $query->whereIn('category_id', $session->category_ids);
+        }
+
+        $question = $query->inRandomOrder()->first();
+
+        // Graceful fallback: if no question found in chosen categories for this difficulty,
+        // widen the search to any difficulty within the chosen categories.
+        if (!$question && !empty($session->category_ids)) {
+            $question = Question::whereIn('category_id', $session->category_ids)
+                ->whereNotIn('id', $usedQuestionIds)
+                ->with([
+                    'answers' => function ($q) {
+                        $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
+                    }
+                ])
+                ->inRandomOrder()
+                ->first();
+        }
 
         return $question;
     }

@@ -17,6 +17,24 @@ import { useTranslation } from '../hooks/useTranslation';
 const LIGHT_BG = 'linear-gradient(145deg, #FFF5F5 0%, #FDE8EC 40%, #FCE4EC 70%, #FFF0F3 100%)';
 const RESULT_DELAY = 2200;
 
+function ShowForceResultsButton({ onForce }) {
+    const [show, setShow] = useState(false);
+    useEffect(() => {
+        const t = setTimeout(() => setShow(true), 12000);
+        return () => clearTimeout(t);
+    }, []);
+    if (!show) return null;
+    return (
+        <motion.button 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            onClick={onForce}
+            className="mt-3 px-4 py-2 rounded-xl text-xs font-semibold text-[#E84C6A] hover:bg-[#E84C6A]/5 transition-colors border border-[#E84C6A]/20"
+        >
+            Still waiting? Skip to Results
+        </motion.button>
+    );
+}
+
 export default function GamePage() {
     const { gameState, answerQuestion, useLifeline, nextQuestion, finalizeGame } = useGame();
     const { currentUser } = useAuth();
@@ -49,6 +67,28 @@ export default function GamePage() {
             return;
         }
     }, [gameState, currentUser, navigate]);
+
+    // Check if we are spectating and waiting for others to finish
+    useEffect(() => {
+        if (!gameState || gameState.mode === 'Solo' || !lastAnswer) return;
+        
+        const playerIsDone = answeredRef.current && (
+            lastAnswer.status === 'failed' || 
+            lastAnswer.status === 'wrong' || 
+            lastAnswer.status === 'timeout' || 
+            lastAnswer.status === 'finished' ||
+            (lastAnswer.isCorrect && gameState.session?.current_level >= 15)
+        );
+
+        if (playerIsDone) {
+            const opponents = gameState.opponents || [];
+            const allOpponentsDone = opponents.every(opp => opp.answered);
+            if (allOpponentsDone) {
+                finalizeGame();
+                navigate('/results');
+            }
+        }
+    }, [gameState?.opponents, lastAnswer, finalizeGame, navigate]);
 
     useEffect(() => {
         if (!gameState)
@@ -123,8 +163,13 @@ export default function GamePage() {
             } catch { /* ignore — result card already visible */ }
 
             setTimeout(() => {
-                finalizeGame();
-                navigate('/results');
+                if (gameState.mode === 'Solo') {
+                    finalizeGame();
+                    navigate('/results');
+                } else {
+                    // Signal to others that we are finished
+                    finalizeGame();
+                }
             }, RESULT_DELAY);
             return;
         }
@@ -161,8 +206,13 @@ export default function GamePage() {
                                  (result.isCorrect && gameState.session?.current_level >= 15);
                 
                 if (isFinished || result.status === 'failed' || result.status === 'wrong') {
-                    finalizeGame();
-                    navigate('/results');
+                    if (gameState.mode === 'Solo') {
+                        finalizeGame();
+                        navigate('/results');
+                    } else {
+                        // Signal to others that we are finished
+                        finalizeGame();
+                    }
                 } else {
                     nextQuestion();
                 }
@@ -240,7 +290,7 @@ export default function GamePage() {
         {oppScorePulse && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.3 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="fixed inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse at top right, rgba(232,76,106,0.08), transparent 60%)' }}/>)}
       </AnimatePresence>
 
-      <div className="fixed z-[60]" style={{ top: 'calc(1rem + var(--safe-area-top))', left: 'calc(1rem + var(--safe-area-left))' }}><ReturnButton context="game"/></div>
+      <div className="fixed z-40" style={{ top: 'calc(1rem + var(--safe-area-top))', left: 'calc(1rem + var(--safe-area-left))' }}><ReturnButton context="game"/></div>
 
       <div className="flex items-start justify-between mb-3 relative z-30 pt-1">
         <div className="flex items-center gap-2 ml-14">
@@ -263,12 +313,12 @@ export default function GamePage() {
           <div className="flex items-center gap-2 overflow-x-auto py-1 px-1">
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0" style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' }}>
               <span className="text-sm">{currentUser.avatar}</span>
-              <span className="text-xs text-[#E84C6A]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>{currentUser.username.slice(0, 8)}</span>
+              <span className="text-xs text-[#E84C6A]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>{(currentUser.username || currentUser.name || '').slice(0, 8)}</span>
               <motion.span key={gameState.playerScore} initial={{ scale: 1.3, color: '#E84C6A' }} animate={{ scale: 1, color: '#1A1A2E' }} className="text-xs tabular-nums" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{gameState.playerScore}</motion.span>
             </motion.div>
             {gameState.opponents.map(opp => (<motion.div key={opp.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0" style={{ background: 'rgba(0,0,0,0.02)', border: `1px solid ${opp.answered ? 'rgba(52,211,153,0.15)' : 'rgba(0,0,0,0.06)'}` }}>
                 <span className="text-sm">{opp.avatar}</span>
-                <span className="text-xs text-slate-500" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>{opp.username.slice(0, 8)}</span>
+                <span className="text-xs text-slate-500" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>{(opp.username || opp.name || '').slice(0, 8)}</span>
                 <motion.span key={opp.score} initial={{ scale: 1.3, color: '#E84C6A' }} animate={{ scale: 1, color: '#64748b' }} className="text-xs tabular-nums" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{opp.score}</motion.span>
               </motion.div>))}
           </div>
@@ -309,6 +359,16 @@ export default function GamePage() {
                 </div>
               </motion.div>)}
           </AnimatePresence>
+
+          {gameState.mode !== 'Solo' && answeredRef.current && (lastAnswer?.status === 'failed' || lastAnswer?.status === 'wrong' || lastAnswer?.status === 'timeout' || lastAnswer?.status === 'finished' || (lastAnswer?.isCorrect && gameState.session?.current_level >= 15)) && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-2 p-4 rounded-2xl text-center" style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <p className="text-[#1A1A2E] text-sm flex items-center justify-center gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Spectating Match
+                  </p>
+                  <p className="text-slate-500 text-xs mt-1">Waiting for other players to finish...</p>
+                  <ShowForceResultsButton onForce={() => navigate('/results')} />
+              </motion.div>
+          )}
         </motion.div>
       </AnimatePresence>
 

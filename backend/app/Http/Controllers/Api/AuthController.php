@@ -42,10 +42,8 @@ class AuthController extends Controller
             'role' => 'player',
         ]);
 
-        // REFACTORED: Passport uses ->accessToken instead of ->plainTextToken
-        $token = $user->createToken('auth')->accessToken;
-
-        return response()->json(['user' => $user, 'token' => $token]);
+        $token = $user->createToken('Personal Access Token')->accessToken;
+        return $this->successResponse(['user' => $user, 'token' => $token], 'Successful registration', 201);
     }
 
     #[OA\Post(path: "/login", summary: "Log in to the application", tags: ["Authentication"])]
@@ -76,10 +74,8 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // REFACTORED: Passport uses ->accessToken
-        $token = $user->createToken('auth')->accessToken;
-
-        return response()->json(['user' => $user, 'token' => $token]);
+        $token = $user->createToken('Personal Access Token')->accessToken;
+        return $this->successResponse(['user' => $user, 'token' => $token], 'Successful login');
     }
 
     #[OA\Post(path: "/logout", summary: "Log out the current user", tags: ["Authentication"])]
@@ -89,13 +85,36 @@ class AuthController extends Controller
         // REFACTORED: Passport uses revoke() on the token
         $request->user()->token()->revoke();
 
-        return response()->json(['message' => 'Logged out']);
+        return $this->successResponse(null, 'Logged out');
     }
 
     #[OA\Get(path: "/user", summary: "Get current user profile", tags: ["Authentication"])]
     #[OA\Response(response: 200, description: "User profile data")]
     public function user(Request $request)
     {
-        return $request->user();
+        return $this->successResponse($request->user());
+    }
+
+    #[OA\Put(path: "/user", summary: "Update current user profile", tags: ["Authentication"])]
+    #[OA\Response(response: 200, description: "Updated user profile")]
+    public function updateUser(Request $request)
+    {
+        $user = $request->user();
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'avatar' => 'nullable|string|max:255',
+        ]);
+
+        $user->update($validated);
+
+        return $this->successResponse($user, 'Profile updated');
+    }
+
+    #[OA\Get(path: "/me/stats", summary: "Get current user's game stats and history", tags: ["Authentication"])]
+    #[OA\Response(response: 200, description: "Aggregated stats and recent games")]
+    public function stats(Request $request, \App\Services\StatsService $statsService)
+    {
+        $stats = $statsService->getUserStats($request->user());
+        return $this->successResponse($stats);
     }
 }

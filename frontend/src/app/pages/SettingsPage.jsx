@@ -1,17 +1,19 @@
 import React, { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Settings, Volume2, Music, Globe, Tag, Save, Check } from 'lucide-react';
+import { Settings, Volume2, Music, Globe, Tag, Save, Check, Download, Smartphone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAudio } from '../contexts/AudioContext';
 import { CATEGORIES } from '../data/questions';
 import { useTranslation } from '../hooks/useTranslation';
+import { usePWA } from '../contexts/PWAContext';
 
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
+
 const LANGUAGES = [
     { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭' }, { code: 'en', name: 'English', flag: '🇬🇧' },
 ];
-const AVATARS = ['🦊', '🐺', '🦋', '🐉', '🦅', '🐬', '🦁', '🐙', '🐸', '🦄', '🦉', '🐆'];
+const AVATARS = ['🦊', '🐺', '🦋', '🐉', '🦅', '🐬', '🦁', '🐙', '🐸', '🦄', '🦉', '🐆', '🐯', '🐻', '🐼'];
 
 const ToggleSwitch = memo(({ value, onChange }) => (<button onClick={() => onChange(!value)} className="relative w-12 h-6 rounded-full transition-all duration-300" style={{ background: value ? '#E84C6A' : 'rgba(0,0,0,0.12)' }}>
   <motion.div animate={{ x: value ? 24 : 2 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"/>
@@ -30,6 +32,7 @@ export default function SettingsPage() {
     const { currentUser, updateUser } = useAuth();
     const { sfxVolume, setSfxVolume, volume, setMusicVolume } = useAudio();
     const { t } = useTranslation();
+    const { isInstallable, isInstalled, isIOS, installPWA } = usePWA();
     const navigate = useNavigate();
     const [saved, setSaved] = useState(false);
     const [form, setForm] = useState({
@@ -55,6 +58,39 @@ export default function SettingsPage() {
       </motion.div>
 
       <div className="space-y-5">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-6" style={CARD}>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.12)' }}>
+                        <Smartphone className="w-4 h-4 text-cyan-500"/>
+                    </div>
+                    <div>
+                        <p className="text-[#1A1A2E] text-sm font-semibold">{isIOS ? 'Add to Home Screen' : 'Install App'}</p>
+                        <p className="text-slate-500 text-[10px]">{isIOS ? 'Get the full app experience' : 'Get a better experience on your home screen'}</p>
+                    </div>
+                </div>
+                {isInstalled ? (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+                        <Check className="w-3 h-3"/>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider">Installed</span>
+                    </div>
+                ) : (isInstallable || isIOS) ? (
+                    <motion.button 
+                        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                        onClick={installPWA}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-md"
+                        style={{ background: 'linear-gradient(135deg, #06B6D4, #0891B2)' }}
+                    >
+                        <Download className="w-3.5 h-3.5"/> {isIOS ? 'How to' : 'Download'}
+                    </motion.button>
+                ) : (
+                    <div className="text-[10px] text-slate-400 italic bg-slate-50 px-2 py-1 rounded">
+                        Not supported
+                    </div>
+                )}
+            </div>
+        </motion.div>
+
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-6" style={CARD}>
           <h2 className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('profile')}</h2>
           <div className="mb-4">
@@ -63,7 +99,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="text-slate-500 text-sm mb-3 block">{t('avatar')}</label>
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {AVATARS.map(avatar => (<button key={avatar} onClick={() => setForm(f => ({ ...f, avatar }))} className="h-12 rounded-xl text-2xl flex items-center justify-center transition-all" style={{ background: form.avatar === avatar ? 'rgba(232,76,106,0.1)' : 'rgba(0,0,0,0.02)', border: form.avatar === avatar ? '2px solid #E84C6A' : '1px solid rgba(0,0,0,0.06)', transform: form.avatar === avatar ? 'scale(1.1)' : 'scale(1)', boxShadow: form.avatar === avatar ? '0 0 15px rgba(232,76,106,0.15)' : 'none' }}>
                   {avatar}
                 </button>))}

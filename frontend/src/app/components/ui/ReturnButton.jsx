@@ -3,10 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, AlertTriangle, X } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
+import { useTranslation } from '../../hooks/useTranslation';
 export function ReturnButton({ context, variant = 'default', onClick, className, style, children }) {
-    const { gameState, resetGame } = useGame();
+    const { gameState, resetGame, cancelMatchmake, leaveBattle } = useGame();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [showConfirmation, setShowConfirmation] = useState(false);
+    
+    const leaveAndReset = async () => {
+        // For Room lobbies, always call leaveBattle regardless of context label
+        if (gameState?.mode === 'Room' || context === 'lobby') {
+            leaveBattle(); // fire and don't await — optimistic, UI navigates instantly
+        } else if (context === 'matchmaking') {
+            cancelMatchmake(); // fire and don't await
+        }
+        resetGame();
+        navigate('/dashboard');
+    };
+
     const handleReturn = () => {
         if (onClick) {
             onClick();
@@ -16,13 +30,13 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
             setShowConfirmation(true);
             return;
         }
-        resetGame();
-        navigate('/dashboard');
+        leaveAndReset();
     };
+    
     const confirmReturn = () => {
-        resetGame();
-        navigate('/dashboard');
+        leaveAndReset();
     };
+
     if (children) {
         return (<button onClick={handleReturn} className={className} style={style}>
         {children}
@@ -41,7 +55,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
             }
             : undefined}>
         <Home className="w-4 h-4"/>
-        {variant === 'default' && 'Return Home'}
+        {variant === 'default' && t('returnHome')}
       </motion.button>
 
       {/* Forfeit Confirmation Modal */}
@@ -56,7 +70,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                       <AlertTriangle className="w-5 h-5 text-red-500"/>
                     </div>
                     <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.25rem' }}>
-                      Forfeit Game?
+                      {t('forfeitTitle')}
                     </h2>
                   </div>
                   <button onClick={() => setShowConfirmation(false)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors">
@@ -65,7 +79,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 </div>
 
                 <p className="text-slate-600 mb-6">
-                  Leaving now will forfeit your score and count as a loss. Are you sure you want to quit this game?
+                  {t('forfeitDesc')}
                 </p>
 
                 <div className="flex gap-3">
@@ -75,7 +89,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 600,
             }}>
-                    Stay in Game
+                    {t('stayInGame')}
                   </motion.button>
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmReturn} className="flex-1 py-3 rounded-xl text-white transition-all" style={{
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
@@ -83,7 +97,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 600,
             }}>
-                    Forfeit & Leave
+                    {t('forfeitAndLeave')}
                   </motion.button>
                 </div>
               </div>
