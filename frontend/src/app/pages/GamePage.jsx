@@ -13,7 +13,7 @@ import { LiveScorePanel } from '../components/game/LiveScorePanel';
 import { AudienceModal } from '../components/game/AudienceModal';
 import { ReturnButton } from '../components/ui/ReturnButton';
 import { useTranslation } from '../hooks/useTranslation';
-import { Check } from 'lucide-react';
+import { Check, Sparkles, AlertCircle, Flag, Brain, Cpu, History, Globe, Zap, Palette } from 'lucide-react';
 
 const LIGHT_BG = 'var(--grad-surface)';
 const RESULT_DELAY = 2200;
@@ -35,6 +35,12 @@ function ShowForceResultsButton({ onForce }) {
         </motion.button>
     );
 }
+
+const CategoryIcon = ({ name, className, style }) => {
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette };
+    const Icon = icons[name] || Zap;
+    return <Icon className={className} style={style} />;
+};
 
 export default function GamePage() {
     const { gameState, answerQuestion, useLifeline, nextQuestion, finalizeGame } = useGame();
@@ -337,7 +343,9 @@ export default function GamePage() {
                     {ds.label}
                 </motion.div>
                 <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold">
-                    <span className="text-sm">{category?.icon}</span>
+                    <span className="text-sm">
+                        <CategoryIcon name={category?.icon} className="w-4 h-4" style={{ color: category?.iconColor }} />
+                    </span>
                     <span className="hidden sm:inline opacity-70">{category ? t(`cat${category.id.charAt(0).toUpperCase() + category.id.slice(1)}`) : ''}</span>
                 </div>
             </div>
@@ -423,7 +431,7 @@ export default function GamePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     {question.answers.map((answer, i) => {
                         const isDoubleDipWrong = doubleDipWrongId === answer.id;
-                        const answeredAndCorrect = revealed && lastAnswer && lastAnswer.correctAnswerId === answer.id;
+                        const answeredAndCorrect = revealed && lastAnswer && String(lastAnswer.correctAnswerId) === String(answer.id);
                         const displayText = (isKhmer && answer.text_km) ? answer.text_km : answer.text;
                         return (
                             <AnswerOption 
@@ -457,7 +465,7 @@ export default function GamePage() {
                         >
                             <div className="flex items-center gap-4">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg ${lastAnswer.isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`}>
-                                    {lastAnswer.isCorrect ? '✨' : '💥'}
+                                    {lastAnswer.isCorrect ? <Sparkles className="w-6 h-6 text-white" /> : <AlertCircle className="w-6 h-6 text-white" />}
                                 </div>
                                 <div className="flex-1">
                                     <h3 className={`text-base font-black ${lastAnswer.isCorrect ? 'text-emerald-700' : 'text-red-700'}`}>
@@ -487,7 +495,7 @@ export default function GamePage() {
                             <div className="relative">
                                 <div className="w-16 h-16 border-4 border-[#FACC15]/10 border-t-[#FACC15] rounded-full animate-spin" />
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-xl animate-bounce">🏁</span>
+                                    <Flag className="w-6 h-6 text-[#FACC15] animate-bounce" />
                                 </div>
                             </div>
                             <div>

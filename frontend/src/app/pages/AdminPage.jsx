@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, Plus, Edit3, Trash2, Search, Filter, BarChart2, Trophy, Settings2, X, Check, AlertTriangle, ChevronDown, Layers, ToggleLeft, ToggleRight, FolderOpen, Globe, Zap, Database } from 'lucide-react';
+import { Shield, Plus, Edit3, Trash2, Search, Filter, BarChart2, Trophy, Settings2, X, Check, AlertTriangle, ChevronDown, Layers, ToggleLeft, ToggleRight, FolderOpen, Globe, Zap, Database, Brain, Cpu, History, Palette, Target, Microscope, Rocket, Music, FlaskConical } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getFixedAvatar } from '../utils/avatar';
 import api from '../../api/axios';
@@ -51,7 +51,7 @@ const emptyForm = () => ({
 });
 const emptyCategoryForm = () => ({
     name: '',
-    icon: '📚',
+    icon: 'Brain',
     color: 'from-blue-500 to-cyan-400',
     description: '',
 });
@@ -65,7 +65,13 @@ const COLOR_OPTIONS = [
     { value: 'from-teal-500 to-cyan-400', label: 'Teal/Cyan' },
     { value: 'from-indigo-500 to-blue-400', label: 'Indigo/Blue' },
 ];
-const ICON_OPTIONS = ['📚', '🔬', '📜', '💻', '🌍', '⚽', '🎨', '🧮', '🎵', '🏛️', '🚀', '🧪', '📊', '🎭', '🌐', '🧬', '🎯', '💡'];
+const ICON_OPTIONS = ['Brain', 'Cpu', 'History', 'Globe', 'Zap', 'Palette', 'Target', 'Trophy', 'Rocket', 'Music', 'Microscope', 'FlaskConical'];
+
+const CategoryIcon = ({ name, className, style }) => {
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette, Target, Trophy, Rocket, Music, Microscope, FlaskConical };
+    const Icon = icons[name] || Zap;
+    return <Icon className={className} style={style} />;
+};
 // Chart components
 function HorizBar({ label, value, max, color, index }) {
     return (<motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-center gap-2">
@@ -178,7 +184,6 @@ export default function AdminPage() {
     const [configDirty, setConfigDirty] = useState(false);
     const [loading, setLoading] = useState(true);
     const [catActionLoading, setCatActionLoading] = useState(false);
-    const [isAddOpen, setIsAddOpen] = useState(false);
     
 
     // Category CRUD state
@@ -230,7 +235,7 @@ export default function AdminPage() {
                 const catsMap = (cRes.data.data || cRes.data || []).map(c => ({
                     id: c.id,
                     name: c.name,
-                    icon: c.icon || '📚',
+                    icon: c.icon || 'Brain',
                     color: c.color || 'from-blue-500 to-cyan-400',
                     description: c.description || '',
                     enabled: true
@@ -238,6 +243,11 @@ export default function AdminPage() {
                 setCategories(catsMap);
                 setLeaderboard(lRes.data || []);
                 setStats(sRes.data || { total_users: 0, total_games: 0, avg_score: 0 });
+                
+                // Initialize form with first category if available
+                if (catsMap.length > 0) {
+                    setForm(prev => ({ ...prev, categoryId: catsMap[0].id }));
+                }
             } catch (err) {
                 console.error('Failed to load admin data', err);
             } finally {
@@ -256,7 +266,11 @@ export default function AdminPage() {
         return matchSearch && matchDiff && matchCat;
     });
 
-    const openAdd = () => { setForm(emptyForm()); setFormError(''); setModal({ mode: 'add' }); };
+    const openAdd = () => { 
+        setForm({ ...emptyForm(), categoryId: categories[0]?.id || '' }); 
+        setFormError(''); 
+        setModal({ mode: 'add' }); 
+    };
     
     const openEdit = (q) => {
         setForm({ 
@@ -306,7 +320,7 @@ export default function AdminPage() {
             
             if (modal?.mode === 'add') {
                 const res = await api.post('/admin/questions', payload);
-                const q = res.data;
+                const q = res.data.data || res.data;
                 const newQ = { 
                     id: q.id, categoryId: q.category_id, 
                     difficulty: q.difficulty_level === 'easy' ? 'Easy' : q.difficulty_level === 'medium' ? 'Medium' : 'Hard', 
@@ -317,7 +331,7 @@ export default function AdminPage() {
                 setQuestions([...questions, newQ]);
             } else if (modal?.question) {
                 const res = await api.put(`/admin/questions/${modal.question.id}`, payload);
-                const q = res.data;
+                const q = res.data.data || res.data;
                 const updated = questions.map(x => x.id === q.id ? { 
                     id: q.id, categoryId: q.category_id, 
                     difficulty: q.difficulty_level === 'easy' ? 'Easy' : q.difficulty_level === 'medium' ? 'Medium' : 'Hard', 
@@ -377,7 +391,7 @@ export default function AdminPage() {
                 const res = await api.post('/admin/categories', payload);
                 const c = res.data;
                 setCategories(prev => [...prev, {
-                    id: c.id, name: c.name, icon: c.icon || '📚',
+                    id: c.id, name: c.name, icon: c.icon || 'Brain',
                     color: c.color || 'from-blue-500 to-cyan-400',
                     description: c.description || '', enabled: true,
                 }]);
@@ -425,11 +439,11 @@ export default function AdminPage() {
         }
     };
     const tabs = [
-        { id: 'questions', label: 'Questions', icon: Filter },
-        { id: 'categories', label: 'Categories', icon: Layers },
-        { id: 'analytics', label: 'Analytics', icon: BarChart2 },
-        { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
-        { id: 'system', label: 'System', icon: Settings2 },
+        { id: 'questions', label: 'Questions', icon: Filter, color: '#3b82f6' },
+        { id: 'categories', label: 'Categories', icon: Layers, color: '#8b5cf6' },
+        { id: 'analytics', label: 'Analytics', icon: BarChart2, color: '#10b981' },
+        { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, color: '#FACC15' },
+        { id: 'system', label: 'System', icon: Settings2, color: '#6366f1' },
     ];
     const catScoreMax = Math.max(...ANALYTICS_DATA.categoryScores.map(d => d.avgScore));
     const catColors = ['#FACC15', '#fbbf24', '#34d399', '#f472b6', '#fb923c', '#22d3ee'];
@@ -484,13 +498,14 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-8 p-1.5 rounded-2xl glass-card border-black/[0.03] overflow-x-auto no-scrollbar">
-        {tabs.map(({ id, label, icon: Icon }) => (
+        {tabs.map(({ id, label, icon: Icon, color }) => (
           <button 
             key={id} 
             onClick={() => setTab(id)} 
-            className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-[11px] font-bold uppercase tracking-normal transition-all whitespace-nowrap ${tab === id ? 'bg-white shadow-md text-[#FACC15] border border-black/[0.02]' : 'text-slate-500 hover:text-[#000000]'}`}
+            className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-[11px] font-bold uppercase tracking-normal transition-all whitespace-nowrap ${tab === id ? 'bg-white shadow-md border border-black/[0.02]' : 'text-slate-500 hover:text-[#000000]'}`}
+            style={tab === id ? { color } : {}}
           >
-            <Icon className={`w-4 h-4 ${tab === id ? 'text-[#FACC15]' : 'opacity-40'}`}/>
+            <Icon className="w-4 h-4" style={tab === id ? { color } : { opacity: 0.4 }}/>
             {label}
           </button>
         ))}
@@ -508,7 +523,7 @@ export default function AdminPage() {
             </select>
             <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="px-5 py-3 rounded-2xl text-[#000000] focus:outline-none text-xs font-bold uppercase tracking-normal glass-card border-black/[0.03]">
               <option value="All">All Categories</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <motion.button 
               whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}
@@ -540,7 +555,12 @@ export default function AdminPage() {
                 const ds = diffStyle[q.difficulty];
                 return (<motion.div key={q.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }} className="grid grid-cols-12 items-center px-6 py-4 hover:bg-black/[0.01] transition-colors gap-4 group">
                     <div className="col-span-12 sm:col-span-6"><p className="text-[#000000] text-sm font-medium leading-relaxed line-clamp-2">{q.text}</p></div>
-                    <div className="col-span-4 sm:col-span-2 flex items-center gap-2"><span className="text-[10px] font-bold text-slate-500 uppercase tracking-normal bg-black/[0.03] px-2 py-1 rounded-lg border border-black/[0.02]">{cat?.icon} {cat?.name || 'Unset'}</span></div>
+                    <div className="col-span-4 sm:col-span-2 flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-normal bg-black/[0.03] px-2 py-1 rounded-lg border border-black/[0.02] flex items-center gap-1.5">
+                            <CategoryIcon name={cat?.icon} className="w-3 h-3" />
+                            {cat?.name || 'Unset'}
+                        </span>
+                    </div>
                     <div className="col-span-4 sm:col-span-2"><span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full shadow-sm" style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.color}20` }}>{q.difficulty}</span></div>
                     <div className="col-span-4 sm:col-span-2 flex justify-end gap-1">
                       <button onClick={() => openEdit(q)} className="p-2.5 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-[#FACC15] hover:bg-[#FACC15]/5 shadow-sm"><Edit3 className="w-4 h-4"/></button>
@@ -579,7 +599,7 @@ export default function AdminPage() {
                   <div className="flex items-start justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-xl shadow-lg border border-white/20 transition-transform group-hover:scale-110`}>
-                        {cat.icon}
+                        <CategoryIcon name={cat.icon} className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <h3 className="text-[#000000] text-sm font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>
@@ -639,7 +659,7 @@ export default function AdminPage() {
                             <input type="radio" name={`delete-${cat.id}`} checked={catDeleteAction === 'reassign'} onChange={() => setCatDeleteAction('reassign')} className="accent-[#FACC15]"/>
                             Reassign to:
                             <select value={catReassignTarget} onChange={e => setCatReassignTarget(e.target.value)} className="px-2 py-1 rounded text-xs text-[#000000] focus:outline-none" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
-                              {categories.filter(c => c.id !== cat.id).map(c => (<option key={c.id} value={c.id}>{c.icon} {c.name}</option>))}
+                              {categories.filter(c => c.id !== cat.id).map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
                             </select>
                           </label>
                           <label className="flex items-center gap-2 text-xs text-red-400 cursor-pointer">
@@ -790,16 +810,16 @@ export default function AdminPage() {
 
       {/* ═══════ Question Modal ═══════ */}
       <AnimatePresence>
-        {isAddOpen && (<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAddOpen(false)} className="absolute inset-0 bg-black/40 backdrop-blur-sm"/>
+        {modal && (modal.mode === 'add' || modal.mode === 'edit') && (<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setModal(null)} className="absolute inset-0 bg-black/40 backdrop-blur-sm"/>
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[2.5rem] glass-card border-white/20 shadow-2xl flex flex-col" style={{ background: 'rgba(255,255,255,0.98)' }}>
               
               <div className="p-8 pb-4 flex items-center justify-between border-b border-black/[0.03]">
                 <div>
-                    <h2 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{editId ? 'Edit Question' : 'Create Question'}</h2>
+                    <h2 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{modal.mode === 'edit' ? 'Edit Question' : 'Create Question'}</h2>
                     <p className="text-slate-500 text-xs font-medium opacity-60">Manage content for the global pool</p>
                 </div>
-                <button onClick={() => setIsAddOpen(false)} className="p-3 rounded-2xl bg-black/[0.03] text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm">
+                <button onClick={() => setModal(null)} className="p-3 rounded-2xl bg-black/[0.03] text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm">
                     <X className="w-5 h-5"/>
                 </button>
               </div>
@@ -819,7 +839,7 @@ export default function AdminPage() {
                   <div>
                     <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Category</label>
                     <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm font-bold glass-card border-black/[0.03] focus:outline-none">
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>
                   <div>
@@ -860,9 +880,9 @@ export default function AdminPage() {
               </div>
 
               <div className="p-8 pt-4 flex gap-3 border-t border-black/[0.03]">
-                <button onClick={() => setIsAddOpen(false)} className="flex-1 py-4 rounded-2xl text-slate-500 text-xs font-bold uppercase tracking-normal hover:bg-black/[0.03] transition-all">Cancel</button>
+                <button onClick={() => setModal(null)} className="flex-1 py-4 rounded-2xl text-slate-500 text-xs font-bold uppercase tracking-normal hover:bg-black/[0.03] transition-all">Cancel</button>
                 <button onClick={handleSave} className="flex-[2] py-4 rounded-2xl text-white text-xs font-bold uppercase tracking-normal shadow-xl transition-all" style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(99,102,241,0.25)' }}>
-                  {editId ? 'Save Changes' : 'Create Question'}
+                  {modal.mode === 'edit' ? 'Save Changes' : 'Create Question'}
                 </button>
               </div>
             </motion.div>
@@ -888,8 +908,8 @@ export default function AdminPage() {
                 <div>
                   <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Icon & Visual Identity</label>
                   <div className="flex flex-wrap gap-2.5">
-                    {ICON_OPTIONS.map(icon => (<button key={icon} onClick={() => setCatForm(f => ({ ...f, icon }))} className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl transition-all duration-300 ${catForm.icon === icon ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md scale-110' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}>
-                        {icon}
+                    {ICON_OPTIONS.map(icon => (<button key={icon} onClick={() => setCatForm(f => ({ ...f, icon }))} className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${catForm.icon === icon ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md scale-110' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}>
+                        <CategoryIcon name={icon} className={`w-5 h-5 ${catForm.icon === icon ? 'text-[#FACC15]' : 'text-slate-400'}`} />
                       </button>))}
                   </div>
                 </div>

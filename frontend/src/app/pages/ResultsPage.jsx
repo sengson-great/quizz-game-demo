@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trophy, Star, CheckCircle, XCircle, Home, RotateCcw, Medal } from 'lucide-react';
+import { Trophy, Star, CheckCircle, XCircle, Home, RotateCcw, Medal, Sparkles, Brain, Cpu, History, Globe, Zap, Palette, Target, Flag, Award, Crown } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useAudio } from '../contexts/AudioContext';
@@ -9,6 +9,12 @@ import { CATEGORIES } from '../data/questions';
 import { useTranslation } from '../hooks/useTranslation';
 
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
+
+const CategoryIcon = ({ name, className, style }) => {
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette, Target, Trophy, Medal, Flag };
+    const Icon = icons[name] || Zap;
+    return <Icon className={className} style={style} />;
+};
 
 export default function ResultsPage() {
     const { gameState, resetGame } = useGame();
@@ -79,10 +85,12 @@ export default function ResultsPage() {
     const playerRank = allScores.find(s => s.isPlayer)?.rank || 1;
     const isWinner = playerRank === 1;
 
-    const getRankIcon = (rank) => { if (rank === 1)
-        return '🥇'; if (rank === 2)
-        return '🥈'; if (rank === 3)
-        return '🥉'; return `#${rank}`; };
+    const getRankIcon = (rank) => { 
+        if (rank === 1) return <Crown className="w-6 h-6 text-amber-500" />; 
+        if (rank === 2) return <Trophy className="w-6 h-6 text-slate-400" />; 
+        if (rank === 3) return <Award className="w-6 h-6 text-amber-600" />; 
+        return <span className="text-sm font-bold text-slate-400">#{rank}</span>; 
+    };
 
     const getGrade = () => { if (accuracy >= 90)
         return { grade: 'S', label: t('gradePerfect') }; if (accuracy >= 80)
@@ -103,8 +111,18 @@ export default function ResultsPage() {
         </div>)}
 
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8 relative z-10">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.2 }} className="text-7xl mb-4">
-          {isWinner ? '🏆' : gameState.mode === 'Solo' ? '🎯' : getRankIcon(playerRank)}
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.2 }} className="flex justify-center mb-4">
+          <div className="w-20 h-20 rounded-3xl bg-white border-[3px] border-black shadow-[6px_6px_0_0_#000000] flex items-center justify-center">
+            {isWinner ? (
+                <Crown className="w-10 h-10 text-[#FACC15] animate-bounce" />
+            ) : gameState.mode === 'Solo' ? (
+                <Target className="w-10 h-10 text-emerald-500" />
+            ) : gameState.mode === '1v1' ? (
+                <Swords className="w-10 h-10 text-rose-500" />
+            ) : (
+                <Trophy className="w-10 h-10 text-violet-500" />
+            )}
+          </div>
         </motion.div>
         <h1 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '2rem' }}>
           {isWinner ? t('victory') : gameState.mode === 'Solo' ? t('gameComplete') : `${getRankIcon(playerRank)} ${t('rank')}`}
@@ -128,7 +146,7 @@ export default function ResultsPage() {
           <h3 className="text-[#1A1A2E] mb-4 flex items-center gap-2" style={{ fontFamily: 'inherit', fontWeight: 600 }}><Medal className="w-4 h-4 text-amber-500"/> {t('finalStandings')}</h3>
           <div className="space-y-3">
             {allScores.map((player, i) => (<motion.div key={`${player.name}-${i}`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.1 }} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: player.isPlayer ? 'rgba(99,102,241,0.06)' : 'rgba(0,0,0,0.02)', border: player.isPlayer ? '1px solid rgba(99,102,241,0.12)' : '1px solid transparent' }}>
-                <span className="text-xl w-8 text-center">{getRankIcon(player.rank)}</span>
+                <span className="w-8 flex justify-center">{getRankIcon(player.rank)}</span>
                 <span className="text-xl">{player.avatar}</span>
                 <span className={`flex-1 text-sm ${player.isPlayer ? 'text-[#FACC15]' : 'text-[#1A1A2E]'}`}>{player.name} {player.isPlayer && <span className="text-xs text-[#FACC15]">({t('you')})</span>}</span>
                 <span className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{player.score.toLocaleString()}</span>
@@ -139,12 +157,15 @@ export default function ResultsPage() {
       {categoryBreakdown.length > 0 && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="rounded-2xl p-5 mb-6 relative z-10" style={CARD}>
           <h3 className="text-[#1A1A2E] mb-4 flex items-center gap-2" style={{ fontFamily: 'inherit', fontWeight: 600 }}><Star className="w-4 h-4 text-[#FACC15]"/> {t('domains')}</h3>
           <div className="space-y-2">
-            {categoryBreakdown.map(({ id, icon, name, correct, total }) => {
+            {categoryBreakdown.map(({ id, icon, name, correct, total, iconColor }) => {
                 const pct = total > 0 ? (correct / total) * 100 : 0;
                 return (<div key={id}>
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-[#1A1A2E]">{icon} {t(`cat${id.charAt(0).toUpperCase() + id.slice(1)}`)}</span>
-                    <span className={`${pct === 100 ? 'text-emerald-500' : pct >= 60 ? 'text-amber-500' : 'text-red-500'}`} style={{ fontWeight: 600 }}>{correct}/{total}</span>
+                    <div className="flex items-center gap-2 text-[#1A1A2E]">
+                      <CategoryIcon name={icon} className="w-3.5 h-3.5" style={{ color: iconColor }} />
+                      {t(`cat${id.charAt(0).toUpperCase() + id.slice(1)}`)}
+                    </div>
+                    <span className={`${pct === 100 ? 'text-emerald-500' : pct >= 60 ? 'text-amber-500' : 'text-red-500'}`} style={{ fontWeight: 600 }}>{Math.round(pct)}% ({correct}/{total})</span>
                   </div>
                   <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
                     <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, delay: 0.6 }} className="h-full rounded-full" style={{ background: pct === 100 ? '#34d399' : pct >= 60 ? '#fbbf24' : '#f87171' }}/>
@@ -170,10 +191,16 @@ export default function ResultsPage() {
                 return (<div key={`${answer.questionId}-${i}`} className="flex items-start gap-3 p-3 rounded-xl text-sm" style={{ background: answer.isCorrect ? 'rgba(52,211,153,0.04)' : 'rgba(239,68,68,0.04)' }}>
                       {answer.isCorrect ? <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"/> : <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"/>}
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-600 text-xs mb-0.5">{cat?.icon} {(isKhmer && q.text_km) ? q.text_km : q.text}</p>
+                        <div className="flex items-center gap-1.5 text-slate-600 text-xs mb-0.5">
+                          <CategoryIcon name={cat?.icon} className="w-3 h-3" style={{ color: cat?.iconColor }} />
+                          <span>{(isKhmer && q.text_km) ? q.text_km : q.text}</span>
+                        </div>
                         {!answer.isCorrect && (
                           <p className="text-emerald-500 text-xs">
-                            ✓ {(isKhmer && q.answers.find(a => a.isCorrect)?.text_km) ? q.answers.find(a => a.isCorrect)?.text_km : q.answers.find(a => a.isCorrect)?.text}
+                            ✓ {(() => {
+                              const correctAns = q.answers.find(a => String(a.id) === String(answer.correctAnswerId));
+                              return (isKhmer && correctAns?.text_km) ? correctAns.text_km : correctAns?.text;
+                            })()}
                           </p>
                         )}
                       </div>
@@ -186,15 +213,15 @@ export default function ResultsPage() {
       </motion.div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="flex gap-3 relative z-10">
-        <button onClick={() => { resetGame(); navigate('/dashboard'); }} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-slate-600 hover:bg-white/60 transition-colors text-sm" style={{ border: '1px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)' }}>
-          <Home className="w-4 h-4"/> {t('home')}
-        </button>
-        <button onClick={() => { resetGame(); navigate('/mode-select'); }} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-white text-sm transition-all hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #FACC15, #8B5CF6)', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}>
-          <RotateCcw className="w-4 h-4"/> {t('playAgain')}
-        </button>
-        <button onClick={() => { resetGame(); navigate('/leaderboard'); }} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-amber-600 hover:bg-amber-50 transition-colors text-sm" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)' }}>
-          <Trophy className="w-4 h-4"/> {t('leaderboard')}
-        </button>
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { resetGame(); navigate('/dashboard'); }} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold shadow-sm transition-all bg-white border border-black/[0.06] text-slate-600">
+          <Home className="w-4 h-4 text-indigo-500"/> {t('home')}
+        </motion.button>
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { resetGame(); navigate('/mode-select'); }} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold shadow-lg shadow-emerald-500/20 transition-all border-none" style={{ background: 'linear-gradient(135deg, #34d399, #10b981)' }}>
+          <RotateCcw className="w-4 h-4 text-white"/> {t('playAgain')}
+        </motion.button>
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { resetGame(); navigate('/leaderboard'); }} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold shadow-sm transition-all bg-white border border-black/[0.06] text-slate-600">
+          <Trophy className="w-4 h-4 text-amber-500"/> {t('leaderboard')}
+        </motion.button>
       </motion.div>
     </div>);
 }

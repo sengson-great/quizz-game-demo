@@ -108,7 +108,7 @@ class GameController extends Controller
         // If correct, get next question immediately? Or separate call.
         // Frontend expects next_question in response often.
         // If correct or in multiplayer competition, get next question if still active
-        if ($session->status === 'active' && ($result['status'] === 'correct' || $session->match_id)) {
+        if ($session->status === 'active') {
             $result['next_question'] = $this->gameService->getNextQuestion($session);
         }
 

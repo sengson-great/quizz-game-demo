@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, Check, LogIn, X, Zap, Shuffle, UserPlus } from 'lucide-react';
+import { ChevronRight, Check, LogIn, X, Zap, Shuffle, UserPlus, Target, Swords, Trophy, Brain, Cpu, History, Globe, Palette } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
 import { CATEGORIES } from '../data/questions';
@@ -9,6 +9,12 @@ import { useTranslation } from '../hooks/useTranslation';
 
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 const MODAL_BG = { background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' };
+
+const CategoryIcon = ({ name, className, style }) => {
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette, Target, Swords, Trophy };
+    const Icon = icons[name] || Zap;
+    return <Icon className={className} style={style} />;
+};
 
 export default function ModeSelectPage() {
     const { currentUser } = useAuth();
@@ -57,9 +63,9 @@ export default function ModeSelectPage() {
     const handleRandomMatch1v1 = async () => { if (selectedCategories.length === 0) return; await startRanked1v1(selectedCategories); navigate('/matchmaking'); };
     const handleJoin1v1 = () => { if (!joinCode1v1.trim() || joinCode1v1.length !== 6) return; navigate('/battle-lobby', { state: { joinCode: joinCode1v1 } }); };
     const modes = [
-        { mode: 'Solo', icon: '🎯', title: t('soloPractice'), desc: t('soloDesc'), badge: t('practiceMode'), badgeColor: '#d97706', activeColor: '#d97706', activeBorder: 'rgba(217,119,6,0.35)' },
-        { mode: '1v1', icon: '⚔️', title: t('battle1v1'), desc: t('battleDesc'), badge: t('recommended'), badgeColor: '#FACC15', activeColor: '#FACC15', activeBorder: 'rgba(99,102,241,0.35)' },
-        { mode: 'Room', icon: '🏆', title: t('roomMode'), desc: t('roomDesc'), badge: t('mostFun'), badgeColor: '#FACC15', activeColor: '#FACC15', activeBorder: 'rgba(250,204,21,0.35)' },
+        { mode: 'Solo', icon: <Target className="w-10 h-10 text-emerald-500" />, title: t('soloPractice'), desc: t('soloDesc'), badge: t('practiceMode'), badgeColor: '#10b981', activeColor: '#10b981', activeBorder: 'rgba(16,185,129,0.35)' },
+        { mode: '1v1', icon: <Swords className="w-10 h-10 text-rose-500" />, title: t('battle1v1'), desc: t('battleDesc'), badge: t('battle1v1'), badgeColor: '#f43f5e', activeColor: '#f43f5e', activeBorder: 'rgba(244,63,94,0.35)' },
+        { mode: 'Room', icon: <Trophy className="w-10 h-10 text-violet-500" />, title: t('roomMode'), desc: t('roomDesc'), badge: t('mostFun'), badgeColor: '#8b5cf6', activeColor: '#8b5cf6', activeBorder: 'rgba(139,92,246,0.35)' },
     ];
     return (<div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'inherit' }}>
 
@@ -150,14 +156,16 @@ export default function ModeSelectPage() {
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {CATEGORIES.map(({ id, name, icon, color }) => {
+          {CATEGORIES.map(({ id, name, icon, color, iconColor }) => {
             const isSelected = selectedCategories.includes(id);
             const translationKey = `cat${id.charAt(0).toUpperCase() + id.slice(1)}`;
-            return (<motion.button key={id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => toggleCategory(id)} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200" style={{
-                    background: isSelected ? 'rgba(99,102,241,0.06)' : 'rgba(0,0,0,0.02)',
-                    border: isSelected ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(0,0,0,0.06)',
+            return (<motion.button key={id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => toggleCategory(id)} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group" style={{
+                    background: isSelected ? 'rgba(250, 204, 21, 0.04)' : 'rgba(0,0,0,0.02)',
+                    border: isSelected ? '1px solid rgba(250, 204, 21, 0.2)' : '1px solid rgba(0,0,0,0.06)',
                 }}>
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center text-sm ${isSelected ? '' : 'opacity-40'}`}>{icon}</div>
+                <div className={`w-8 h-8 rounded-lg bg-black/[0.03] flex items-center justify-center text-sm shadow-sm transition-transform group-hover:scale-110 ${isSelected ? '' : 'opacity-60'}`}>
+                    <CategoryIcon name={icon} className="w-4 h-4" style={{ color: isSelected ? iconColor : '#94a3b8' }} />
+                </div>
                 <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`}>{t(translationKey)}</span>
                 {isSelected && <Check className="w-3.5 h-3.5 text-[#FACC15] ml-auto"/>}
               </motion.button>);

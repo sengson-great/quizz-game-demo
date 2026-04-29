@@ -1,7 +1,7 @@
 import { useEffect, useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Trophy, Zap, Target, TrendingUp, ChevronRight, Star, Clock, RefreshCw } from 'lucide-react';
+import { Trophy, Zap, Target, TrendingUp, ChevronRight, Star, Clock, RefreshCw, Swords, CheckCircle2, AlertCircle, Gamepad2, Brain, Cpu, History, Globe, Palette, Shield, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { CATEGORIES } from '../data/questions';
@@ -11,16 +11,18 @@ const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)'
 
 const CARD_STYLE = "glass-card rounded-[2rem] transition-all duration-300 overflow-hidden border-slate-200/60 shadow-xl";
 
-const CategoryBar = memo(({ subject, value, icon, color, index }) => (
+const CategoryBar = memo(({ subject, value, icon, iconColor, index }) => (
     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + index * 0.06 }} className="flex items-center gap-3 group">
-        <span className="text-lg w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center flex-shrink-0 shadow-sm border border-white group-hover:scale-110 transition-transform">{icon}</span>
+        <span className="w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center flex-shrink-0 shadow-sm border border-white group-hover:scale-110 transition-transform">
+            <CategoryIcon name={icon} className="w-4 h-4" style={{ color: iconColor }} />
+        </span>
         <div className="flex-1">
             <div className="flex justify-between items-end mb-1">
                 <span className="text-slate-600 text-[10px] font-bold uppercase tracking-normal truncate" title={subject}>{subject}</span>
-                <span className="text-[10px] font-bold tabular-nums" style={{ color }}>{value}%</span>
+                <span className="text-[10px] font-bold tabular-nums" style={{ color: iconColor }}>{value}%</span>
             </div>
             <div className="h-2 rounded-full overflow-hidden bg-black/[0.03] border border-white/20">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 1, type: 'spring', bounce: 0, delay: 0.5 + index * 0.06 }} className="h-full rounded-full shadow-sm" style={{ background: color }}/>
+                <motion.div initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 1, type: 'spring', bounce: 0, delay: 0.5 + index * 0.06 }} className="h-full rounded-full shadow-sm" style={{ background: iconColor }}/>
             </div>
         </div>
     </motion.div>
@@ -37,12 +39,28 @@ function StatSkeleton() {
     );
 }
 
-const STATUS_ICON = { completed: '✨', failed: '💥', timeout: '⏰', active: '🎮' };
-const MODE_ICON   = { Solo: '🎯', '1v1': '⚔️', Room: '🏆' };
+const STATUS_ICON = { 
+    completed: <CheckCircle2 className="w-4 h-4 text-emerald-500" />, 
+    failed: <AlertCircle className="w-4 h-4 text-rose-500" />, 
+    timeout: <Clock className="w-4 h-4 text-amber-500" />, 
+    active: <Gamepad2 className="w-4 h-4 text-indigo-500" /> 
+};
+
+const MODE_ICON = { 
+    Solo: <Target className="w-6 h-6 text-emerald-500" />, 
+    '1v1': <Swords className="w-6 h-6 text-rose-500" />, 
+    Room: <Trophy className="w-6 h-6 text-violet-500" /> 
+};
 const MODE_STYLE  = {
-    Solo:  { background: 'rgba(251,191,36,0.1)',  color: '#d97706', border: '1px solid rgba(251,191,36,0.2)' },
-    '1v1': { background: 'rgba(250, 204, 21, 0.08)', color: '#FACC15', border: '1px solid rgba(250, 204, 21, 0.15)' },
-    Room:  { background: 'rgba(52,211,153,0.08)', color: '#FACC15', border: '1px solid rgba(52,211,153,0.15)' },
+    Solo:  { background: 'rgba(16,185,129,0.08)', color: '#10b981', border: '1px solid rgba(16,185,129,0.15)' },
+    '1v1': { background: 'rgba(244,63,94,0.08)',   color: '#f43f5e', border: '1px solid rgba(244,63,94,0.15)' },
+    Room:  { background: 'rgba(139,92,246,0.08)',  color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.15)' },
+};
+
+const CategoryIcon = ({ name, className, style }) => {
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette, Shield, Target, Swords, Trophy, Sparkles };
+    const Icon = icons[name] || Gamepad2;
+    return <Icon className={className} style={style} />;
 };
 
 export default function DashboardPage() {
@@ -87,20 +105,20 @@ export default function DashboardPage() {
     ];
 
     const gameModes = [
-        { icon: '🎯', title: t('soloPractice'), desc: t('classicDesc'),       badge: t('readyForChallenge'), color: '#f59e0b', action: () => navigate('/mode-select', { state: { preMode: 'Solo' } }) },
-        { icon: '⚔️', title: t('battle1v1'),   desc: t('battleDescShort'),   badge: t('battle1v1'),        color: '#FACC15', action: () => navigate('/mode-select', { state: { preMode: '1v1'  } }) },
-        { icon: '🏆', title: t('roomMode'),     desc: t('privateRoomDesc'),   badge: t('roomMode'),         color: '#FACC15', action: () => navigate('/mode-select', { state: { preMode: 'Room' } }) },
+        { icon: <Target className="w-10 h-10 text-emerald-500" />, title: t('soloPractice'), desc: t('classicDesc'),       badge: t('practiceMode'), color: '#10b981', action: () => navigate('/mode-select', { state: { preMode: 'Solo' } }) },
+        { icon: <Swords className="w-10 h-10 text-rose-500" />, title: t('battle1v1'),   desc: t('battleDescShort'),   badge: t('battle1v1'),        color: '#f43f5e', action: () => navigate('/mode-select', { state: { preMode: '1v1'  } }) },
+        { icon: <Trophy className="w-10 h-10 text-violet-500" />, title: t('roomMode'),     desc: t('privateRoomDesc'),   badge: t('roomMode'),         color: '#8b5cf6', action: () => navigate('/mode-select', { state: { preMode: 'Room' } }) },
     ];
 
     const BAR_COLORS = ['#FACC15', '#818CF8', '#06b6d4', '#34d399', '#f59e0b', '#8b5cf6'];
     
-    const CATEGORY_DATA = CATEGORIES.map((cat, i) => {
-        const realStat = categoryStats.find(cs => cs.slug === cat.id);
-        return {
-            id: cat.id,
-            subject: t(`cat${cat.id.charAt(0).toUpperCase() + cat.id.slice(1)}`),
+    const CATEGORY_DATA = CATEGORIES.map(cat => {
+        const realStat = categoryStats.find(s => s.category_id === cat.id || s.slug === cat.id);
+        return { 
+            subject: t(`cat${cat.id.charAt(0).toUpperCase() + cat.id.slice(1)}`), 
             value: realStat ? realStat.accuracy : 0, 
             icon: cat.icon,
+            iconColor: cat.iconColor
         };
     });
 
@@ -151,7 +169,7 @@ export default function DashboardPage() {
                             disabled={loading}
                             className="p-3 rounded-xl glass-card border-black/[0.03]"
                         >
-                            <RefreshCw className={`w-4.5 h-4.5 text-slate-400 ${loading ? 'animate-spin' : ''}`}/>
+                            <RefreshCw className={`w-4.5 h-4.5 text-indigo-500 ${loading ? 'animate-spin' : ''}`}/>
                         </motion.button>
                         <motion.button
                             whileHover={{ scale: 1.02, y: -1 }}
@@ -229,8 +247,8 @@ export default function DashboardPage() {
                         transition={{ delay: 0.3 }} 
                         className={`p-6 space-y-5 ${CARD_STYLE} border-black/[0.03]`}
                     >
-                        {CATEGORY_DATA.map(({ subject, value, icon }, i) => (
-                            <CategoryBar key={subject} subject={subject} value={value} icon={icon} color={BAR_COLORS[i]} index={i}/>
+                        {CATEGORY_DATA.map(({ subject, value, icon, iconColor }, i) => (
+                            <CategoryBar key={subject} subject={subject} value={value} icon={icon} iconColor={iconColor} index={i}/>
                         ))}
                     </motion.div>
                 </div>

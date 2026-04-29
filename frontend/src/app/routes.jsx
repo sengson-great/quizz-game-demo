@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { RootProvider } from './components/layout/RootProvider';
 import { Layout, FullLayout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Trophy } from 'lucide-react';
 
 // Lazy load pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -38,7 +39,9 @@ const PageLoader = () => (
                 className="w-20 h-20 rounded-[2rem] glass-card flex items-center justify-center shadow-2xl border-white/40 relative z-10"
             >
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-amber-600/20 blur-xl animate-pulse" />
-                <div className="text-4xl filter drop-shadow-lg relative z-20">🏆</div>
+                <div className="relative z-20 flex items-center justify-center">
+                    <Trophy className="w-10 h-10 text-[#FACC15] drop-shadow-md" />
+                </div>
             </motion.div>
             
             {/* Spinner */}

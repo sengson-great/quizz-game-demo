@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trophy, Search, TrendingUp, RefreshCw, Medal } from 'lucide-react';
+import { Trophy, Search, TrendingUp, RefreshCw, Medal, Crown, Award } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { getFixedAvatar } from '../utils/avatar';
@@ -34,7 +34,11 @@ function SkeletonRow({ i }) {
 function PodiumCard({ entry, place }) {
     const heights   = { 1: 'h-32 sm:h-40', 2: 'h-20 sm:h-24', 3: 'h-14 sm:h-18' };
     const sizes     = { 1: 'text-4xl sm:text-5xl', 2: 'text-3xl sm:text-4xl', 3: 'text-2xl sm:text-3xl' };
-    const medals    = { 1: '🥇', 2: '🥈', 3: '🥉' };
+    const medals    = { 
+        1: <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 drop-shadow-md" />, 
+        2: <Trophy className="w-7 h-7 sm:w-9 sm:h-9 text-slate-400 drop-shadow-md" />, 
+        3: <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-700 drop-shadow-md" /> 
+    };
     const gradients = {
         1: 'linear-gradient(to top, rgba(251,191,36,0.15), rgba(251,191,36,0.02))',
         2: 'linear-gradient(to top, rgba(148,163,184,0.12), rgba(148,163,184,0.02))',
@@ -52,7 +56,7 @@ function PodiumCard({ entry, place }) {
                 className="relative group"
             >
                 <span className={`${sizes[place]} drop-shadow-xl group-hover:scale-110 transition-transform`}>{avatar}</span>
-                {place === 1 && <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-bounce">👑</div>}
+                {place === 1 && <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-bounce"><Crown className="w-3.5 h-3.5 text-white" /></div>}
             </motion.div>
             <p className={`text-[#000000] text-[10px] sm:text-sm text-center truncate max-w-[5rem] sm:max-w-[7rem] ${place === 1 ? 'font-bold' : 'font-medium'}`}>
                 {entry?.name || '---'}
@@ -118,9 +122,9 @@ export default function LeaderboardPage() {
         : null;
 
     const getRankDisplay = (rank) => {
-        if (rank === 1) return { icon: '🥇', color: 'text-amber-500' };
-        if (rank === 2) return { icon: '🥈', color: 'text-slate-400' };
-        if (rank === 3) return { icon: '🥉', color: 'text-amber-600' };
+        if (rank === 1) return { icon: <Crown className="w-4 h-4" />, color: 'text-amber-500' };
+        if (rank === 2) return { icon: <Trophy className="w-4 h-4" />, color: 'text-slate-400' };
+        if (rank === 3) return { icon: <Award className="w-4 h-4" />, color: 'text-amber-600' };
         return { icon: `#${rank}`, color: 'text-slate-400' };
     };
 
@@ -177,7 +181,7 @@ export default function LeaderboardPage() {
                         className="p-3 rounded-xl transition-all glass-card border-black/[0.03] hover:bg-black/[0.02]"
                         title="Refresh"
                     >
-                        <RefreshCw className={`w-4 h-4 text-slate-400 ${refreshing ? 'animate-spin' : ''}`}/>
+                        <RefreshCw className={`w-4 h-4 text-indigo-500 ${refreshing ? 'animate-spin' : ''}`}/>
                     </button>
                 </motion.div>
             )}

@@ -64,7 +64,6 @@ class AuthController extends Controller
     #[OA\Response(response: 422, description: "Invalid credentials")]
     public function login(Request $request)
     {
-        \Illuminate\Support\Facades\Log::info('Login attempt', ['email' => $request->email]);
 
         try {
             $request->validate([
@@ -72,14 +71,12 @@ class AuthController extends Controller
                 'password' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Illuminate\Support\Facades\Log::error('Login validation failed', ['errors' => $e->errors()]);
             throw $e;
         }
 
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-            \Illuminate\Support\Facades\Log::warning('Login failed: Invalid credentials', ['email' => $request->email]);
             throw ValidationException::withMessages([
                 'email' => ['Invalid credentials.'],
             ]);

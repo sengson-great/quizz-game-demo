@@ -147,33 +147,34 @@ class GameService
     {
         $isMultiplayer = (bool)$session->match_id;
 
-        // Get the current correct answer ID before any level increments
-        $currentQuestion = $this->getNextQuestion($session);
+        // Get the current correct answer ID
         $correctAnswerId = null;
-        if ($currentQuestion) {
-            $correctAnswer = $currentQuestion->answers()->where('is_correct', true)->first();
-            $correctAnswerId = $correctAnswer?->id;
+        if ($answerId) {
+            $submittedAnswer = Answer::find($answerId);
+            if ($submittedAnswer) {
+                $correctAnswerId = Answer::where('question_id', $submittedAnswer->question_id)
+                    ->where('is_correct', true)
+                    ->value('id');
+            }
+        }
+
+        // Fallback: if no answerId (timeout) or answer not found, try to find the question for the current level
+        if (!$correctAnswerId) {
+            $currentQuestion = $this->getNextQuestion($session);
+            if ($currentQuestion) {
+                $correctAnswer = $currentQuestion->answers()->where('is_correct', true)->first();
+                $correctAnswerId = $correctAnswer?->id;
+            }
         }
 
         // 1. Handle Timeout (null answer_id)
         if (!$answerId) {
-            if ($isMultiplayer) {
-                if ($session->current_level >= 15) {
-                    $session->status = 'completed';
-                    $session->ended_at = now();
-                } else {
-                    $session->current_level += 1;
-                }
-                $session->save();
-                return [
-                    'status' => 'timeout',
-                    'correct_answer' => $correctAnswerId,
-                    'score' => $session->score,
-                ];
+            if ($session->current_level >= 15) {
+                $session->status = 'completed';
+                $session->ended_at = now();
+            } else {
+                $session->current_level += 1;
             }
-
-            $session->status = 'failed';
-            $session->ended_at = now();
             $session->save();
             return [
                 'status' => 'timeout',
@@ -210,7 +211,7 @@ class GameService
             }
             $session->save();
 
-            return ['status' => 'correct', 'score' => $session->score];
+            return ['status' => 'correct', 'score' => $session->score, 'correct_answer' => $correctAnswerId];
         } else {
             // Check double chance
             $lifelines = $session->lifelines;
@@ -239,27 +240,19 @@ class GameService
                 'time_taken' => 0
             ]);
 
-            if ($isMultiplayer) {
-                if ($session->current_level >= 15) {
-                    $session->status = 'completed';
-                    $session->ended_at = now();
-                } else {
-                    $session->current_level += 1;
-                }
-                $session->save();
-
-                return [
-                    'status' => 'wrong', 
-                    'correct_answer' => $correctAnswerId,
-                    'score' => $session->score
-                ];
+            if ($session->current_level >= 15) {
+                $session->status = 'completed';
+                $session->ended_at = now();
+            } else {
+                $session->current_level += 1;
             }
-
-            $session->status = 'failed';
-            $session->ended_at = now();
             $session->save();
 
-            return ['status' => 'wrong', 'correct_answer' => $correctAnswerId];
+            return [
+                'status' => 'wrong', 
+                'correct_answer' => $correctAnswerId,
+                'score' => $session->score
+            ];
         }
     }
 

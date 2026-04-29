@@ -18,10 +18,10 @@ export function Navbar() {
     };
 
     const navLinks = [
-        { to: '/dashboard', label: t('dashboard'), icon: LayoutDashboard },
-        { to: '/leaderboard', label: t('leaderboard'), icon: Trophy },
-        { to: '/settings', label: t('settings'), icon: Settings },
-        ...(currentUser?.role === 'admin' ? [{ to: '/admin', label: t('admin'), icon: Shield }] : []),
+        { to: '/dashboard', label: t('dashboard'), icon: LayoutDashboard, color: '#6366f1' },
+        { to: '/leaderboard', label: t('leaderboard'), icon: Trophy, color: '#FACC15' },
+        { to: '/settings', label: t('settings'), icon: Settings, color: '#8b5cf6' },
+        ...(currentUser?.role === 'admin' ? [{ to: '/admin', label: t('admin'), icon: Shield, color: '#10b981' }] : []),
     ];
 
     const showMusicBtn = currentUser?.musicEnabled && isPlaying;
@@ -60,11 +60,13 @@ export function Navbar() {
 
           {/* Nav Links */}
           {currentUser && (<div className="hidden md:flex items-center gap-2 bg-black/[0.03] p-1.5 rounded-2xl border border-black/[0.02]">
-              {navLinks.map(({ to, label, icon: Icon }) => {
+              {navLinks.map(({ to, label, icon: Icon, color }) => {
                 const active = location.pathname === to;
                 return (<Link key={to} to={to} className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${active
-                        ? 'text-[#FACC15]'
-                        : 'text-slate-500 hover:text-[#000000]'}`}>
+                        ? 'text-[#000000]'
+                        : 'text-slate-500 hover:text-[#000000]'}`}
+                        style={active ? { color } : {}}
+                    >
                     {active && (
                         <motion.div 
                             layoutId="nav-active"
@@ -72,7 +74,7 @@ export function Navbar() {
                             transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
                         />
                     )}
-                    <Icon className={`w-4.5 h-4.5 relative z-10 ${active ? 'text-[#FACC15]' : 'opacity-70'}`}/>
+                    <Icon className="w-4.5 h-4.5 relative z-10" style={active ? { color } : { opacity: 0.7 }}/>
                     <span className="relative z-10">{label}</span>
                   </Link>);
             })}
@@ -121,7 +123,7 @@ export function Navbar() {
                     onClick={handleLogout} 
                     className="p-2.5 rounded-xl text-slate-400 hover:text-red-500 transition-all duration-300 glass-card border-black/[0.05]"
                 >
-                  <LogOut className="w-4.5 h-4.5"/>
+                  <LogOut className="w-4.5 h-4.5 text-rose-500"/>
                 </motion.button>
               </div>) : (
               <Link to="/auth" className="relative group overflow-hidden px-6 py-2.5 rounded-xl text-white text-sm font-bold transition-all" style={{ background: 'var(--grad-primary)', boxShadow: '0 8px 20px rgba(99,102,241,0.3)' }}>
@@ -134,10 +136,10 @@ export function Navbar() {
 
         {/* Mobile nav */}
         {currentUser && (<div className="md:hidden flex items-center gap-1.5 pb-3 overflow-x-auto no-scrollbar scrollbar-hide px-1">
-            {navLinks.map(({ to, label, icon: Icon }) => {
+            {navLinks.map(({ to, label, icon: Icon, color }) => {
                 const active = location.pathname === to;
-                return (<Link key={to} to={to} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all duration-300 ${active ? 'bg-[#FACC15] text-white shadow-md' : 'bg-black/[0.03] text-slate-500 hover:text-[#000000]'}`}>
-                  <Icon className="w-4 h-4"/>
+                return (<Link key={to} to={to} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all duration-300 ${active ? 'bg-white text-black shadow-md border-2 border-black' : 'bg-black/[0.03] text-slate-500 hover:text-[#000000]'}`} style={active ? { color, borderColor: color } : {}}>
+                  <Icon className="w-4 h-4" style={active ? { color } : {}}/>
                   {label}
                 </Link>);
             })}

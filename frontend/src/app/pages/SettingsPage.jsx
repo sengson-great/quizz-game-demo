@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Settings, Volume2, Music, Globe, Tag, Save, Check, Download, Smartphone } from 'lucide-react';
+import { Settings, Volume2, Music, Globe, Tag, Save, Check, Download, Smartphone, Brain, Cpu, History, Palette, Zap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAudio } from '../contexts/AudioContext';
 import { CATEGORIES } from '../data/questions';
@@ -10,6 +10,12 @@ import { usePWA } from '../contexts/PWAContext';
 
 const CARD_STYLE = "glass-card rounded-[2rem] border-slate-200/60 shadow-xl overflow-hidden";
 const SECTION_STYLE = "glass-card rounded-[1.5rem] p-6 border-black/[0.03]";
+
+const CategoryIcon = ({ name, className, style }) => {
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette };
+    const Icon = icons[name] || Zap;
+    return <Icon className={className} style={style} />;
+};
 
 const LANGUAGES = [
     { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭' }, { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -195,7 +201,7 @@ export default function SettingsPage() {
             <h2 className="text-[#1A1A2E] text-lg font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('defaultCategories')}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {CATEGORIES.map(({ id, name, icon, color }) => {
+              {CATEGORIES.map(({ id, name, icon, color, iconColor }) => {
                 const isSelected = form.preferredCategories.includes(id);
                 const tKey = `cat${id.charAt(0).toUpperCase() + id.slice(1)}`;
                 return (
@@ -204,8 +210,8 @@ export default function SettingsPage() {
                     onClick={() => toggleCategory(id)} 
                     className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 group ${isSelected ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}
                   >
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-xl shadow-sm transition-transform group-hover:scale-110 ${isSelected ? '' : 'opacity-60'}`}>
-                      {icon}
+                    <div className="w-12 h-12 rounded-xl bg-black/[0.03] flex items-center justify-center text-xl shadow-sm transition-transform group-hover:scale-110">
+                      <CategoryIcon name={icon} className="w-6 h-6" style={{ color: isSelected ? iconColor : '#94a3b8' }} />
                     </div>
                     <div className="text-left flex-1 min-w-0">
                       <p className={`text-sm font-bold truncate ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-500'}`}>{t(tKey)}</p>

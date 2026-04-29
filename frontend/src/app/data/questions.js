@@ -1,10 +1,10 @@
 export const CATEGORIES = [
-    { id: 'science', name: 'Science', icon: '🔬', color: 'from-blue-500 to-cyan-400', description: 'Physics, chemistry, biology and more' },
-    { id: 'history', name: 'History', icon: '📜', color: 'from-amber-500 to-orange-400', description: 'World events, civilizations & leaders' },
-    { id: 'technology', name: 'Technology', icon: '💻', color: 'from-violet-500 to-purple-400', description: 'Programming, internet & innovation' },
-    { id: 'geography', name: 'Geography', icon: '🌍', color: 'from-green-500 to-emerald-400', description: 'Countries, capitals & natural wonders' },
-    { id: 'sports', name: 'Sports', icon: '⚽', color: 'from-red-500 to-rose-400', description: 'Teams, athletes & competitions' },
-    { id: 'arts', name: 'Arts & Culture', icon: '🎨', color: 'from-pink-500 to-fuchsia-400', description: 'Music, painting, literature & film' },
+    { id: 'science', name: 'Science', icon: 'Brain', color: 'from-blue-500 to-cyan-400', iconColor: '#3b82f6', description: 'Physics, chemistry, biology and more' },
+    { id: 'history', name: 'History', icon: 'History', color: 'from-amber-500 to-orange-400', iconColor: '#f59e0b', description: 'World events, civilizations & leaders' },
+    { id: 'technology', name: 'Technology', icon: 'Cpu', color: 'from-violet-500 to-purple-400', iconColor: '#8b5cf6', description: 'Programming, internet & innovation' },
+    { id: 'geography', name: 'Geography', icon: 'Globe', color: 'from-green-500 to-emerald-400', iconColor: '#10b981', description: 'Countries, capitals & natural wonders' },
+    { id: 'sports', name: 'Sports', icon: 'Zap', color: 'from-red-500 to-rose-400', iconColor: '#ef4444', description: 'Teams, athletes & competitions' },
+    { id: 'arts', name: 'Arts & Culture', icon: 'Palette', color: 'from-pink-500 to-fuchsia-400', iconColor: '#ec4899', description: 'Music, painting, literature & film' },
 ];
 export const QUESTIONS = [
     // ─── EASY ──────────────────────────────────────────────────────────────────

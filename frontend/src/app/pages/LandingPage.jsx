@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap, Download } from 'lucide-react';
+import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap, Download, Cpu, History, Palette } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { usePWA } from '../contexts/PWAContext';
 
@@ -10,6 +10,12 @@ const CARD_STYLE = {
     background: '#FFFFFF', 
     border: '3px solid #000000', 
     boxShadow: '6px 6px 0px 0px #000000' 
+};
+
+const CategoryIcon = ({ name, className, style }) => {
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette };
+    const Icon = icons[name] || Zap;
+    return <Icon className={className} style={style} />;
 };
 
 export default function LandingPage() {
@@ -22,18 +28,18 @@ export default function LandingPage() {
         { icon: Users, title: t('roomMode'), desc: t('roomDesc'), color: 'text-cyan-500', gradient: 'from-cyan-500 to-purple-500' },
     ];
     const STATS = [
-        { value: '1,247+', label: t('statsPlayers'), icon: Users },
-        { value: '4,280+', label: t('statsGames'), icon: BarChart3 },
-        { value: '6', label: t('statsCategories'), icon: Globe },
-        { value: '90+', label: t('statsQuestions'), icon: Star },
+        { value: '1,247+', label: t('statsPlayers'), icon: Users, color: 'text-indigo-500' },
+        { value: '4,280+', label: t('statsGames'), icon: BarChart3, color: 'text-emerald-500' },
+        { value: '6', label: t('statsCategories'), icon: Globe, color: 'text-blue-500' },
+        { value: '90+', label: t('statsQuestions'), icon: Star, color: 'text-amber-500' },
     ];
     const CATEGORIES = [
-        { icon: '🔬', name: 'Science' },
-        { icon: '📜', name: 'History' },
-        { icon: '💻', name: 'Technology' },
-        { icon: '🌍', name: 'Geography' },
-        { icon: '⚽', name: 'Sports' },
-        { icon: '🎨', name: 'Arts & Culture' },
+        { icon: 'Brain', name: 'Science', color: '#3b82f6' },
+        { icon: 'History', name: 'History', color: '#f59e0b' },
+        { icon: 'Cpu', name: 'Technology', color: '#8b5cf6' },
+        { icon: 'Globe', name: 'Geography', color: '#10b981' },
+        { icon: 'Zap', name: 'Sports', color: '#ef4444' },
+        { icon: 'Palette', name: 'Arts & Culture', color: '#ec4899' },
     ];
     const STEPS = [
         { num: '01', title: t('step1Title'), desc: t('step1Desc') },
@@ -55,7 +61,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-11 h-11 rounded-2xl flex items-center justify-center border-2 border-black shadow-[3px_3px_0_0_#000000]" style={{ background: '#FACC15' }}>
-              <Sparkles className="w-6 h-6 text-black"/>
+              <Sparkles className="w-6 h-6 text-amber-500"/>
             </div>
             <span className="text-2xl text-[#000000] logo-text">
               Quiz<span className="text-[#EAB308]">Blitz</span>
@@ -105,7 +111,7 @@ export default function LandingPage() {
                 </button>
             )}
             <Link to="/leaderboard" className="flex items-center gap-3 px-10 py-5 rounded-2xl text-black text-xl font-bold border-[3px] border-black shadow-[6px_6px_0_0_#000000] transition-all hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[10px_10px_0_0_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" style={{ background: '#FFFFFF' }}>
-              <Trophy className="w-6 h-6 text-[#EAB308]"/>
+              <Trophy className="w-6 h-6 text-[#FACC15]"/>
               {t('viewLeaderboard')}
             </Link>
           </div>
@@ -113,8 +119,8 @@ export default function LandingPage() {
 
         {/* Stats */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }} className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-24">
-          {STATS.map(({ value, label, icon: Icon }) => (<div key={label} className="rounded-3xl p-6 text-center border-[3px] border-black shadow-[6px_6px_0_0_#000000]" style={{ background: '#FFFFFF' }}>
-              <Icon className="w-6 h-6 text-[#EAB308] mx-auto mb-3"/>
+          {STATS.map(({ value, label, icon: Icon, color }) => (<div key={label} className="rounded-3xl p-6 text-center border-[3px] border-black shadow-[6px_6px_0_0_#000000]" style={{ background: '#FFFFFF' }}>
+              <Icon className={`w-8 h-8 mx-auto mb-3 ${color}`}/>
               <p className="text-3xl text-[#000000] mb-1" style={{ fontWeight: 800 }}>{value}</p>
               <p className="text-slate-500 font-bold uppercase tracking-normal text-[11px]">{label}</p>
             </div>))}
@@ -131,7 +137,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {FEATURES.map(({ icon: Icon, title, desc, color, gradient }, i) => (<motion.div key={title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }} className="rounded-3xl p-8 border-[3px] border-black shadow-[8px_8px_0_0_#000000] bg-white transition-all hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[12px_12px_0_0_#000000]">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border-2 border-black shadow-[4px_4px_0_0_#000000]" style={{ background: '#FACC15' }}>
-                  <Icon className="w-7 h-7 text-black"/>
+                  <Icon className={`w-7 h-7 ${color}`}/>
                 </div>
                 <h3 className="text-[#000000] mb-3 text-xl" style={{ fontWeight: 800 }}>{title}</h3>
                 <p className="text-slate-600 font-medium leading-relaxed">{desc}</p>
@@ -148,9 +154,11 @@ export default function LandingPage() {
           </h2>
           <p className="text-center text-slate-500 mb-12">{t('difficultyScales')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {CATEGORIES.map(({ icon, name }, i) => (<motion.div key={name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} whileHover={{ scale: 1.05, y: -4 }} className="flex flex-col items-center gap-2.5 p-5 rounded-2xl cursor-default transition-all" style={CARD_STYLE}>
-                <span className="text-3xl">{icon}</span>
-                <p className="text-slate-600 text-xs text-center">{name}</p>
+            {CATEGORIES.map(({ icon, name, color }, i) => (<motion.div key={name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} whileHover={{ scale: 1.05, y: -4 }} className="flex flex-col items-center gap-2.5 p-5 rounded-2xl cursor-default transition-all" style={CARD_STYLE}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-black/[0.03]">
+                    <CategoryIcon name={icon} className="w-6 h-6" style={{ color }} />
+                </div>
+                <p className="text-slate-600 text-xs text-center font-bold uppercase tracking-tight">{name}</p>
               </motion.div>))}
           </div>
         </motion.div>

@@ -131,19 +131,14 @@ export function GameProvider({ children }) {
                     newQuestions.push(result.next_question);
                 }
 
-                // If no next question and it was the last one (level 15 completed)
-                const isMatchEnd = prev.matchId && !result.next_question && (isCorrect || result.status === 'wrong' || result.status === 'timeout');
-
                 return {
                     ...prev,
                     questions: newQuestions,
                     answers: [...(prev.answers || []), gameAnswer],
                     playerScore: isCorrect ? result.score : prev.playerScore,
-                    status: result.next_question 
-                        ? 'active' 
-                        : (isMatchEnd ? 'finished' : (isCorrect ? 'finished' : 'failed')),
+                    status: result.next_question ? 'active' : 'finished',
                     eliminatedAnswers: isCorrect ? [] : prev.eliminatedAnswers, 
-                    session: result.session || prev.session // Backend might return updated session
+                    session: result.session || prev.session
                 };
             });
             return gameAnswer;
