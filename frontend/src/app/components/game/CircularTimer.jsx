@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, size = 'md' }) {
     const hasExpired = useRef(false);
     useEffect(() => {
@@ -11,35 +11,110 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, si
             hasExpired.current = false;
         }
     }, [timeRemaining, onExpire, isActive]);
-    const dims = size === 'sm' ? { w: 56, r: 22, sw: 4, fs: 'text-sm' }
-        : size === 'lg' ? { w: 110, r: 44, sw: 6, fs: 'text-2xl' }
-            : { w: 80, r: 32, sw: 5, fs: 'text-xl' };
+    const dims = size === 'sm' ? { w: 50, r: 20, sw: 3.5, fs: 'text-[10px]' }
+        : size === 'lg' ? { w: 120, r: 50, sw: 7, fs: 'text-3xl' }
+            : { w: 86, r: 36, sw: 5, fs: 'text-xl' };
     const circumference = 2 * Math.PI * dims.r;
     const progress = timeRemaining / totalTime;
     const strokeDashoffset = circumference * (1 - progress);
     
     const getColor = () => {
-        if (timeRemaining > totalTime * 0.66)
-            return '#059669';
-        if (timeRemaining > totalTime * 0.33)
-            return '#d97706';
-        return '#e11d48';
+        if (timeRemaining > totalTime * 0.66) return '#10b981'; // Emerald 500
+        if (timeRemaining > totalTime * 0.33) return '#f59e0b'; // Amber 500
+        return '#f43f5e'; // Rose 500
     };
-    const isPulsing = timeRemaining <= 10 && timeRemaining > 0 && isActive;
+
+    const color = getColor();
+    const isLowTime = timeRemaining <= 10 && timeRemaining > 0 && isActive;
+
     return (<div className="relative flex items-center justify-center">
-      <motion.div animate={isPulsing ? { scale: [1, 1.05, 1] } : { scale: 1 }} transition={{ duration: 0.8, repeat: isPulsing ? Infinity : 0 }} className="relative">
-        <svg width={dims.w} height={dims.w} viewBox={`0 0 ${dims.w} ${dims.w}`}>
-          <circle cx={dims.w / 2} cy={dims.w / 2} r={dims.r} fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth={dims.sw}/>
-          <circle cx={dims.w / 2} cy={dims.w / 2} r={dims.r} fill="none" stroke={getColor()} strokeWidth={dims.sw} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} transform={`rotate(-90 ${dims.w / 2} ${dims.w / 2})`} style={{
-            transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease',
-            filter: `drop-shadow(0 0 6px ${getColor()})`,
-        }}/>
+      <motion.div 
+        animate={isLowTime ? { 
+            scale: [1, 1.08, 1],
+            filter: [`drop-shadow(0 0 8px ${color}44)`, `drop-shadow(0 0 20px ${color}88)`, `drop-shadow(0 0 8px ${color}44)`]
+        } : { 
+            scale: 1,
+            filter: `drop-shadow(0 0 10px ${color}33)`
+        }} 
+        transition={{ duration: 0.6, repeat: isLowTime ? Infinity : 0, ease: "easeInOut" }} 
+        className="relative"
+      >
+        <svg width={dims.w} height={dims.w} viewBox={`0 0 ${dims.w} ${dims.w}`} className="transform -rotate-90">
+          {/* Background Track */}
+          <circle 
+            cx={dims.w / 2} 
+            cy={dims.w / 2} 
+            r={dims.r} 
+            fill="none" 
+            stroke="rgba(0,0,0,0.04)" 
+            strokeWidth={dims.sw}
+          />
+          
+          {/* Outer Glow Ring (Subtle) */}
+          <circle 
+            cx={dims.w / 2} 
+            cy={dims.w / 2} 
+            r={dims.r} 
+            fill="none" 
+            stroke={color} 
+            strokeWidth={dims.sw} 
+            strokeLinecap="round" 
+            strokeDasharray={circumference} 
+            strokeDashoffset={strokeDashoffset} 
+            className="transition-all duration-1000 ease-linear opacity-20"
+            style={{ filter: 'blur(4px)' }}
+          />
+
+          {/* Main Progress Ring */}
+          <motion.circle 
+            cx={dims.w / 2} 
+            cy={dims.w / 2} 
+            r={dims.r} 
+            fill="none" 
+            stroke={color} 
+            strokeWidth={dims.sw} 
+            strokeLinecap="round" 
+            strokeDasharray={circumference} 
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: strokeDashoffset }}
+            transition={{ duration: 1, ease: "linear" }}
+            style={{
+                filter: `drop-shadow(0 0 2px ${color})`,
+            }}
+          />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className={dims.fs} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, color: getColor() }}>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <motion.span 
+            key={timeRemaining}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className={dims.fs} 
+            style={{ 
+                fontFamily: 'inherit', 
+                fontWeight: 800, 
+                color: color,
+                textShadow: isLowTime ? `0 0 12px ${color}66` : 'none'
+            }}
+          >
             {timeRemaining}
-          </span>
+          </motion.span>
         </div>
       </motion.div>
+
+      {/* Decorative pulse rings for low time */}
+      <AnimatePresence>
+        {isLowTime && (
+            <motion.div 
+                initial={{ scale: 0.8, opacity: 0.5 }}
+                animate={{ scale: 1.5, opacity: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
+                className="absolute w-full h-full rounded-full border-2 z-0"
+                style={{ borderColor: color }}
+            />
+        )}
+      </AnimatePresence>
     </div>);
 }
+

@@ -69,11 +69,11 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:8001',
+        target: 'http://backend:8000',
         changeOrigin: true,
       },
       '/reverb': {
-        target: 'http://localhost:8081',
+        target: 'http://reverb:8081',
         changeOrigin: true,
         ws: true,
       },

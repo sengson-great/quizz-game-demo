@@ -44,7 +44,7 @@ export function GameProvider({ children }) {
     };
 
     /** ---------------- GAMEPLAY ---------------- **/
-    const initGame = useCallback(async (mode, matchId = null, categories = []) => {
+    const initGame = useCallback(async (mode, matchId = null, categories = [], keepLoading = false) => {
         try {
             const res = await api.post('/games', { 
                 match_id: matchId,
@@ -54,7 +54,12 @@ export function GameProvider({ children }) {
             
             setGameState(prev => ({
                 ...(prev || {}),
-                status: (session.status === 'completed' || session.status === 'failed') ? 'finished' : 'active',
+                // keepLoading: caller will set 'active' after merging opponent info.
+                // This prevents MatchmakingPage from starting the countdown before
+                // the question + opponent are both ready.
+                status: (session.status === 'completed' || session.status === 'failed')
+                    ? 'finished'
+                    : (keepLoading ? 'loading' : 'active'),
                 mode,
                 matchId,
                 currentQuestion: question,
@@ -66,10 +71,10 @@ export function GameProvider({ children }) {
                 eliminatedAnswers: [],
                 opponents: mode === '1v1' 
                     ? (res.data.opponent 
-                        ? [{ ...res.data.opponent, avatar: getFixedAvatar(res.data.opponent.id || res.data.opponent.name || res.data.opponent.username, res.data.opponent.avatar), score: 0, answered: false }]
+                        ? [{ ...res.data.opponent, name: res.data.opponent.username || res.data.opponent.name, avatar: getFixedAvatar(res.data.opponent.id || res.data.opponent.name || res.data.opponent.username, res.data.opponent.avatar), score: 0, answered: false }]
                         : (prev?.opponents?.length ? prev.opponents : []))
                     : (res.data.opponents && res.data.opponents.length > 0
-                        ? res.data.opponents.map(o => ({ ...o, avatar: getFixedAvatar(o.id || o.name || o.username, o.avatar), score: 0, answered: false }))
+                        ? res.data.opponents.map(o => ({ ...o, name: o.username || o.name, avatar: getFixedAvatar(o.id || o.name || o.username, o.avatar), score: 0, answered: false }))
                         : (prev?.opponents?.length ? prev.opponents : [])),
                 session,
             }));
@@ -82,7 +87,10 @@ export function GameProvider({ children }) {
         if (!gameState || !gameState.session) throw new Error('No active game');
         
         try {
-            const res = await api.post(`/games/${gameState.session.id}/answer`, { answer_id: answerId });
+            const res = await api.post(`/games/${gameState.session.id}/answer`, { 
+                answer_id: answerId,
+                time_remaining: timeRemaining
+            });
             const result = res.data;
             
             const isCorrect = result.status === 'correct';
@@ -94,6 +102,7 @@ export function GameProvider({ children }) {
                 timeRemaining,
                 pointsEarned: isCorrect ? result.score - gameState.playerScore : 0,
                 status: result.status,
+                next_question: result.next_question
             };
 
             // Broadcast score update if correct
@@ -107,9 +116,9 @@ export function GameProvider({ children }) {
 
             setGameState(prev => {
                 if (!prev) return prev;
+                
                 // Double chance logic
                 if (result.status === 'try_again') {
-                    // It was wrong, but double chance saved them.
                     return {
                         ...prev,
                         answers: [...prev.answers, { ...gameAnswer, isCorrect: false }],
@@ -117,14 +126,24 @@ export function GameProvider({ children }) {
                     };
                 }
 
+                const newQuestions = [...(prev.questions || [])];
+                if (result.next_question && !newQuestions.some(q => q.id === result.next_question.id)) {
+                    newQuestions.push(result.next_question);
+                }
+
+                // If no next question and it was the last one (level 15 completed)
+                const isMatchEnd = prev.matchId && !result.next_question && (isCorrect || result.status === 'wrong' || result.status === 'timeout');
+
                 return {
                     ...prev,
-                    questions: prev.questions || [],
+                    questions: newQuestions,
                     answers: [...(prev.answers || []), gameAnswer],
                     playerScore: isCorrect ? result.score : prev.playerScore,
-                    // Keep old question/index for animation sync
-                    status: (result.status === 'wrong' || result.status === 'failed' || result.status === 'timeout') ? 'failed' : (!result.next_question && isCorrect ? 'finished' : 'active'),
+                    status: result.next_question 
+                        ? 'active' 
+                        : (isMatchEnd ? 'finished' : (isCorrect ? 'finished' : 'failed')),
                     eliminatedAnswers: isCorrect ? [] : prev.eliminatedAnswers, 
+                    session: result.session || prev.session // Backend might return updated session
                 };
             });
             return gameAnswer;
@@ -170,27 +189,25 @@ export function GameProvider({ children }) {
         }
     }, [gameState]);
 
-    const nextQuestion = useCallback(async () => {
-        // Automatically handled by 'answerQuestion' returning the next_question, but expose if needed.
-        if (!gameState || !gameState.session) return;
-        try {
-            const res = await api.get(`/games/${gameState.session.id}`);
-            setGameState(prev => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    currentQuestion: res.data.question,
-                    questions: [...(prev.questions || []), res.data.question],
-                    currentQuestionIndex: res.data.session.current_level - 1,
-                    lifelines: parseLifelines(res.data.session.lifelines),
-                    eliminatedAnswers: [],
-                    session: res.data.session
-                };
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }, [gameState]);
+    const nextQuestion = useCallback(() => {
+        setGameState(prev => {
+            if (!prev) return prev;
+            const nextIndex = prev.currentQuestionIndex + 1;
+            const nextQ = prev.questions[nextIndex];
+            
+            if (!nextQ) {
+                console.warn("Attempted to move to next question but it's not pre-loaded.");
+                return prev;
+            }
+
+            return {
+                ...prev,
+                currentQuestion: nextQ,
+                currentQuestionIndex: nextIndex,
+                eliminatedAnswers: [],
+            };
+        });
+    }, []);
 
     const resetGame = useCallback(() => {
         setGameState(null);
@@ -232,7 +249,7 @@ export function GameProvider({ children }) {
                 setGameState(prev => {
                     if (!prev || !prev.opponents) return prev;
                     const newOpponents = prev.opponents.map(opp => {
-                        if (opp.id === e.user_id) {
+                        if (opp.id == e.user_id) {
                             return { 
                                 ...opp, 
                                 score: e.data?.score ?? opp.score, 
@@ -271,20 +288,25 @@ export function GameProvider({ children }) {
             });
         });
 
-        channel.listen('.battle.started', (e) => {
-            // Transition to active game
-            initGame('battle', e.match_id);
+        channel.listen('.battle.started', async (e) => {
+            // Use keepLoading=true so status stays 'loading' until initGame resolves,
+            // preventing the lobby from navigating to /game before the session + question
+            // are fully loaded. This mirrors the .match.found handler's pattern.
+            await initGame('battle', e.match_id, [], true);
+            setGameState(prev => prev ? { ...prev, status: 'active' } : prev);
         });
 
         channel.listen('.battle.lobby.closed', (e) => {
             setGameState(null);
         });
 
-        channel.listen('.match.found', (e) => {
-            initGame('1v1', e.match_id);
+        channel.listen('.match.found', async (e) => {
+            // Await the session + question load (keepLoading=true keeps status='loading'
+            // so MatchmakingPage doesn't start its countdown prematurely).
+            await initGame('1v1', e.match_id, [], true);
             setGameState(prev => prev ? { 
                 ...prev, 
-                opponents: [{ id: e.opponent.id, name: e.opponent.name, username: e.opponent.name, avatar: getFixedAvatar(e.opponent.id || e.opponent.name, e.opponent.avatar), score: 0 }],
+                opponents: [{ id: e.opponent.id, name: e.opponent.name, username: e.opponent.name, avatar: getFixedAvatar(e.opponent.id || e.opponent.name, e.opponent.avatar), score: 0, answered: false }],
                 status: 'active' 
             } : prev);
         });

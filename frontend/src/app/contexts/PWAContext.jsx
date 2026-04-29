@@ -7,10 +7,14 @@ export function PWAProvider({ children }) {
     const [isInstallable, setIsInstallable] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
+    const [supportsPWA, setSupportsPWA] = useState(false);
 
     useEffect(() => {
         // Detect iOS
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        // Detect PWA Support
+        setSupportsPWA('BeforeInstallPromptEvent' in window || isIOSDevice);
+
         setIsIOS(isIOSDevice);
 
         const handleBeforeInstallPrompt = (e) => {
@@ -56,7 +60,7 @@ export function PWAProvider({ children }) {
     };
 
     return (
-        <PWAContext.Provider value={{ isInstallable, isInstalled, isIOS, installPWA }}>
+        <PWAContext.Provider value={{ isInstallable, isInstalled, isIOS, supportsPWA, installPWA }}>
             {children}
         </PWAContext.Provider>
     );

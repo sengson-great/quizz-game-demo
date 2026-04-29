@@ -6,7 +6,7 @@ import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ReturnButton } from '../components/ui/ReturnButton';
 import { loadSystemConfig } from '../data/systemConfig';
-const LIGHT_BG = 'linear-gradient(145deg, #FFF5F5 0%, #FDE8EC 40%, #FCE4EC 70%, #FFF0F3 100%)';
+const LIGHT_BG = 'var(--grad-surface)';
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 const MODAL_BG = { background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' };
 export default function PrivateBattleLobbyPage() {
@@ -96,7 +96,7 @@ export default function PrivateBattleLobbyPage() {
     const isPrivateMode = gameState.isPrivate && !switchedToRandom;
     const canStart = gameState.isHost && opponentJoined;
 
-    return (<div className="min-h-screen px-4 py-10" style={{ background: LIGHT_BG, fontFamily: 'Poppins, Inter, sans-serif' }}>
+    return (<div className="min-h-screen px-4 py-10" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
       <div className="fixed z-40" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}><ReturnButton context="lobby"/></div>
       
       <AnimatePresence>
@@ -106,7 +106,7 @@ export default function PrivateBattleLobbyPage() {
             className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md"
           >
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[#E84C6A] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-16 h-16 border-4 border-[#FACC15] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
               <p className="text-[#1A1A2E] font-semibold">Joining Battle...</p>
             </div>
           </motion.div>
@@ -126,18 +126,18 @@ export default function PrivateBattleLobbyPage() {
       </AnimatePresence>
 
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.2]" style={{ background: 'radial-gradient(circle, #F8BBD0, transparent)', filter: 'blur(100px)' }}/>
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.15]" style={{ background: 'radial-gradient(circle, #FCE4EC, transparent)', filter: 'blur(100px)' }}/>
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.2]" style={{ background: 'radial-gradient(circle, rgba(250, 204, 21, 0.03), transparent)', filter: 'blur(100px)' }}/>
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.15]" style={{ background: 'radial-gradient(circle, rgba(250, 204, 21, 0.05), transparent)', filter: 'blur(100px)' }}/>
       </div>
 
       <div className="relative z-10 max-w-2xl mx-auto pt-12">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <div className="inline-block px-4 py-1.5 rounded-full mb-4" style={{ background: switchedToRandom ? 'rgba(6,182,212,0.06)' : 'rgba(232,76,106,0.06)', border: `1px solid ${switchedToRandom ? 'rgba(6,182,212,0.15)' : 'rgba(232,76,106,0.12)'}` }}>
-            <span className={switchedToRandom ? 'text-cyan-600 text-sm' : 'text-[#E84C6A] text-sm'}>
+          <div className="inline-block px-4 py-1.5 rounded-full mb-4" style={{ background: switchedToRandom ? 'rgba(6,182,212,0.06)' : 'rgba(250,204,21,0.06)', border: `1px solid ${switchedToRandom ? 'rgba(6,182,212,0.15)' : 'rgba(250,204,21,0.12)'}` }}>
+            <span className={switchedToRandom ? 'text-cyan-600 text-sm' : 'text-[#FACC15] text-sm'}>
               {switchedToRandom ? '🔄 Random Matchmaking' : '⚔️ Private 1v1 Battle'}
             </span>
           </div>
-          <h1 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '2rem' }}>
+          <h1 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '2rem' }}>
             {searchingRandom ? 'Searching for Opponent...' : opponentJoined ? 'Opponent Found!' : 'Waiting for Opponent'}
           </h1>
           <p className="text-slate-500 text-sm">
@@ -148,12 +148,12 @@ export default function PrivateBattleLobbyPage() {
         {isPrivateMode && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-6 mb-6" style={CARD}>
             <p className="text-slate-500 text-sm mb-3 text-center">Battle Code</p>
             <div className="flex items-center justify-center gap-4 mb-4">
-              <span className="text-5xl text-[#E84C6A] tracking-[0.2em] font-mono" style={{ fontFamily: 'monospace', fontWeight: 800 }}>{gameState.lobbyInviteCode || '------'}</span>
+              <span className="text-5xl text-[#FACC15] tracking-[0.2em] font-mono" style={{ fontFamily: 'Luckiest Guy, Koulen, monospace', fontWeight: 800 }}>{gameState.lobbyInviteCode || '------'}</span>
               <button onClick={copyRoomCode} className="p-3 rounded-xl transition-all" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
                 {copied ? <CheckCircle className="w-5 h-5 text-emerald-500"/> : <Copy className="w-5 h-5 text-slate-400"/>}
               </button>
             </div>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={copyRoomLink} className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm transition-all mb-3" style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)', color: '#E84C6A' }}>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={copyRoomLink} className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm transition-all mb-3" style={{ background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.12)', color: '#FACC15' }}>
               <Link2 className="w-4 h-4"/>Copy Room Link
             </motion.button>
             <p className="text-center text-slate-400 text-xs">Share the code or link with your friend to join the battle</p>
@@ -168,20 +168,20 @@ export default function PrivateBattleLobbyPage() {
                 </motion.div>
               </div>
             </div>
-            <p className="text-cyan-600 text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Searching for players...</p>
+            <p className="text-cyan-600 text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>Searching for players...</p>
             <p className="text-slate-400 text-xs mt-1">If no human found, you'll be matched with AI opponent</p>
           </motion.div>)}
 
         <div className="grid grid-cols-1 gap-4 mb-6 text-center">
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 text-center" style={CARD}>
             <Users className={`w-6 h-6 mx-auto mb-2 ${opponentJoined ? 'text-emerald-500' : 'text-amber-500'}`}/>
-            <div className={`text-3xl mb-1 ${opponentJoined ? 'text-emerald-500' : 'text-amber-500'}`} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{opponentJoined ? '2' : '1'} / 2</div>
+            <div className={`text-3xl mb-1 ${opponentJoined ? 'text-emerald-500' : 'text-amber-500'}`} style={{ fontFamily: 'inherit', fontWeight: 700 }}>{opponentJoined ? '2' : '1'} / 2</div>
             <p className="text-slate-400 text-xs">Players Joined</p>
           </motion.div>
         </div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl p-6 mb-6" style={CARD}>
-          <div className="flex items-center justify-between mb-4"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Battle Arena</h3><Swords className="w-5 h-5 text-[#E84C6A]"/></div>
+          <div className="flex items-center justify-between mb-4"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>Battle Arena</h3><Swords className="w-5 h-5 text-[#FACC15]"/></div>
           <div className="space-y-3">
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.04)' }}>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.06)' }}>{currentUser.avatar}</div>
@@ -196,7 +196,7 @@ export default function PrivateBattleLobbyPage() {
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.06)' }}>{opponent.avatar}</div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2"><p className="text-[#1A1A2E]">{opponent.name || opponent.username}</p>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#E84C6A]/5 text-[#E84C6A] border border-[#E84C6A]/15">Challenger</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#FACC15]/5 text-[#FACC15] border border-[#FACC15]/15">Challenger</span>
                     </div>
                     <p className="text-slate-400 text-xs">Ready to battle</p>
                   </div>
@@ -210,7 +210,7 @@ export default function PrivateBattleLobbyPage() {
         </motion.div>
 
         {isPrivateMode && !opponentJoined && !gameStarting && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSwitchToRandom} className="w-full py-4 rounded-xl text-white flex items-center justify-center gap-3 transition-all" style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 4px 20px rgba(220,38,38,0.25)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSwitchToRandom} className="w-full py-4 rounded-xl text-white flex items-center justify-center gap-3 transition-all" style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 4px 20px rgba(220,38,38,0.25)', fontFamily: 'inherit', fontWeight: 600 }}>
               <Shuffle className="w-5 h-5"/>Switch to Random Match
             </motion.button>
             <p className="text-center text-slate-400 text-xs mt-2">Tired of waiting? Convert this lobby to public matchmaking.</p>
@@ -223,17 +223,17 @@ export default function PrivateBattleLobbyPage() {
         </AnimatePresence>
 
         <AnimatePresence>
-          {gameStarting && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl p-6 mb-6 text-center" style={{ background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' }}>
+          {gameStarting && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl p-6 mb-6 text-center" style={{ background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.12)' }}>
               <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 0.6, repeat: Infinity }} className="text-4xl mb-3">⚔️</motion.div>
-              <p className="text-[#E84C6A] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Battle Starting...</p>
+              <p className="text-[#FACC15] text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>Battle Starting...</p>
             </motion.div>)}
         </AnimatePresence>
 
         {!gameStarting && (<div className="flex gap-4">
-            <motion.button whileHover={{ scale: canStart ? 1.02 : 1 }} whileTap={{ scale: canStart ? 0.98 : 1 }} onClick={handleStart} disabled={!canStart} className={`flex-1 py-4 rounded-xl text-white flex items-center justify-center gap-2 transition-all ${canStart ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`} style={{ background: canStart ? 'linear-gradient(135deg, #E84C6A, #D43B59)' : 'rgba(0,0,0,0.06)', boxShadow: canStart ? '0 4px 20px rgba(232,76,106,0.3)' : 'none', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+            <motion.button whileHover={{ scale: canStart ? 1.02 : 1 }} whileTap={{ scale: canStart ? 0.98 : 1 }} onClick={handleStart} disabled={!canStart} className={`flex-1 py-4 rounded-xl text-white flex items-center justify-center gap-2 transition-all ${canStart ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`} style={{ background: canStart ? 'linear-gradient(135deg, #FACC15, #065F46)' : 'rgba(0,0,0,0.06)', boxShadow: canStart ? '0 4px 20px rgba(250,204,21,0.3)' : 'none', fontFamily: 'inherit', fontWeight: 600 }}>
               <Play className="w-5 h-5"/>{canStart ? 'Start Battle' : 'Waiting for Opponent'}
             </motion.button>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCancel} className="py-4 rounded-xl text-slate-500 transition-all px-8" style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Cancel</motion.button>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCancel} className="py-4 rounded-xl text-slate-500 transition-all px-8" style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 600 }}>Cancel</motion.button>
           </div>)}
         <p className="text-center text-slate-400 text-sm mt-4">
           {gameStarting ? 'Preparing the arena...' : opponentJoined ? 'Both players ready! Click "Start Battle" to begin.' : searchingRandom ? 'Searching for an available player...' : 'Waiting for your friend to join...'}
@@ -247,12 +247,12 @@ export default function PrivateBattleLobbyPage() {
               <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(220,38,38,0.08)' }}><Shuffle className="w-5 h-5 text-red-500"/></div>
-                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.25rem' }}>Switch to Random?</h2>
+                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.25rem' }}>Switch to Random?</h2>
                 </div>
                 <p className="text-slate-600 mb-6 text-sm">This will convert your private lobby into a public matchmaking queue. Your room code will no longer be valid for your friend to join.</p>
                 <div className="flex gap-3">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowSwitchConfirm(false)} className="flex-1 py-3 rounded-xl text-[#1A1A2E] transition-all" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Keep Waiting</motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmSwitchToRandom} className="flex-1 py-3 rounded-xl text-white transition-all" style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 2px 15px rgba(220,38,38,0.25)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>Switch to Random</motion.button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowSwitchConfirm(false)} className="flex-1 py-3 rounded-xl text-[#1A1A2E] transition-all" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 600 }}>Keep Waiting</motion.button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmSwitchToRandom} className="flex-1 py-3 rounded-xl text-white transition-all" style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 2px 15px rgba(220,38,38,0.25)', fontFamily: 'inherit', fontWeight: 600 }}>Switch to Random</motion.button>
                 </div>
               </div>
             </motion.div>

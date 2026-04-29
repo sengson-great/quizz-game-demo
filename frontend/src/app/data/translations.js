@@ -268,7 +268,7 @@ export const translations = {
     defaultCategories: 'ប្រភេទសំណួរលំនាំដើម',
     saveSettings: 'រក្សាការកំណត់',
     saved: 'បានរក្សារួចរាល់!',
-    customizeExperience: 'កំណត់បទពិសោធន៍របស់អ្នក',
+    customizeExperience: 'កំណត់បទពិសោធរបស់អ្នក',
 
     // Dashboard
     welcomeBack: 'ស្វាគមន៍ការត្រឡប់មកវិញ,',
@@ -327,7 +327,7 @@ export const translations = {
     selectMode: 'ជ្រើសរើសរបៀបលេង',
     chooseCompete: 'ជ្រើសរើសរបៀបលេង និងប្រភេទសំណួរដើម្បីចាប់ផ្តើម',
     classic: 'សំណួរបែបបុរាណ',
-    classicDesc: 'បទពិសោធន៍បែបក្លាស៊ីកដែលមាន ១៥ សំណួរដើម្បីទៅដល់កំពូល។',
+    classicDesc: 'បទពិសោធបែបក្លាស៊ីកដែលមាន ១៥ សំណួរដើម្បីទៅដល់កំពូល។',
     battle: 'ប្រកួត ១ ទល់ ១',
     battleDescShort: 'ការប្រកួតចំណាត់ថ្នាក់ទល់នឹងអ្នកលេងចៃដន្យ។',
     privateRoom: 'បន្ទប់ឯកជន',

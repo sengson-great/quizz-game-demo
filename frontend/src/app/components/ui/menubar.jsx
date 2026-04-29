@@ -56,7 +56,7 @@ function MenubarSeparator({ className, ...props }) {
     return (<MenubarPrimitive.Separator data-slot="menubar-separator" className={cn("bg-border -mx-1 my-1 h-px", className)} {...props}/>);
 }
 function MenubarShortcut({ className, ...props }) {
-    return (<span data-slot="menubar-shortcut" className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} {...props}/>);
+    return (<span data-slot="menubar-shortcut" className={cn("text-muted-foreground ml-auto text-xs tracking-normal", className)} {...props}/>);
 }
 function MenubarSub({ ...props }) {
     return <MenubarPrimitive.Sub data-slot="menubar-sub" {...props}/>;

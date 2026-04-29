@@ -5,7 +5,7 @@ import { Sparkles, Eye, EyeOff, User, Mail, Lock, AlertCircle } from 'lucide-rea
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 
-const LIGHT_BG = 'linear-gradient(145deg, #FFF5F5 0%, #FDE8EC 40%, #FCE4EC 70%, #FFF0F3 100%)';
+const LIGHT_BG = 'var(--grad-surface)';
 
 export default function AuthPage() {
     const [tab, setTab] = useState('login');
@@ -31,12 +31,12 @@ export default function AuthPage() {
         setFormLoading(true);
         await new Promise(r => setTimeout(r, 600));
         if (tab === 'login') {
-            const ok = await login(email, password);
-            if (ok) {
+            const result = await login(email, password);
+            if (result.success) {
                 navigate('/dashboard');
             }
             else {
-                setError(t('invalidCredentials'));
+                setError(result.message);
             }
         }
         else {
@@ -45,12 +45,12 @@ export default function AuthPage() {
                 setFormLoading(false);
                 return;
             }
-            const ok = await register(username, email, password);
-            if (ok) {
+            const result = await register(username, email, password);
+            if (result.success) {
                 navigate('/dashboard');
             }
             else {
-                setError(t('alreadyRegistered'));
+                setError(result.message);
             }
         }
         setFormLoading(false);
@@ -58,20 +58,20 @@ export default function AuthPage() {
 
     const inputClass = "w-full px-4 py-3 rounded-xl text-[#1A1A2E] placeholder-slate-400 focus:outline-none transition-all text-sm";
 
-    return (<div className="min-h-screen flex items-center justify-center px-4 relative" style={{ background: LIGHT_BG, fontFamily: 'Poppins, Inter, sans-serif' }}>
+    return (<div className="min-h-screen flex items-center justify-center px-4 relative" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full opacity-[0.3]" style={{ background: 'radial-gradient(circle, #FCE4EC, transparent)', filter: 'blur(100px)' }}/>
+        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full opacity-[0.3]" style={{ background: 'radial-gradient(circle, rgba(250, 204, 21, 0.05), transparent)', filter: 'blur(100px)' }}/>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #E84C6A, #F472B6)', boxShadow: '0 4px 15px rgba(232,76,106,0.3)' }}>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #FACC15, #818CF8)', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}>
               <Sparkles className="w-5 h-5 text-white"/>
             </div>
-            <span className="text-xl text-[#1A1A2E] tracking-wide" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
-              Quiz<span className="text-[#E84C6A]">Blitz</span>
+            <span className="text-xl text-[#1A1A2E] tracking-normal" style={{ fontFamily: 'inherit', fontWeight: 700 }}>
+              Quiz<span className="text-[#FACC15]">Blitz</span>
             </span>
           </Link>
           <p className="text-slate-500 text-sm">
@@ -83,7 +83,7 @@ export default function AuthPage() {
         <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)' }}>
           {/* Tabs */}
           <div className="flex" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-            {['login', 'register'].map(tKey => (<button key={tKey} onClick={() => { setTab(tKey); setError(''); }} className={`flex-1 py-4 text-sm transition-all capitalize ${tab === tKey ? 'text-[#E84C6A] border-b-2 border-[#E84C6A]' : 'text-slate-400 hover:text-slate-600'}`} style={tab === tKey ? { background: 'rgba(232,76,106,0.04)' } : {}}>
+            {['login', 'register'].map(tKey => (<button key={tKey} onClick={() => { setTab(tKey); setError(''); }} className={`flex-1 py-4 text-sm rounded-2xl transition-all capitalize ${tab === tKey ? 'text-[#FACC15] border-b-2 border-[#FACC15]' : 'text-slate-400 hover:text-slate-600'}`} style={tab === tKey ? { background: 'rgba(99,102,241,0.04)' } : {}}>
                 {tKey === 'login' ? t('signIn') : t('register')}
               </button>))}
           </div>
@@ -107,6 +107,14 @@ export default function AuthPage() {
                   </button>
                 </div>
 
+                {tab === 'login' && (
+                  <div className="flex justify-end">
+                    <Link to="/forgot-password" size="sm" className="text-xs text-slate-400 hover:text-[#FACC15] transition-colors">
+                      Forgot Password?
+                    </Link>
+                  </div>
+                )}
+
                 <AnimatePresence>
                   {error && (<motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-2 p-3 rounded-xl text-red-600 text-sm" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
                       <AlertCircle className="w-4 h-4 flex-shrink-0"/>
@@ -114,7 +122,7 @@ export default function AuthPage() {
                     </motion.div>)}
                 </AnimatePresence>
 
-                <button type="submit" disabled={formLoading} className="w-full py-3.5 rounded-xl text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-70 disabled:scale-100" style={{ background: formLoading ? '#C43555' : 'linear-gradient(135deg, #E84C6A, #D43B59)', boxShadow: '0 4px 15px rgba(232,76,106,0.3)' }}>
+                <button type="submit" disabled={formLoading} className="w-full py-3.5 rounded-xl text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-70 disabled:scale-100" style={{ background: formLoading ? '#4338CA' : 'linear-gradient(135deg, #FACC15, #4F46E5)', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}>
                   {formLoading ? (<span className="flex items-center justify-center gap-2">
                       <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity="0.3"/>
@@ -126,7 +134,7 @@ export default function AuthPage() {
 
                 {tab === 'login' && (<div className="text-center">
                     <p className="text-slate-400 text-xs">
-                      {t('player')}: <span className="text-[#E84C6A]">admin@example.com</span> / <span className="text-[#E84C6A]">password</span>
+                      {t('player')}: <span className="text-[#FACC15]">admin@example.com</span> / <span className="text-[#FACC15]">password</span>
                     </p>
                   </div>)}
               </motion.form>

@@ -12,11 +12,11 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: type === 'audience' ? 'rgba(232,76,106,0.1)' : 'rgba(52,211,153,0.1)' }}>
-                {type === 'audience' ? <Users className="w-5 h-5 text-[#E84C6A]"/> : <Phone className="w-5 h-5 text-emerald-500"/>}
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: type === 'audience' ? 'rgba(250,204,21,0.1)' : 'rgba(52,211,153,0.1)' }}>
+                {type === 'audience' ? <Users className="w-5 h-5 text-[#FACC15]"/> : <Phone className="w-5 h-5 text-emerald-500"/>}
               </div>
               <div>
-                <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>
                   {type === 'audience' ? t('askAudience') : t('phoneFriend')}
                 </h3>
                 <p className="text-slate-500 text-sm">{type === 'audience' ? t('audienceVotesIn') : t('friendSays')}</p>
@@ -33,13 +33,13 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
                 return (<div key={answer.id} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-[#1A1A2E]">
-                        <span className="text-[#E84C6A] mr-2" style={{ fontWeight: 700 }}>{labels[i]}</span>
+                        <span className="text-[#FACC15] mr-2" style={{ fontWeight: 700 }}>{labels[i]}</span>
                         {(isKhmer && answer.text_km) ? answer.text_km : answer.text}
                       </span>
                       <span className="text-[#1A1A2E]" style={{ fontWeight: 600 }}>{votes}%</span>
                     </div>
                     <div className="h-6 rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.04)' }}>
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${votes}%` }} transition={{ duration: 0.8, delay: i * 0.15 }} className="h-full rounded-lg flex items-center justify-end pr-2" style={{ background: votes > 50 ? 'linear-gradient(90deg, #E84C6A, #F472B6)' : 'linear-gradient(90deg, #94a3b8, #cbd5e1)' }}/>
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${votes}%` }} transition={{ duration: 0.8, delay: i * 0.15 }} className="h-full rounded-lg flex items-center justify-end pr-2" style={{ background: votes > 50 ? 'linear-gradient(90deg, #FACC15, #8B5CF6)' : 'linear-gradient(90deg, #94a3b8, #cbd5e1)' }}/>
                     </div>
                   </div>);
             })}
@@ -57,7 +57,7 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
               </div>
             </div>)}
 
-          <button onClick={onClose} className="mt-6 w-full py-3 rounded-xl text-white text-sm transition-all hover:scale-[1.01]" style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)' }}>
+          <button onClick={onClose} className="mt-6 w-full py-3 rounded-xl text-white text-sm transition-all hover:scale-[1.01]" style={{ background: 'linear-gradient(135deg, #FACC15, #065F46)' }}>
             {t('gotIt')}
           </button>
         </motion.div>

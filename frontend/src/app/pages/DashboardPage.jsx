@@ -9,52 +9,40 @@ import api from '../../api/axios';
 
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 
+const CARD_STYLE = "glass-card rounded-[2rem] transition-all duration-300 overflow-hidden border-slate-200/60 shadow-xl";
+
 const CategoryBar = memo(({ subject, value, icon, color, index }) => (
-    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + index * 0.06 }} className="flex items-center gap-2">
-        <span className="text-base w-5 flex-shrink-0">{icon}</span>
-        <span className="text-slate-500 text-xs w-20 flex-shrink-0 truncate" title={subject}>{subject}</span>
-        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
-            <motion.div initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.8, delay: 0.5 + index * 0.06 }} className="h-full rounded-full" style={{ background: color }}/>
+    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + index * 0.06 }} className="flex items-center gap-3 group">
+        <span className="text-lg w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center flex-shrink-0 shadow-sm border border-white group-hover:scale-110 transition-transform">{icon}</span>
+        <div className="flex-1">
+            <div className="flex justify-between items-end mb-1">
+                <span className="text-slate-600 text-[10px] font-bold uppercase tracking-normal truncate" title={subject}>{subject}</span>
+                <span className="text-[10px] font-bold tabular-nums" style={{ color }}>{value}%</span>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden bg-black/[0.03] border border-white/20">
+                <motion.div initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 1, type: 'spring', bounce: 0, delay: 0.5 + index * 0.06 }} className="h-full rounded-full shadow-sm" style={{ background: color }}/>
+            </div>
         </div>
-        <span className="text-xs w-8 text-right flex-shrink-0" style={{ color }}>{value}%</span>
     </motion.div>
 ));
 CategoryBar.displayName = 'CategoryBar';
 
 function StatSkeleton() {
     return (
-        <div className="rounded-2xl p-5 animate-pulse" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)' }}>
-            <div className="w-5 h-5 rounded bg-slate-200 mb-3"/>
-            <div className="w-20 h-7 rounded bg-slate-200 mb-2"/>
-            <div className="w-16 h-3 rounded bg-slate-100"/>
+        <div className="rounded-[1.5rem] p-6 animate-pulse glass-card border-black/[0.02]">
+            <div className="w-8 h-8 rounded-xl bg-slate-200 mb-4"/>
+            <div className="w-24 h-8 rounded-lg bg-slate-200 mb-2"/>
+            <div className="w-16 h-3 rounded-md bg-slate-100"/>
         </div>
     );
 }
 
-function HistorySkeleton() {
-    return Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="flex items-center justify-between px-6 py-4 animate-pulse" style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-            <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-100"/>
-                <div>
-                    <div className="w-16 h-3 rounded bg-slate-100 mb-2"/>
-                    <div className="w-24 h-3 rounded bg-slate-100"/>
-                </div>
-            </div>
-            <div className="text-right">
-                <div className="w-16 h-4 rounded bg-slate-100 mb-1"/>
-                <div className="w-12 h-3 rounded bg-slate-100"/>
-            </div>
-        </div>
-    ));
-}
-
-const STATUS_ICON = { completed: '✅', failed: '❌', timeout: '⏰', active: '▶️' };
+const STATUS_ICON = { completed: '✨', failed: '💥', timeout: '⏰', active: '🎮' };
 const MODE_ICON   = { Solo: '🎯', '1v1': '⚔️', Room: '🏆' };
 const MODE_STYLE  = {
-    Solo:  { background: 'rgba(251,191,36,0.1)',  color: '#d97706' },
-    '1v1': { background: 'rgba(232,76,106,0.08)', color: '#E84C6A' },
-    Room:  { background: 'rgba(52,211,153,0.08)', color: '#059669' },
+    Solo:  { background: 'rgba(251,191,36,0.1)',  color: '#d97706', border: '1px solid rgba(251,191,36,0.2)' },
+    '1v1': { background: 'rgba(250, 204, 21, 0.08)', color: '#FACC15', border: '1px solid rgba(250, 204, 21, 0.15)' },
+    Room:  { background: 'rgba(52,211,153,0.08)', color: '#FACC15', border: '1px solid rgba(52,211,153,0.15)' },
 };
 
 export default function DashboardPage() {
@@ -92,21 +80,20 @@ export default function DashboardPage() {
     const winRate = s.win_rate ?? 0;
 
     const statCards = [
-        { label: t('totalScore'),  value: loading ? null : (s.total_score ?? 0).toLocaleString(), icon: Star,       color: 'text-amber-500',  bgStyle: { background: 'rgba(251,191,36,0.08)',  border: '1px solid rgba(251,191,36,0.15)'  } },
-        { label: t('statsGames'),  value: loading ? null : s.games_played ?? 0,                   icon: Target,     color: 'text-[#E84C6A]',  bgStyle: { background: 'rgba(232,76,106,0.06)', border: '1px solid rgba(232,76,106,0.12)' } },
-        { label: t('winRate'),     value: loading ? null : `${winRate}%`,                          icon: TrendingUp, color: 'text-emerald-500', bgStyle: { background: 'rgba(52,211,153,0.06)',  border: '1px solid rgba(52,211,153,0.12)'  } },
-        { label: t('rank'),        value: loading ? null : (s.rank > 0 ? `#${s.rank}` : '—'),     icon: Trophy,     color: 'text-cyan-500',    bgStyle: { background: 'rgba(6,182,212,0.06)',   border: '1px solid rgba(6,182,212,0.12)'   } },
+        { label: t('totalScore'),  value: loading ? null : (s.total_score ?? 0).toLocaleString(), icon: Star,       color: '#f59e0b', bg: 'rgba(251,191,36,0.04)', border: 'rgba(251,191,36,0.2)' },
+        { label: t('statsGames'),  value: loading ? null : s.games_played ?? 0,                   icon: Target,     color: '#FACC15', bg: 'rgba(250, 204, 21, 0.04)', border: 'rgba(250, 204, 21, 0.2)' },
+        { label: t('winRate'),     value: loading ? null : `${winRate}%`,                          icon: TrendingUp, color: '#10b981', bg: 'rgba(16,185,129,0.04)', border: 'rgba(16,185,129,0.2)' },
+        { label: t('rank'),        value: loading ? null : (s.rank > 0 ? `#${s.rank}` : '—'),     icon: Trophy,     color: '#06b6d4', bg: 'rgba(6,182,212,0.04)', border: 'rgba(6,182,212,0.2)' },
     ];
 
     const gameModes = [
-        { icon: '🎯', title: t('soloPractice'), desc: t('classicDesc'),       badge: t('readyForChallenge'), badgeStyle: { background: 'rgba(251,191,36,0.1)',  color: '#d97706' }, action: () => navigate('/mode-select', { state: { preMode: 'Solo' } }) },
-        { icon: '⚔️', title: t('battle1v1'),   desc: t('battleDescShort'),   badge: t('battle1v1'),        badgeStyle: { background: 'rgba(232,76,106,0.08)', color: '#E84C6A' }, action: () => navigate('/mode-select', { state: { preMode: '1v1'  } }) },
-        { icon: '🏆', title: t('roomMode'),     desc: t('privateRoomDesc'),   badge: t('roomMode'),         badgeStyle: { background: 'rgba(52,211,153,0.08)',  color: '#059669' }, action: () => navigate('/mode-select', { state: { preMode: 'Room' } }) },
+        { icon: '🎯', title: t('soloPractice'), desc: t('classicDesc'),       badge: t('readyForChallenge'), color: '#f59e0b', action: () => navigate('/mode-select', { state: { preMode: 'Solo' } }) },
+        { icon: '⚔️', title: t('battle1v1'),   desc: t('battleDescShort'),   badge: t('battle1v1'),        color: '#FACC15', action: () => navigate('/mode-select', { state: { preMode: '1v1'  } }) },
+        { icon: '🏆', title: t('roomMode'),     desc: t('privateRoomDesc'),   badge: t('roomMode'),         color: '#FACC15', action: () => navigate('/mode-select', { state: { preMode: 'Room' } }) },
     ];
 
-    const BAR_COLORS = ['#E84C6A', '#F472B6', '#06b6d4', '#34d399', '#f59e0b', '#8b5cf6'];
+    const BAR_COLORS = ['#FACC15', '#818CF8', '#06b6d4', '#34d399', '#f59e0b', '#8b5cf6'];
     
-    // Map categories and merge with real accuracy data from API
     const CATEGORY_DATA = CATEGORIES.map((cat, i) => {
         const realStat = categoryStats.find(cs => cs.slug === cat.id);
         return {
@@ -117,166 +104,212 @@ export default function DashboardPage() {
         };
     });
 
-
     return (
-        <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+        <div className="min-h-screen px-4 py-6 max-w-6xl mx-auto overflow-hidden relative" style={{ fontFamily: 'inherit' }}>
+            
+            {/* Background Decorations - Subtler */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 opacity-30">
+                <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-amber-100/20 rounded-full blur-[100px] animate-blob" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-[#FACC15]/5 rounded-full blur-[80px] animate-blob" style={{ animationDelay: '2s' }} />
+            </div>
 
-            {/* Header */}
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style={CARD}>
-                        {currentUser.avatar}
-                    </div>
-                    <div>
-                        <p className="text-slate-400 text-sm">{t('welcomeBack')}</p>
-                        <h1 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>{currentUser.username}</h1>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/>
-                            <span className="text-emerald-500 text-xs">{currentUser.role === 'admin' ? t('admin') : t('player')}</span>
+            {/* Header Section - More Compact */}
+            <header className="mb-8 relative">
+                <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                    <div className="flex items-center gap-5">
+                        <motion.div 
+                            whileHover={{ scale: 1.05 }}
+                            className="w-16 h-16 rounded-2xl glass-card flex items-center justify-center text-3xl shadow-lg relative overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-tr from-black/[0.03] to-transparent" />
+                            {currentUser.avatar}
+                        </motion.div>
+                        <div>
+                            <p className="text-slate-500 text-[10px] font-bold tracking-[0.2em] uppercase mb-0.5">{t('welcomeBack')}</p>
+                            <h1 className="text-[#000000] text-2xl font-bold tracking-tight leading-none" style={{ fontFamily: 'inherit' }}>
+                                {currentUser.username}
+                            </h1>
+                            <div className="flex items-center gap-2 mt-1.5">
+                                <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/10">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>
+                                    <span className="text-emerald-600 text-[9px] font-bold uppercase tracking-normal">{currentUser.role === 'admin' ? t('admin') : t('player')}</span>
+                                </span>
+                                <span className="text-slate-500 text-[9px] font-bold uppercase tracking-normal opacity-60">Level {Math.floor((stats?.total_score || 0) / 1000) + 1}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => fetchStats(true)}
-                        disabled={loading}
-                        className="hidden sm:flex p-2 rounded-xl transition-all hover:bg-black/5"
-                        title="Refresh stats"
-                    >
-                        <RefreshCw className={`w-4 h-4 text-slate-400 ${loading ? 'animate-spin' : ''}`}/>
-                    </button>
-                    <button
-                        onClick={() => navigate('/mode-select')}
-                        className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm transition-all hover:scale-[1.03]"
-                        style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)', boxShadow: '0 4px 15px rgba(232,76,106,0.3)' }}
-                    >
-                        <Zap className="w-4 h-4"/> {t('playNow')}
-                    </button>
-                </div>
-            </motion.div>
 
-            {/* Error */}
-            {error && (
-                <div className="mb-6 px-4 py-3 rounded-xl text-red-500 text-sm flex items-center justify-between" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
-                    <span>{error}</span>
-                    <button onClick={() => fetchStats()} className="text-xs underline">Retry</button>
-                </div>
-            )}
+                    <div className="flex items-center gap-2.5">
+                        <motion.button
+                            whileHover={{ scale: 1.05, backgroundColor: 'rgba(0,0,0,0.03)' }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => fetchStats(true)}
+                            disabled={loading}
+                            className="p-3 rounded-xl glass-card border-black/[0.03]"
+                        >
+                            <RefreshCw className={`w-4.5 h-4.5 text-slate-400 ${loading ? 'animate-spin' : ''}`}/>
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02, y: -1 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => navigate('/mode-select')}
+                            className="flex items-center gap-2 px-6 py-3 rounded-xl text-white text-xs font-black tracking-[0.1em] shadow-lg transition-all"
+                            style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(250,204,21,0.25)' }}
+                        >
+                            <Zap className="w-4 h-4 fill-white/20"/> {t('playNow').toUpperCase()}
+                        </motion.button>
+                    </div>
+                </motion.div>
+            </header>
 
-            {/* Stat Cards */}
+            {/* Stat Grid - Compact Padding */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {loading
                     ? Array.from({ length: 4 }).map((_, i) => <StatSkeleton key={i}/>)
-                    : statCards.map(({ label, value, icon: Icon, color, bgStyle }, i) => (
-                        <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="rounded-2xl p-5" style={{ ...bgStyle, backdropFilter: 'blur(20px)' }}>
-                            <Icon className={`w-5 h-5 ${color} mb-3`}/>
-                            <p className={`text-[#1A1A2E] leading-tight ${String(value).length > 8 ? 'text-lg' : 'text-2xl'}`} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
+                    : statCards.map(({ label, value, icon: Icon, color, bg, border }, i) => (
+                        <motion.div 
+                            key={label} 
+                            initial={{ opacity: 0, y: 10 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ delay: i * 0.05 }} 
+                            className="glass-card rounded-[1.5rem] p-5 group border-black/[0.03]"
+                            style={{ background: bg, borderColor: border }}
+                        >
+                            <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3 bg-white shadow-sm border border-black/[0.02]">
+                                <Icon className="w-4.5 h-4.5" style={{ color }}/>
+                            </div>
+                            <h3 className={`text-[#000000] leading-tight font-bold tracking-tighter ${String(value).length > 8 ? 'text-xl' : 'text-2xl'}`} style={{ fontFamily: 'inherit' }}>
                                 {value}
-                            </p>
-                            <p className="text-slate-400 text-sm mt-1 truncate">{label}</p>
+                            </h3>
+                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-normal mt-1">{label}</p>
                         </motion.div>
                     ))
                 }
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6 mb-8">
-                {/* Game Modes */}
-                <div className="lg:col-span-2 space-y-4">
-                    <h2 className="text-[#1A1A2E] text-lg" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('chooseBattle')}</h2>
+                {/* Battle Modes - Unified Style */}
+                <div className="lg:col-span-2">
+                    <h2 className="text-[#000000] text-lg font-bold tracking-tight mb-4" style={{ fontFamily: 'inherit' }}>{t('chooseBattle')}</h2>
                     <div className="grid sm:grid-cols-3 gap-4">
-                        {gameModes.map(({ icon, title, desc, badge, badgeStyle, action }, i) => (
+                        {gameModes.map(({ icon, title, desc, badge, color, action }, i) => (
                             <motion.button
                                 key={title}
-                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }}
-                                whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}
+                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.1 }}
+                                whileHover={{ y: -4 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={action}
-                                className="group text-left rounded-2xl p-5 cursor-pointer transition-all"
-                                style={CARD}
+                                className={`group relative text-left p-5 ${CARD_STYLE} border-black/[0.03]`}
                             >
-                                <div className="text-3xl mb-3">{icon}</div>
-                                <span className="text-xs px-2.5 py-1 rounded-full mb-2 inline-block" style={badgeStyle}>{badge}</span>
-                                <h3 className="text-[#1A1A2E] text-sm mb-1" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{title}</h3>
-                                <p className="text-slate-400 text-xs">{desc}</p>
-                                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#E84C6A] mt-3 transition-colors"/>
+                                <div className="text-4xl mb-4 transform transition-transform group-hover:scale-110">{icon}</div>
+                                <span className="text-[8px] font-bold uppercase tracking-normal px-2 py-1 rounded-md mb-2 inline-block" 
+                                      style={{ background: `${color}10`, color, border: `1px solid ${color}15` }}>
+                                    {badge}
+                                </span>
+                                <h3 className="text-[#000000] text-sm font-bold mb-1" style={{ fontFamily: 'inherit' }}>{title}</h3>
+                                <p className="text-slate-600 text-[10px] font-medium leading-snug line-clamp-2">{desc}</p>
+                                <div className="flex items-center gap-1 text-[9px] font-bold text-[#FACC15] mt-4 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-normal">
+                                    Start <ChevronRight className="w-3 h-3"/>
+                                </div>
                             </motion.button>
                         ))}
                     </div>
                 </div>
 
-                {/* Category Performance */}
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-5" style={CARD}>
-                    <h2 className="text-[#1A1A2E] text-sm mb-5" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('domains')}</h2>
-                    <div className="space-y-3">
+                {/* Performance - Tighter spacing */}
+                <div>
+                    <h2 className="text-[#000000] text-lg font-bold tracking-tight mb-4" style={{ fontFamily: 'inherit' }}>{t('domains')}</h2>
+                    <motion.div 
+                        initial={{ opacity: 0, x: 10 }} 
+                        animate={{ opacity: 1, x: 0 }} 
+                        transition={{ delay: 0.3 }} 
+                        className={`p-6 space-y-5 ${CARD_STYLE} border-black/[0.03]`}
+                    >
                         {CATEGORY_DATA.map(({ subject, value, icon }, i) => (
                             <CategoryBar key={subject} subject={subject} value={value} icon={icon} color={BAR_COLORS[i]} index={i}/>
                         ))}
-                    </div>
-                </motion.div>
+                    </motion.div>
+                </div>
             </div>
 
-            {/* Recent Games */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="rounded-2xl overflow-hidden" style={CARD}>
-                <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-                    <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('recentMatches')}</h2>
-                    <button onClick={() => navigate('/leaderboard')} className="text-[#E84C6A] hover:text-[#D43B59] text-sm flex items-center gap-1 transition-colors">
-                        {t('leaderboard')} <ChevronRight className="w-3 h-3"/>
+            {/* Match History - Cleaner list */}
+            <section>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-[#000000] text-lg font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('recentMatches')}</h2>
+                    <button 
+                        onClick={() => navigate('/leaderboard')} 
+                        className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-[#FACC15] hover:opacity-80 transition-opacity"
+                    >
+                        {t('leaderboard')} <ChevronRight className="w-3.5 h-3.5"/>
                     </button>
                 </div>
-                <div className="divide-y" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
-                    {loading && <HistorySkeleton/>}
 
-                    {!loading && recentGames.length === 0 && (
-                        <div className="py-12 text-center">
-                            <p className="text-slate-400 text-sm">{t('noRecentMatches')}</p>
-                            <button
-                                onClick={() => navigate('/mode-select')}
-                                className="mt-3 px-5 py-2 rounded-xl text-white text-sm"
-                                style={{ background: 'linear-gradient(135deg, #E84C6A, #D43B59)' }}
-                            >
-                                Play your first game!
-                            </button>
-                        </div>
-                    )}
+                <div className={`${CARD_STYLE} border-black/[0.03]`}>
+                    <div className="divide-y divide-black/[0.02]">
+                        {/* {loading && <HistorySkeleton/>} */}
 
-                    {!loading && recentGames.map((game, i) => {
-                        const isWin = game.status === 'completed';
-                        return (
-                            <motion.div
-                                key={game.id}
-                                initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 + i * 0.04 }}
-                                className="flex items-center justify-between px-6 py-4 hover:bg-black/[0.01] transition-colors"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: 'rgba(0,0,0,0.03)' }}>
-                                        {MODE_ICON[game.mode] ?? '🎮'}
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs px-2 py-0.5 rounded-full" style={MODE_STYLE[game.mode] ?? {}}>
-                                                {game.mode}
-                                            </span>
-                                            <span className="text-xs">
-                                                {STATUS_ICON[game.status] ?? ''}
-                                            </span>
-                                            {isWin && <span className="text-xs text-emerald-500 font-semibold">Win</span>}
+                        {!loading && recentGames.length === 0 && (
+                            <div className="py-16 text-center">
+                                <p className="text-slate-500 font-bold uppercase tracking-normal text-[9px] mb-4">{t('noRecentMatches')}</p>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    onClick={() => navigate('/mode-select')}
+                                    className="px-6 py-2.5 rounded-xl text-white text-[10px] font-bold uppercase tracking-normal shadow-md"
+                                    style={{ background: 'var(--grad-primary)' }}
+                                >
+                                    Play First Game
+                                </motion.button>
+                            </div>
+                        )}
+
+                        {!loading && recentGames.map((game, i) => {
+                            const isWin = game.status === 'completed';
+                            return (
+                                <motion.div
+                                    key={game.id}
+                                    initial={{ opacity: 0 }} 
+                                    animate={{ opacity: 1 }} 
+                                    transition={{ delay: 0.4 + i * 0.05 }}
+                                    className="flex items-center justify-between px-6 py-4 hover:bg-black/[0.01] transition-colors group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-11 h-11 rounded-xl glass-card flex items-center justify-center text-xl bg-white shadow-sm border border-black/[0.02]">
+                                            {MODE_ICON[game.mode] ?? '🎮'}
                                         </div>
-                                        <p className="text-slate-400 text-xs mt-1 flex items-center gap-1">
-                                            <Clock className="w-3 h-3"/>
-                                            {game.date} · Q{game.level}/15
-                                        </p>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[8px] font-bold uppercase tracking-normal px-2 py-0.5 rounded bg-black/5 text-slate-600">
+                                                    {game.mode}
+                                                </span>
+                                                {isWin && (
+                                                    <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-normal">
+                                                        VICTORY
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-slate-500 text-[9px] font-bold mt-1">
+                                                {game.date} • Level {game.level}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
-                                        {game.score.toLocaleString()}
-                                    </p>
-                                    <p className="text-slate-400 text-xs">points</p>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
+                                    <div className="text-right">
+                                        <p className="text-[#000000] text-xl font-bold tabular-nums tracking-tighter">
+                                            {(game.score || 0).toLocaleString()}
+                                        </p>
+                                        <p className="text-slate-500 text-[8px] font-bold uppercase tracking-normal">pts</p>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
                 </div>
-            </motion.div>
+            </section>
         </div>
     );
 }
+
+

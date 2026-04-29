@@ -96,18 +96,23 @@ class GameController extends Controller
         if ($session->status !== 'active')
             return response()->json(['error' => 'Game ended'], 400);
 
-        $request->validate(['answer_id' => 'nullable|exists:answers,id']);
+        $request->validate([
+            'answer_id' => 'nullable|exists:answers,id',
+            'time_remaining' => 'nullable|numeric'
+        ]);
 
         $answerId = $request->input('answer_id'); // null means timed out
-        $result = $this->gameService->processAnswer($session, $answerId);
+        $timeRemaining = (int) $request->input('time_remaining', 0);
+        $result = $this->gameService->processAnswer($session, $answerId, $timeRemaining);
 
         // If correct, get next question immediately? Or separate call.
         // Frontend expects next_question in response often.
-        if ($result['status'] === 'correct' && $session->status !== 'completed') {
+        // If correct or in multiplayer competition, get next question if still active
+        if ($session->status === 'active' && ($result['status'] === 'correct' || $session->match_id)) {
             $result['next_question'] = $this->gameService->getNextQuestion($session);
         }
 
-        return response()->json($result);
+        return response()->json(array_merge($result, ['session' => $session]));
     }
 
     // Simplistic lifeline implementation

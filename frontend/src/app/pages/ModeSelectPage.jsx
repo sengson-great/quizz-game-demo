@@ -58,10 +58,10 @@ export default function ModeSelectPage() {
     const handleJoin1v1 = () => { if (!joinCode1v1.trim() || joinCode1v1.length !== 6) return; navigate('/battle-lobby', { state: { joinCode: joinCode1v1 } }); };
     const modes = [
         { mode: 'Solo', icon: '🎯', title: t('soloPractice'), desc: t('soloDesc'), badge: t('practiceMode'), badgeColor: '#d97706', activeColor: '#d97706', activeBorder: 'rgba(217,119,6,0.35)' },
-        { mode: '1v1', icon: '⚔️', title: t('battle1v1'), desc: t('battleDesc'), badge: t('recommended'), badgeColor: '#E84C6A', activeColor: '#E84C6A', activeBorder: 'rgba(232,76,106,0.35)' },
-        { mode: 'Room', icon: '🏆', title: t('roomMode'), desc: t('roomDesc'), badge: t('mostFun'), badgeColor: '#059669', activeColor: '#059669', activeBorder: 'rgba(5,150,105,0.35)' },
+        { mode: '1v1', icon: '⚔️', title: t('battle1v1'), desc: t('battleDesc'), badge: t('recommended'), badgeColor: '#FACC15', activeColor: '#FACC15', activeBorder: 'rgba(99,102,241,0.35)' },
+        { mode: 'Room', icon: '🏆', title: t('roomMode'), desc: t('roomDesc'), badge: t('mostFun'), badgeColor: '#FACC15', activeColor: '#FACC15', activeBorder: 'rgba(250,204,21,0.35)' },
     ];
-    return (<div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+    return (<div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'inherit' }}>
 
       {/* Toast notification */}
       <AnimatePresence>
@@ -86,7 +86,7 @@ export default function ModeSelectPage() {
                 style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>
                 <span style={{ fontSize: '1rem' }}>⚠️</span>
               </div>
-              <p className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
+              <p className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'inherit', fontWeight: 500 }}>
                 {toast.message}
               </p>
               <button
@@ -112,7 +112,7 @@ export default function ModeSelectPage() {
 
 
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-[#1A1A2E] text-center mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.8rem' }}>
+        <h1 className="text-[#1A1A2E] text-center mb-2" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.8rem' }}>
           {t('chooseBattle')}
         </h1>
         <p className="text-slate-500 text-center text-sm">{t('chooseCompete')}</p>
@@ -133,7 +133,7 @@ export default function ModeSelectPage() {
                 </motion.div>)}
               <div className="text-4xl mb-4">{icon}</div>
               <span className="text-xs px-2.5 py-1 rounded-full mb-3 inline-block" style={{ background: `${badgeColor}15`, color: badgeColor }}>{badge}</span>
-              <h3 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{title}</h3>
+              <h3 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{title}</h3>
               <p className="text-slate-500 text-sm">{desc}</p>
             </motion.button>);
         })}
@@ -142,9 +142,9 @@ export default function ModeSelectPage() {
       {/* Category Selection */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="rounded-2xl p-6 mb-8" style={CARD}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('knowledgeCategories')}</h2>
+          <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('knowledgeCategories')}</h2>
           <div className="flex gap-2">
-            <button onClick={() => setSelectedCategories(CATEGORIES.map(c => c.id))} className="text-xs text-[#E84C6A] hover:text-[#D43B59] transition-colors">{t('all')}</button>
+            <button onClick={() => setSelectedCategories(CATEGORIES.map(c => c.id))} className="text-xs text-[#FACC15] hover:text-[#4F46E5] transition-colors">{t('all')}</button>
             <span className="text-slate-300">·</span>
             <button onClick={() => setSelectedCategories([CATEGORIES[0].id])} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{t('none')}</button>
           </div>
@@ -154,12 +154,12 @@ export default function ModeSelectPage() {
             const isSelected = selectedCategories.includes(id);
             const translationKey = `cat${id.charAt(0).toUpperCase() + id.slice(1)}`;
             return (<motion.button key={id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => toggleCategory(id)} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200" style={{
-                    background: isSelected ? 'rgba(232,76,106,0.06)' : 'rgba(0,0,0,0.02)',
-                    border: isSelected ? '1px solid rgba(232,76,106,0.2)' : '1px solid rgba(0,0,0,0.06)',
+                    background: isSelected ? 'rgba(99,102,241,0.06)' : 'rgba(0,0,0,0.02)',
+                    border: isSelected ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(0,0,0,0.06)',
                 }}>
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center text-sm ${isSelected ? '' : 'opacity-40'}`}>{icon}</div>
                 <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`}>{t(translationKey)}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#E84C6A] ml-auto"/>}
+                {isSelected && <Check className="w-3.5 h-3.5 text-[#FACC15] ml-auto"/>}
               </motion.button>);
         })}
         </div>
@@ -169,7 +169,7 @@ export default function ModeSelectPage() {
       {/* Difficulty Info */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-wrap items-center justify-center gap-3 mb-8 text-sm">
         {[
-            { label: `5 ${t('difficultyEasy')}`, bg: 'rgba(52,211,153,0.08)', color: '#059669', border: 'rgba(52,211,153,0.15)' },
+            { label: `5 ${t('difficultyEasy')}`, bg: 'rgba(52,211,153,0.08)', color: '#FACC15', border: 'rgba(52,211,153,0.15)' },
             { label: `5 ${t('difficultyMedium')}`, bg: 'rgba(251,191,36,0.08)', color: '#d97706', border: 'rgba(251,191,36,0.15)' },
             { label: `5 ${t('difficultyHard')}`, bg: 'rgba(239,68,68,0.08)', color: '#dc2626', border: 'rgba(239,68,68,0.15)' },
         ].map(({ label, bg, color, border }) => (<span key={label} className="px-3.5 py-1.5 rounded-full" style={{ background: bg, color, border: `1px solid ${border}` }}>{label}</span>))}
@@ -178,9 +178,9 @@ export default function ModeSelectPage() {
       {/* Start Button */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center">
         <motion.button whileHover={selectedMode ? { scale: 1.03 } : {}} whileTap={selectedMode ? { scale: 0.97 } : {}} onClick={handleStart} disabled={!selectedMode} className={`px-10 py-4 rounded-2xl text-white text-lg flex items-center gap-3 mx-auto transition-all ${selectedMode ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'}`} style={{
-            background: selectedMode ? 'linear-gradient(135deg, #E84C6A, #D43B59)' : 'rgba(0,0,0,0.1)',
-            boxShadow: selectedMode ? '0 4px 25px rgba(232,76,106,0.3)' : 'none',
-            fontFamily: 'Poppins, sans-serif', fontWeight: 600,
+            background: selectedMode ? 'linear-gradient(135deg, #FACC15, #4F46E5)' : 'rgba(0,0,0,0.1)',
+            boxShadow: selectedMode ? '0 4px 25px rgba(99,102,241,0.3)' : 'none',
+            fontFamily: 'inherit', fontWeight: 600,
         }}>
           {selectedMode === 'Room' ? t('chooseRoomOption') : selectedMode === '1v1' ? t('chooseBattleOption') : selectedMode ? `${t('start')} ${selectedMode} ${t('gameMode')}` : t('selectMode')}
           <ChevronRight className="w-5 h-5"/>
@@ -194,33 +194,33 @@ export default function ModeSelectPage() {
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
               <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.5rem' }}>{t('battleOptions')}</h2>
+                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.5rem' }}>{t('battleOptions')}</h2>
                   <button onClick={() => setShowRoomOptions(false)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"><X className="w-5 h-5"/></button>
                 </div>
                 <div className="space-y-3 mb-4">
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCreateRandomRoom} className="w-full p-5 rounded-xl text-left transition-all" style={{ background: 'rgba(6,182,212,0.06)', border: '2px solid rgba(6,182,212,0.15)' }}>
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600"><Shuffle className="w-5 h-5 text-white"/></div>
-                      <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('randomRoom')}</h3><p className="text-slate-400 text-xs">{t('randomRoomDesc')}</p></div>
+                      <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('randomRoom')}</h3><p className="text-slate-400 text-xs">{t('randomRoomDesc')}</p></div>
                       <ChevronRight className="w-5 h-5 text-cyan-500"/>
                     </div>
                   </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCreateInviteRoom} className="w-full p-5 rounded-xl text-left transition-all" style={{ background: 'rgba(232,76,106,0.06)', border: '2px solid rgba(232,76,106,0.15)' }}>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCreateInviteRoom} className="w-full p-5 rounded-xl text-left transition-all" style={{ background: 'rgba(99,102,241,0.06)', border: '2px solid rgba(99,102,241,0.15)' }}>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#E84C6A] to-pink-500"><UserPlus className="w-5 h-5 text-white"/></div>
-                      <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('privateRoom')}</h3><p className="text-slate-400 text-xs">{t('privateRoomDescFull')}</p></div>
-                      <ChevronRight className="w-5 h-5 text-[#E84C6A]"/>
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#FACC15] to-indigo-500"><UserPlus className="w-5 h-5 text-white"/></div>
+                      <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('privateRoom')}</h3><p className="text-slate-400 text-xs">{t('privateRoomDescFull')}</p></div>
+                      <ChevronRight className="w-5 h-5 text-[#FACC15]"/>
                     </div>
                   </motion.button>
                 </div>
                 <div className="p-5 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.1)' }}><LogIn className="w-5 h-5 text-emerald-500"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('joinExistingRoom')}</h3><p className="text-slate-400 text-xs">{t('joinWithCode')}</p></div>
+                    <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('joinExistingRoom')}</h3><p className="text-slate-400 text-xs">{t('joinWithCode')}</p></div>
                   </div>
                   <div className="flex gap-2">
-                    <input type="text" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder={t('enterCodePlaceholder')} maxLength={6} className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}/>
-                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleJoinRoom} disabled={joinCode.length !== 6} className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode.length === 6 ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} style={{ background: joinCode.length === 6 ? 'linear-gradient(135deg, #34d399, #059669)' : 'rgba(0,0,0,0.1)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('join')}</motion.button>
+                    <input type="text" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder={t('enterCodePlaceholder')} maxLength={6} className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 500 }}/>
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleJoinRoom} disabled={joinCode.length !== 6} className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode.length === 6 ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} style={{ background: joinCode.length === 6 ? 'linear-gradient(135deg, #34d399, #FACC15)' : 'rgba(0,0,0,0.1)', fontFamily: 'inherit', fontWeight: 600 }}>{t('join')}</motion.button>
                   </div>
                 </div>
               </div>
@@ -235,29 +235,29 @@ export default function ModeSelectPage() {
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
               <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.5rem' }}>{t('battle1v1Options')}</h2>
+                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.5rem' }}>{t('battle1v1Options')}</h2>
                   <button onClick={() => setShow1v1Options(false)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"><X className="w-5 h-5"/></button>
                 </div>
                 <div className="space-y-3 mb-4">
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleRandomMatch1v1} className="w-full p-4 rounded-xl flex items-center gap-4 transition-all text-left" style={{ background: 'rgba(6,182,212,0.06)', border: '2px solid rgba(6,182,212,0.15)' }}>
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)' }}><Zap className="w-6 h-6 text-white"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '1rem' }}>{t('randomMatch')}</h3><p className="text-slate-400 text-sm">{t('randomMatchDesc')}</p></div>
+                    <div className="flex-1"><h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 600, fontSize: '1rem' }}>{t('randomMatch')}</h3><p className="text-slate-400 text-sm">{t('randomMatchDesc')}</p></div>
                     <ChevronRight className="w-5 h-5 text-cyan-500"/>
                   </motion.button>
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleInviteFriend1v1} className="w-full p-4 rounded-xl flex items-center gap-4 transition-all text-left" style={{ background: 'rgba(139,92,246,0.06)', border: '2px solid rgba(139,92,246,0.15)' }}>
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}><UserPlus className="w-6 h-6 text-white"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '1rem' }}>{t('inviteFriend')}</h3><p className="text-slate-400 text-sm">{t('inviteFriendDesc')}</p></div>
+                    <div className="flex-1"><h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 600, fontSize: '1rem' }}>{t('inviteFriend')}</h3><p className="text-slate-400 text-sm">{t('inviteFriendDesc')}</p></div>
                     <ChevronRight className="w-5 h-5 text-violet-400"/>
                   </motion.button>
                 </div>
                 <div className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.1)' }}><LogIn className="w-5 h-5 text-emerald-500"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('joinBattle')}</h3><p className="text-slate-400 text-xs">{t('enterBattleCode')}</p></div>
+                    <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('joinBattle')}</h3><p className="text-slate-400 text-xs">{t('enterBattleCode')}</p></div>
                   </div>
                   <div className="flex gap-2">
-                    <input type="text" value={joinCode1v1} onChange={(e) => setJoinCode1v1(e.target.value.toUpperCase())} placeholder={t('enterBattleCode')} maxLength={6} className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}/>
-                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleJoin1v1} disabled={joinCode1v1.length !== 6} className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode1v1.length === 6 ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} style={{ background: joinCode1v1.length === 6 ? 'linear-gradient(135deg, #34d399, #059669)' : 'rgba(0,0,0,0.1)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>{t('join')}</motion.button>
+                    <input type="text" value={joinCode1v1} onChange={(e) => setJoinCode1v1(e.target.value.toUpperCase())} placeholder={t('enterBattleCode')} maxLength={6} className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 500 }}/>
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleJoin1v1} disabled={joinCode1v1.length !== 6} className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode1v1.length === 6 ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} style={{ background: joinCode1v1.length === 6 ? 'linear-gradient(135deg, #34d399, #FACC15)' : 'rgba(0,0,0,0.1)', fontFamily: 'inherit', fontWeight: 600 }}>{t('join')}</motion.button>
                   </div>
                 </div>
               </div>

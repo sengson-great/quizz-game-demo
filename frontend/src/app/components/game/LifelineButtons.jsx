@@ -3,8 +3,8 @@ import { Scissors, SkipForward, Users, Phone, RefreshCw } from 'lucide-react';
 const LIFELINES = [
     { type: 'fifty', label: '50:50', icon: Scissors, color: '#d97706', bgColor: 'rgba(217,119,6,0.08)', borderColor: 'rgba(217,119,6,0.15)', desc: 'Remove 2 wrong answers' },
     { type: 'skip', label: 'Skip', icon: SkipForward, color: '#0891b2', bgColor: 'rgba(8,145,178,0.08)', borderColor: 'rgba(8,145,178,0.15)', desc: 'Skip this question' },
-    { type: 'audience', label: 'Audience', icon: Users, color: '#E84C6A', bgColor: 'rgba(232,76,106,0.08)', borderColor: 'rgba(232,76,106,0.15)', desc: 'Ask the audience' },
-    { type: 'phone', label: 'Phone', icon: Phone, color: '#059669', bgColor: 'rgba(5,150,105,0.08)', borderColor: 'rgba(5,150,105,0.15)', desc: 'Call a friend' },
+    { type: 'audience', label: 'Audience', icon: Users, color: '#FACC15', bgColor: 'rgba(250,204,21,0.08)', borderColor: 'rgba(250,204,21,0.15)', desc: 'Ask the audience' },
+    { type: 'phone', label: 'Phone', icon: Phone, color: '#FACC15', bgColor: 'rgba(250,204,21,0.08)', borderColor: 'rgba(250,204,21,0.15)', desc: 'Call a friend' },
     { type: 'doubleDip', label: '2nd Try', icon: RefreshCw, color: '#c026d3', bgColor: 'rgba(192,38,211,0.08)', borderColor: 'rgba(192,38,211,0.15)', desc: 'Get a second chance if wrong' },
 ];
 export function LifelineButtons({ lifelines, enabledTypes, onUse, disabled }) {
@@ -13,25 +13,48 @@ export function LifelineButtons({ lifelines, enabledTypes, onUse, disabled }) {
         ? LIFELINES.filter(({ type }) => enabledTypes[type] !== false)
         : LIFELINES;
 
-    return (<div className="flex items-center justify-center gap-2 flex-wrap">
+    return (<div className="flex items-center justify-center gap-3 flex-wrap">
       {visibleLifelines.map(({ type, label, icon: Icon, color, bgColor, borderColor, desc }) => {
             const used = lifelines?.[type] === true;
             return (<motion.div key={type} className="relative group">
-            <motion.button whileHover={!used && !disabled ? { scale: 1.05 } : {}} whileTap={!used && !disabled ? { scale: 0.95 } : {}} onClick={() => !used && !disabled && onUse(type)} disabled={used || disabled} title={desc} className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200" style={{
-                    background: used ? 'rgba(0,0,0,0.02)' : bgColor,
-                    border: `1px solid ${used ? 'rgba(0,0,0,0.04)' : borderColor}`,
-                    opacity: used ? 0.35 : 1,
+            <motion.button 
+                whileHover={!used && !disabled ? { 
+                    y: -4,
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    borderColor: color
+                } : {}} 
+                whileTap={!used && !disabled ? { scale: 0.92 } : {}} 
+                onClick={() => !used && !disabled && onUse(type)} 
+                disabled={used || disabled} 
+                title={desc} 
+                className="flex flex-col items-center gap-1.5 px-3.5 py-2.5 rounded-2xl transition-all duration-300 relative overflow-hidden glass-card" 
+                style={{
+                    background: used ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.6)',
+                    borderWidth: '1.5px',
+                    borderColor: used ? 'rgba(0,0,0,0.06)' : borderColor,
+                    opacity: used ? 0.4 : 1,
                     cursor: used || disabled ? 'not-allowed' : 'pointer',
                 }}>
-              <Icon className="w-5 h-5" style={{ color: used ? '#94a3b8' : color }}/>
-              <span className="text-xs" style={{ color: used ? '#94a3b8' : color, fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+              
+              {!used && !disabled && (
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" style={{ background: color }} />
+              )}
+
+              <Icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" style={{ color: used ? '#94a3b8' : color }}/>
+              <span className="text-[10px] uppercase tracking-normal font-black" style={{ color: used ? '#94a3b8' : color, fontFamily: 'inherit' }}>
                 {label}
               </span>
+
+              {used && (
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    className="absolute top-1/2 left-0 h-0.5 bg-slate-400 rotate-12 origin-left"
+                  />
+              )}
             </motion.button>
-            {used && (<div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full h-0.5 rotate-45 absolute" style={{ background: '#94a3b8' }}/>
-              </div>)}
           </motion.div>);
         })}
     </div>);
 }
+

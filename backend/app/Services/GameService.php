@@ -143,16 +143,35 @@ class GameService
         return $question;
     }
 
-    public function processAnswer(GameSession $session, $answerId)
+    public function processAnswer(GameSession $session, $answerId, $timeRemaining = 0)
     {
-        // Null answer_id = timed out — mark session failed and return correct answer
+        $isMultiplayer = (bool)$session->match_id;
+
+        // Get the current correct answer ID before any level increments
+        $currentQuestion = $this->getNextQuestion($session);
+        $correctAnswerId = null;
+        if ($currentQuestion) {
+            $correctAnswer = $currentQuestion->answers()->where('is_correct', true)->first();
+            $correctAnswerId = $correctAnswer?->id;
+        }
+
+        // 1. Handle Timeout (null answer_id)
         if (!$answerId) {
-            $currentQuestion = $this->getNextQuestion($session);
-            $correctAnswerId = null;
-            if ($currentQuestion) {
-                $correctAnswer = $currentQuestion->answers()->where('is_correct', true)->first();
-                $correctAnswerId = $correctAnswer?->id;
+            if ($isMultiplayer) {
+                if ($session->current_level >= 15) {
+                    $session->status = 'completed';
+                    $session->ended_at = now();
+                } else {
+                    $session->current_level += 1;
+                }
+                $session->save();
+                return [
+                    'status' => 'timeout',
+                    'correct_answer' => $correctAnswerId,
+                    'score' => $session->score,
+                ];
             }
+
             $session->status = 'failed';
             $session->ended_at = now();
             $session->save();
@@ -172,8 +191,8 @@ class GameService
         // Complex logic omitted for cleaner demo.
 
         if ($isCorrect) {
-            $score = $this->prizeLadder[$session->current_level] ?? 0;
-            $session->score = $score;
+            $points = ($session->current_level * 100) + ($timeRemaining * 10);
+            $session->score += $points;
 
             GameSessionQuestion::create([
                 'game_session_id' => $session->id,
@@ -191,7 +210,7 @@ class GameService
             }
             $session->save();
 
-            return ['status' => 'correct', 'score' => $score];
+            return ['status' => 'correct', 'score' => $session->score];
         } else {
             // Check double chance
             $lifelines = $session->lifelines;
@@ -220,11 +239,27 @@ class GameService
                 'time_taken' => 0
             ]);
 
+            if ($isMultiplayer) {
+                if ($session->current_level >= 15) {
+                    $session->status = 'completed';
+                    $session->ended_at = now();
+                } else {
+                    $session->current_level += 1;
+                }
+                $session->save();
+
+                return [
+                    'status' => 'wrong', 
+                    'correct_answer' => $correctAnswerId,
+                    'score' => $session->score
+                ];
+            }
+
             $session->status = 'failed';
             $session->ended_at = now();
             $session->save();
 
-            return ['status' => 'wrong', 'correct_answer' => $answer->question->correctAnswer->id];
+            return ['status' => 'wrong', 'correct_answer' => $correctAnswerId];
         }
     }
 

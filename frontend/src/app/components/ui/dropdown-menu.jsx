@@ -53,7 +53,7 @@ function DropdownMenuSeparator({ className, ...props }) {
     return (<DropdownMenuPrimitive.Separator data-slot="dropdown-menu-separator" className={cn("bg-border -mx-1 my-1 h-px", className)} {...props}/>);
 }
 function DropdownMenuShortcut({ className, ...props }) {
-    return (<span data-slot="dropdown-menu-shortcut" className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} {...props}/>);
+    return (<span data-slot="dropdown-menu-shortcut" className={cn("text-muted-foreground ml-auto text-xs tracking-normal", className)} {...props}/>);
 }
 function DropdownMenuSub({ ...props }) {
     return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props}/>;

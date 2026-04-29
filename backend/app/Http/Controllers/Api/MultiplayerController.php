@@ -18,13 +18,15 @@ class MultiplayerController extends Controller
     {
         $request->validate([
             'player_count' => 'required|integer|min:2|max:100',
-            'is_private' => 'boolean'
+            'is_private' => 'boolean',
+            'categories' => 'nullable|array'
         ]);
 
         $result = $this->service->createLobby(
             $request->user(),
             (int) $request->player_count,
-            (bool) $request->get('is_private', true)
+            (bool) $request->get('is_private', true),
+            $request->get('categories', [])
         );
 
         return $this->successResponse($result, 'Battle lobby created');
@@ -100,8 +102,11 @@ class MultiplayerController extends Controller
     #[OA\Post(path: "/multiplayer/matchmake", summary: "Enter 1v1 matchmaking", tags: ["Multiplayer"])]
     public function matchmake(Request $request)
     {
-        $request->validate(['mode' => 'required|in:1v1']);
-        $result = $this->service->matchmake1v1($request->user());
+        $request->validate([
+            'mode' => 'required|in:1v1',
+            'categories' => 'nullable|array'
+        ]);
+        $result = $this->service->matchmake1v1($request->user(), $request->get('categories', []));
         return $this->successResponse($result);
     }
 
@@ -131,9 +136,19 @@ class MultiplayerController extends Controller
     public function cancelMatchmake(Request $request)
     {
         $user = $request->user();
-        $queue = \Illuminate\Support\Facades\Cache::get('matchmaking_queue_1v1');
-        if ($queue && $queue['id'] === $user->id) {
-            \Illuminate\Support\Facades\Cache::forget('matchmaking_queue_1v1');
+        $queueKey = \Illuminate\Support\Facades\Cache::get('user_matchmake_key_' . $user->id);
+        if ($queueKey) {
+            $queue = \Illuminate\Support\Facades\Cache::get($queueKey);
+            if ($queue && $queue['id'] === $user->id) {
+                \Illuminate\Support\Facades\Cache::forget($queueKey);
+            }
+            \Illuminate\Support\Facades\Cache::forget('user_matchmake_key_' . $user->id);
+        } else {
+            // Fallback for legacy
+            $queue = \Illuminate\Support\Facades\Cache::get('matchmaking_queue_1v1');
+            if ($queue && $queue['id'] === $user->id) {
+                \Illuminate\Support\Facades\Cache::forget('matchmaking_queue_1v1');
+            }
         }
         return $this->successResponse(null, 'Cancelled');
     }

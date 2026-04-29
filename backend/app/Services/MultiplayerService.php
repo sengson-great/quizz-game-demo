@@ -20,9 +20,9 @@ class MultiplayerService
     /**
      * Create a new battle lobby.
      */
-    public function createLobby(User $user, int $playerCount, bool $isPrivate): array
+    public function createLobby(User $user, int $playerCount, bool $isPrivate, array $categories = []): array
     {
-        return Cache::lock('create_lobby_lock', 5)->block(5, function () use ($user, $playerCount, $isPrivate) {
+        return Cache::lock('create_lobby_lock', 5)->block(5, function () use ($user, $playerCount, $isPrivate, $categories) {
             if (!$isPrivate) {
                 $publicLobbies = Cache::get('public_lobbies', []);
                 $validLobbies = [];
@@ -75,7 +75,13 @@ class MultiplayerService
                         }
 
                         // Check if lobby is valid and has space to join
-                        if (count($lobby['players']) < $lobby['player_count']) {
+                        $lobbyCategories = $lobby['categories'] ?? [];
+                        $playerCategories = $categories;
+                        sort($lobbyCategories);
+                        sort($playerCategories);
+                        $categoriesMatch = $lobbyCategories === $playerCategories;
+
+                        if (count($lobby['players']) < $lobby['player_count'] && $categoriesMatch) {
                             $validLobbies[] = $code;
                             if (!$joinableLobbyCode) {
                                 $joinableLobbyCode = $code;
@@ -113,6 +119,7 @@ class MultiplayerService
                 'host_avatar' => $user->avatar,
                 'player_count' => $playerCount,
                 'is_private' => $isPrivate,
+                'categories' => $categories,
                 'players' => [
                     [
                         'id' => $user->id,
@@ -388,16 +395,30 @@ class MultiplayerService
     /**
      * 1v1 Matchmaking.
      */
-    public function matchmake1v1(User $user): array
+    public function matchmake1v1(User $user, array $categories = []): array
     {
-        $queue = Cache::get('matchmaking_queue_1v1');
+        Log::info("Matchmaking: Request from User {$user->id} ({$user->name}) with categories: " . json_encode($categories));
+        
+        sort($categories);
+        $catKey = empty($categories) ? 'all' : implode('_', $categories);
+        $queueKey = 'matchmaking_queue_1v1_' . $catKey;
+
+        $queue = Cache::get($queueKey);
+        Log::info("Matchmaking: Checking queue key {$queueKey}. Found: " . ($queue ? "User {$queue['id']}" : "Empty"));
         
         if ($queue && $queue['id'] !== $user->id) {
             $matchId = (string) Str::uuid();
             $opponent = $queue;
             
-            Cache::forget('matchmaking_queue_1v1');
+            Log::info("Matchmaking: Pairing User {$user->id} with User {$opponent['id']}. Match ID: {$matchId}");
             
+            Cache::forget($queueKey);
+            Cache::forget('user_matchmake_key_' . $opponent['id']);
+            Cache::forget('user_matchmake_key_' . $user->id);
+            
+            $matchQuestions = $this->generateMatchQuestions($categories);
+            Log::info("Matchmaking: Generated " . count($matchQuestions) . " questions for match {$matchId}");
+
             GameMatch::create([
                 'id' => $matchId,
                 'mode' => '1v1',
@@ -405,7 +426,7 @@ class MultiplayerService
                     ['id' => $user->id, 'name' => $user->name, 'avatar' => $user->avatar],
                     ['id' => $opponent['id'], 'name' => $opponent['name'], 'avatar' => $opponent['avatar']]
                 ],
-                'questions' => $this->generateMatchQuestions(),
+                'questions' => $matchQuestions,
                 'status' => 'active'
             ]);
 
@@ -426,11 +447,14 @@ class MultiplayerService
             ];
         }
         
-        Cache::put('matchmaking_queue_1v1', [
+        Log::info("Matchmaking: No opponent found. Queuing user {$user->id} in {$queueKey}");
+        Cache::put($queueKey, [
             'id' => $user->id,
             'name' => $user->name,
             'avatar' => $user->avatar,
         ], now()->addMinutes(5));
+        
+        Cache::put('user_matchmake_key_' . $user->id, $queueKey, now()->addMinutes(5));
         
         return ['status' => 'queued'];
     }
@@ -446,7 +470,7 @@ class MultiplayerService
             'mode' => 'battle',
             'players' => $players,
             'total_players' => $lobby['player_count'],
-            'questions' => $this->generateMatchQuestions(),
+            'questions' => $this->generateMatchQuestions($lobby['categories'] ?? []),
             'status' => 'active',
             'started_at' => now()
         ]);
@@ -466,8 +490,13 @@ class MultiplayerService
         ];
     }
 
-    private function generateMatchQuestions(): array
+    private function generateMatchQuestions(array $categories = []): array
     {
+        // Resolve slugs to IDs if needed
+        if (!empty($categories) && isset($categories[0]) && is_string($categories[0])) {
+            $categories = \App\Models\Category::whereIn('slug', $categories)->pluck('id')->toArray();
+        }
+
         $questions = [];
         $usedIds = [];
         for ($level = 1; $level <= 15; $level++) {
@@ -478,6 +507,9 @@ class MultiplayerService
             };
 
             $query = Question::where('difficulty_level', $difficulty);
+            if (!empty($categories)) {
+                $query->whereIn('category_id', $categories);
+            }
             if (!empty($usedIds)) {
                 $query->whereNotIn('id', $usedIds);
             }
@@ -488,8 +520,19 @@ class MultiplayerService
                 $questions[$level] = $question->id;
                 $usedIds[] = $question->id;
             } else {
-                // Fallback if we run out of unique questions of this difficulty
-                $fallback = Question::whereNotIn('id', $usedIds)->inRandomOrder()->first();
+                Log::warning("Matchmaking: No question found for level {$level} (difficulty: {$difficulty}) with categories: " . json_encode($categories) . ". Using fallback.");
+                // Fallback if we run out of unique questions of this difficulty/category
+                $fallbackQuery = Question::whereNotIn('id', $usedIds);
+                if (!empty($categories)) {
+                    $fallbackQuery->whereIn('category_id', $categories);
+                }
+                $fallback = $fallbackQuery->inRandomOrder()->first();
+                // Complete fallback ignoring category
+                if (!$fallback) {
+                    Log::error("Matchmaking: COMPLETE FALLBACK for level {$level}. No questions left in DB!");
+                    $fallback = Question::whereNotIn('id', $usedIds)->inRandomOrder()->first();
+                }
+
                 if ($fallback) {
                     $questions[$level] = $fallback->id;
                     $usedIds[] = $fallback->id;

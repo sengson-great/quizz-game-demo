@@ -43,19 +43,24 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
       </button>);
     }
     return (<>
-      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleReturn} className={`flex items-center gap-2 transition-all ${variant === 'minimal'
-            ? 'text-slate-500 hover:text-[#1A1A2E]'
-            : 'px-4 py-2 rounded-xl text-[#1A1A2E]'}`} style={variant === 'default'
+      <motion.button 
+        whileHover={{ scale: 1.05, x: 2 }} 
+        whileTap={{ scale: 0.95 }} 
+        onClick={handleReturn} 
+        className={`flex items-center justify-center transition-all ${variant === 'minimal'
+            ? 'text-slate-400 hover:text-[#FACC15]'
+            : 'px-3 py-3 rounded-2xl glass-card border-white/20'}`} 
+        style={variant === 'default'
             ? {
-                background: 'rgba(255,255,255,0.8)',
-                border: '1px solid rgba(0,0,0,0.08)',
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 600,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                boxShadow: '0 8px 20px -5px rgba(0,0,0,0.05)',
             }
             : undefined}>
-        <Home className="w-4 h-4"/>
-        {variant === 'default' && t('returnHome')}
+        <Home className="w-5 h-5 text-slate-600"/>
+        {variant === 'default' && (
+            <span className="ml-2 text-xs font-black tracking-normal text-slate-600 uppercase hidden sm:inline">
+                {t('returnHome')}
+            </span>
+        )}
       </motion.button>
 
       {/* Forfeit Confirmation Modal */}
@@ -69,7 +74,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.1)' }}>
                       <AlertTriangle className="w-5 h-5 text-red-500"/>
                     </div>
-                    <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.25rem' }}>
+                    <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.25rem' }}>
                       {t('forfeitTitle')}
                     </h2>
                   </div>
@@ -86,7 +91,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowConfirmation(false)} className="flex-1 py-3 rounded-xl text-[#1A1A2E] transition-all" style={{
                 background: 'rgba(0,0,0,0.04)',
                 border: '1px solid rgba(0,0,0,0.08)',
-                fontFamily: 'Poppins, sans-serif',
+                fontFamily: 'inherit',
                 fontWeight: 600,
             }}>
                     {t('stayInGame')}
@@ -94,7 +99,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmReturn} className="flex-1 py-3 rounded-xl text-white transition-all" style={{
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                 boxShadow: '0 2px 15px rgba(239,68,68,0.3)',
-                fontFamily: 'Poppins, sans-serif',
+                fontFamily: 'inherit',
                 fontWeight: 600,
             }}>
                     {t('forfeitAndLeave')}

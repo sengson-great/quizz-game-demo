@@ -9,6 +9,8 @@ const defaultAuthContext = {
     register: async () => false,
     logout: async () => {},
     updateUser: () => {},
+    forgotPassword: async () => ({ success: false }),
+    resetPassword: async () => ({ success: false }),
 };
 
 const AuthContext = createContext(defaultAuthContext);
@@ -66,10 +68,13 @@ export function AuthProvider({ children }) {
 
             localStorage.setItem(STORAGE_KEY, token);
             setCurrentUser(loggedInUser);
-            return true;
+            return { success: true };
         } catch (error) {
             console.error("Login Error:", error);
-            return false;
+            const message = error.response?.data?.message || 
+                          (error.response?.data?.errors ? Object.values(error.response.data.errors)[0][0] : null) ||
+                          "Invalid credentials";
+            return { success: false, message };
         }
     }, []);
 
@@ -87,10 +92,13 @@ export function AuthProvider({ children }) {
 
             localStorage.setItem(STORAGE_KEY, token);
             setCurrentUser(registeredUser);
-            return true;
+            return { success: true };
         } catch (error) {
             console.error("Register Error:", error);
-            return false;
+            const message = error.response?.data?.message || 
+                          (error.response?.data?.errors ? Object.values(error.response.data.errors)[0][0] : null) ||
+                          "Registration failed";
+            return { success: false, message };
         }
     }, []);
 
@@ -131,9 +139,31 @@ export function AuthProvider({ children }) {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
     }, [currentUser]);
 
+    const forgotPassword = useCallback(async (email) => {
+        try {
+            const response = await api.post('/forgot-password', { email });
+            return { success: true, message: response.data.message };
+        } catch (error) {
+            console.error("Forgot Password Error:", error);
+            const message = error.response?.data?.message || error.response?.data?.errors?.email?.[0] || "Something went wrong";
+            return { success: false, message };
+        }
+    }, []);
+
+    const resetPassword = useCallback(async (data) => {
+        try {
+            const response = await api.post('/reset-password', data);
+            return { success: true, message: response.data.message };
+        } catch (error) {
+            console.error("Reset Password Error:", error);
+            const message = error.response?.data?.message || "Failed to reset password";
+            return { success: false, message };
+        }
+    }, []);
+
     const contextValue = React.useMemo(() => ({
-        currentUser, loading, login, register, logout, updateUser
-    }), [currentUser, loading, login, register, logout, updateUser]);
+        currentUser, loading, login, register, logout, updateUser, forgotPassword, resetPassword
+    }), [currentUser, loading, login, register, logout, updateUser, forgotPassword, resetPassword]);
 
     return (
         <AuthContext.Provider value={contextValue}>
