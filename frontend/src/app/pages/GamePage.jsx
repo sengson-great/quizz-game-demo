@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useAudio } from '../contexts/AudioContext';
-import { CATEGORIES } from '../data/questions';
+import { CATEGORIES as MOCK_CATEGORIES } from '../data/questions';
 import { loadSystemConfig } from '../data/systemConfig';
+import api from '../../api/axios';
 import { CircularTimer } from '../components/game/CircularTimer';
 import { AnswerOption } from '../components/game/AnswerOption';
 import { LifelineButtons } from '../components/game/LifelineButtons';
@@ -63,6 +64,13 @@ export default function GamePage() {
     const [doubleDipWrongId, setDoubleDipWrongId] = useState(null);
     const [oppScorePulse, setOppScorePulse] = useState(false);
     const prevOppScoreRef = useRef(0);
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        api.get('/categories').then(res => {
+            setCategories(res.data.data || res.data || []);
+        }).catch(e => console.error(e));
+    }, []);
 
     useEffect(() => {
         if (!gameState || !currentUser) {
@@ -258,7 +266,9 @@ export default function GamePage() {
     const question = gameState.currentQuestion;
     if (!question)
         return null;
-    const category = CATEGORIES.find(c => c.id === (question.categoryId || question.category_id));
+    const categoryId = question.categoryId || question.category_id;
+    const category = categories.find(c => String(c.id) === String(categoryId)) || MOCK_CATEGORIES.find(c => String(c.id) === String(categoryId));
+
     const labels = ['A', 'B', 'C', 'D'];
     const qNum = Math.min(gameState.session ? gameState.session.current_level : 1, 15);
     const total = 15;
@@ -346,7 +356,9 @@ export default function GamePage() {
                     <span className="text-sm">
                         <CategoryIcon name={category?.icon} className="w-4 h-4" style={{ color: category?.iconColor }} />
                     </span>
-                    <span className="hidden sm:inline opacity-70">{category ? t(`cat${category.id.charAt(0).toUpperCase() + category.id.slice(1)}`) : ''}</span>
+                    <span className="hidden sm:inline opacity-70">
+                        {category ? ((lang === 'km' && (category.nameKm || category.name_km)) ? (category.nameKm || category.name_km) : (category.name || category.title)) : ''}
+                    </span>
                 </div>
             </div>
 

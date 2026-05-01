@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\GameSession;
 use App\Models\User;
+use App\Models\Category;
+use App\Models\GameSessionQuestion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
@@ -57,10 +60,69 @@ class LeaderboardController extends Controller
     #[OA\Response(response: 200, description: "Overall game statistics")]
     public function stats()
     {
+        // 1. Most Failed Questions
+        $mostFailed = GameSessionQuestion::with('question:id,text')
+            ->where('is_correct', false)
+            ->select('question_id', DB::raw('count(*) as fails'))
+            ->groupBy('question_id')
+            ->orderByDesc('fails')
+            ->limit(5)
+            ->get()
+            ->map(function ($q) {
+                $totalAttempts = GameSessionQuestion::where('question_id', $q->question_id)->count();
+                return [
+                    'question' => $q->question->text ?? 'Unknown',
+                    'fails'    => $q->fails,
+                    'failRate' => round(($q->fails / max($totalAttempts, 1)) * 100, 1)
+                ];
+            });
+
+        // 2. Category Performance (Average Score)
+        $allSessions = GameSession::all();
+        $categoryScores = Category::all()->map(function ($cat) use ($allSessions) {
+            $matching = $allSessions->filter(function ($s) use ($cat) {
+                if (is_null($s->category_ids)) return true;
+                return in_array((int)$cat->id, array_map('intval', (array)$s->category_ids));
+            });
+
+            return [
+                'category' => $cat->name,
+                'avgScore' => (int)($matching->avg('score') ?? 0)
+            ];
+        })->sortByDesc('avgScore')->values();
+
+        // 3. Daily Activity (Last 14 days)
+        $dailyActivity = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $dateStr = $date->toDateString();
+            $label = $date->format('d M');
+
+            $usersCount = GameSession::whereDate('created_at', $dateStr)->distinct('user_id')->count('user_id');
+            $gamesCount = GameSession::whereDate('created_at', $dateStr)->count();
+
+            $dailyActivity[] = [
+                'day'   => $label,
+                'users' => $usersCount,
+                'games' => $gamesCount
+            ];
+        }
+
+        // 4. Game Mode Distribution
+        $soloCount = GameSession::whereNull('match_id')->count();
+        $multiCount = GameSession::whereNotNull('match_id')->count();
+
         return response()->json([
             'total_users'  => User::count(),
             'total_games'  => GameSession::count(),
-            'avg_score'    => round(GameSession::avg('score'), 2),
+            'avg_score'    => (int) round(GameSession::avg('score') ?? 0),
+            'most_failed_questions' => $mostFailed,
+            'category_scores'       => $categoryScores,
+            'daily_activity'        => $dailyActivity,
+            'game_mode_distribution' => [
+                ['name' => 'Solo Mode', 'value' => $soloCount],
+                ['name' => 'Multiplayer', 'value' => $multiCount],
+            ],
             'top_players'  => GameSession::with('user:id,name,avatar')
                 ->select('user_id', DB::raw('MAX(score) as high_score'))
                 ->groupBy('user_id')

@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(GameSession::class);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 }

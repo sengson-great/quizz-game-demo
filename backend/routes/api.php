@@ -22,6 +22,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Public leaderboard
 Route::get('/leaderboard', [LeaderboardController::class, 'index']);
+Route::get('/categories', [CategoryController::class, 'index']);
 
 // ─── Authenticated Routes ─────────────────────────────────────
 Route::middleware('auth:api')->group(function () {

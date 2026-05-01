@@ -11,9 +11,14 @@ class CategoryController extends Controller
 {
     #[OA\Get(path: "/admin/categories", summary: "List all categories", tags: ["Admin: Categories"])]
     #[OA\Response(response: 200, description: "A list of categories")]
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Category::withCount('questions')->get());
+        $query = Category::withCount('questions');
+        // If not admin, only show enabled categories
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            $query->where('is_enabled', true);
+        }
+        return response()->json($query->get());
     }
 
     #[OA\Post(path: "/admin/categories", summary: "Create a new category", tags: ["Admin: Categories"])]
@@ -36,8 +41,9 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'icon'        => 'nullable|string|max:10',
             'color'       => 'nullable|string|max:100',
+            'is_enabled'  => 'nullable|boolean',
         ]);
-        return response()->json(Category::create($request->only('name', 'description', 'icon', 'color')), 201);
+        return response()->json(Category::create($request->only('name', 'description', 'icon', 'color', 'is_enabled')), 201);
     }
 
     #[OA\Get(path: "/admin/categories/{category}", summary: "Get a specific category", tags: ["Admin: Categories"])]
@@ -70,8 +76,9 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'icon'        => 'nullable|string|max:10',
             'color'       => 'nullable|string|max:100',
+            'is_enabled'  => 'sometimes|boolean',
         ]);
-        $category->update($request->only('name', 'description', 'icon', 'color'));
+        $category->update($request->only('name', 'description', 'icon', 'color', 'is_enabled'));
         return response()->json($category);
     }
 

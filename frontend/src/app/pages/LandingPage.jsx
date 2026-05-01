@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
+import api from '../api/axios';
 import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap, Download, Cpu, History, Palette } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { usePWA } from '../contexts/PWAContext';
@@ -19,7 +20,7 @@ const CategoryIcon = ({ name, className, style }) => {
 };
 
 export default function LandingPage() {
-    const { t } = useTranslation();
+    const { t, lang } = useTranslation();
     const { isInstallable, isIOS, installPWA } = usePWA();
 
     const FEATURES = [
@@ -33,13 +34,28 @@ export default function LandingPage() {
         { value: '6', label: t('statsCategories'), icon: Globe, color: 'text-blue-500' },
         { value: '90+', label: t('statsQuestions'), icon: Star, color: 'text-amber-500' },
     ];
-    const CATEGORIES = [
-        { icon: 'Brain', name: 'Science', color: '#3b82f6' },
-        { icon: 'History', name: 'History', color: '#f59e0b' },
-        { icon: 'Cpu', name: 'Technology', color: '#8b5cf6' },
-        { icon: 'Globe', name: 'Geography', color: '#10b981' },
-        { icon: 'Zap', name: 'Sports', color: '#ef4444' },
-        { icon: 'Palette', name: 'Arts & Culture', color: '#ec4899' },
+    const [dynamicCategories, setDynamicCategories] = useState([]);
+    
+    useEffect(() => {
+        api.get('/categories').then(res => {
+            const cats = (res.data.data || res.data || []).filter(c => c.is_enabled).map(c => ({
+                id: c.id,
+                name: c.name,
+                nameKm: c.name_km,
+                icon: c.icon || 'Brain',
+                color: c.color || '#3b82f6',
+            }));
+            setDynamicCategories(cats);
+        }).catch(e => console.error('Failed to fetch categories', e));
+    }, []);
+
+    const CATEGORIES = dynamicCategories.length > 0 ? dynamicCategories : [
+        { icon: 'Brain', name: t('catScience'), color: '#3b82f6' },
+        { icon: 'History', name: t('catHistory'), color: '#f59e0b' },
+        { icon: 'Cpu', name: t('catTechnology'), color: '#8b5cf6' },
+        { icon: 'Globe', name: t('catGeography'), color: '#10b981' },
+        { icon: 'Zap', name: t('catSports'), color: '#ef4444' },
+        { icon: 'Palette', name: t('catArts'), color: '#ec4899' },
     ];
     const STEPS = [
         { num: '01', title: t('step1Title'), desc: t('step1Desc') },
@@ -61,10 +77,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-11 h-11 rounded-2xl flex items-center justify-center border-2 border-black shadow-[3px_3px_0_0_#000000]" style={{ background: '#FACC15' }}>
-              <Sparkles className="w-6 h-6 text-amber-500"/>
+              <Brain className="w-6 h-6 text-[#EAB308]"/>
             </div>
             <span className="text-2xl text-[#000000] logo-text">
-              Quiz<span className="text-[#EAB308]">Blitz</span>
+              Quiz No <span className="text-[#EAB308]">Cap</span>
             </span>
           </div>
           <div className="flex items-center gap-6">
@@ -107,7 +123,7 @@ export default function LandingPage() {
                     style={{ background: '#6366F1' }}
                 >
                     <Download className="w-6 h-6"/>
-                    {isIOS ? 'Add to Home' : 'Install App'}
+                    {isIOS ? t('addToHome') : t('installApp')}
                 </button>
             )}
             <Link to="/leaderboard" className="flex items-center gap-3 px-10 py-5 rounded-2xl text-black text-xl font-bold border-[3px] border-black shadow-[6px_6px_0_0_#000000] transition-all hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[10px_10px_0_0_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" style={{ background: '#FFFFFF' }}>
@@ -154,12 +170,14 @@ export default function LandingPage() {
           </h2>
           <p className="text-center text-slate-500 mb-12">{t('difficultyScales')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {CATEGORIES.map(({ icon, name, color }, i) => (<motion.div key={name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} whileHover={{ scale: 1.05, y: -4 }} className="flex flex-col items-center gap-2.5 p-5 rounded-2xl cursor-default transition-all" style={CARD_STYLE}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-black/[0.03]">
-                    <CategoryIcon name={icon} className="w-6 h-6" style={{ color }} />
+            {CATEGORIES.map((cat) => (
+              <motion.div key={cat.name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} whileHover={{ scale: 1.05, y: -4 }} className="flex items-center gap-3 p-4 rounded-2xl glass-card border-[3px] border-black shadow-[4px_4px_0_0_#000000] bg-white group hover:bg-[#FACC15]/5 transition-all">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <CategoryIcon name={cat.icon} className="w-5 h-5" style={{ color: cat.color }} />
                 </div>
-                <p className="text-slate-600 text-xs text-center font-bold uppercase tracking-tight">{name}</p>
-              </motion.div>))}
+                <span className="font-bold text-sm text-[#000000]">{(lang === 'km' && cat.nameKm) ? cat.nameKm : cat.name}</span>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </section>

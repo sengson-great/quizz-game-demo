@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Trophy, LayoutDashboard, Settings, Shield, LogOut, Sparkles, Music, VolumeX, Crown } from 'lucide-react';
+import { Trophy, LayoutDashboard, Settings, Shield, LogOut, Sparkles, Music, VolumeX, Crown, Brain } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAudio } from '../../contexts/AudioContext';
@@ -42,7 +42,7 @@ export function Navbar() {
                 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-50" />
-                <Crown className="w-6 h-6 text-white fill-white/20 relative z-10"/>
+                <Brain className="w-6 h-6 text-white relative z-10"/>
               </motion.div>
               <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-md border border-amber-100">
                 <Sparkles className="w-2.5 h-2.5 text-[#F59E0B]"/>
@@ -50,10 +50,10 @@ export function Navbar() {
             </div>
             <div className="flex flex-col">
                 <span style={{ fontFamily: 'inherit', fontWeight: 900 }} className="text-[#000000] text-lg leading-tight tracking-tight uppercase">
-                  Millionaire
+                  Quiz No Cap
                 </span>
                 <span className="text-[10px] font-black text-[#FACC15] tracking-[0.25em] leading-none opacity-90">
-                    QUIZ CHALLENGE
+                    CARTOON EDITION
                 </span>
             </div>
           </Link>

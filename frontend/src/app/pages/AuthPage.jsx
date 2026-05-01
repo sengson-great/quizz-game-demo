@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Eye, EyeOff, User, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Brain, Eye, EyeOff, User, Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -68,10 +68,10 @@ export default function AuthPage() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #FACC15, #818CF8)', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}>
-              <Sparkles className="w-5 h-5 text-white"/>
+              <Brain className="w-5 h-5 text-white"/>
             </div>
             <span className="text-xl text-[#1A1A2E] tracking-normal" style={{ fontFamily: 'inherit', fontWeight: 700 }}>
-              Quiz<span className="text-[#FACC15]">Blitz</span>
+              Quiz No <span className="text-[#FACC15]">Cap</span>
             </span>
           </Link>
           <p className="text-slate-500 text-sm">
@@ -110,7 +110,7 @@ export default function AuthPage() {
                 {tab === 'login' && (
                   <div className="flex justify-end">
                     <Link to="/forgot-password" size="sm" className="text-xs text-slate-400 hover:text-[#FACC15] transition-colors">
-                      Forgot Password?
+                      {t('forgotPassword')}
                     </Link>
                   </div>
                 )}

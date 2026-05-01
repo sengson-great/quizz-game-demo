@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, Check, LogIn, X, Zap, Shuffle, UserPlus, Target, Swords, Trophy, Brain, Cpu, History, Globe, Palette } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
-import { CATEGORIES } from '../data/questions';
+import { CATEGORIES as MOCK_CATEGORIES } from '../data/questions';
 import { useTranslation } from '../hooks/useTranslation';
+import api from '../../api/axios';
 
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 const MODAL_BG = { background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' };
@@ -24,12 +25,33 @@ export default function ModeSelectPage() {
     const location = useLocation();
     const preMode = location.state?.preMode;
     const [selectedMode, setSelectedMode] = useState(preMode || null);
-    const [selectedCategories, setSelectedCategories] = useState(currentUser?.preferredCategories || CATEGORIES.map(c => c.id));
+    const [categories, setCategories] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
     const [showRoomOptions, setShowRoomOptions] = useState(false);
     const [show1v1Options, setShow1v1Options] = useState(false);
     const [joinCode, setJoinCode] = useState('');
     const [joinCode1v1, setJoinCode1v1] = useState('');
     const [toast, setToast] = useState(null);
+    const { lang } = useTranslation();
+
+    useEffect(() => {
+        api.get('/categories').then(res => {
+            const data = (res.data.data || res.data || []).filter(c => c.is_enabled).map(c => ({
+                id: c.id,
+                name: c.name,
+                nameKm: c.name_km,
+                icon: c.icon || 'Brain',
+                color: c.color || '#3b82f6',
+                iconColor: c.color || '#3b82f6'
+            }));
+            setCategories(data);
+            setSelectedCategories(currentUser?.preferredCategories || data.map(c => c.id));
+        }).catch(e => {
+            console.error(e);
+            setCategories(MOCK_CATEGORIES);
+            setSelectedCategories(MOCK_CATEGORIES.map(c => c.id));
+        });
+    }, [currentUser]);
 
     const showToast = (message, type = 'warning') => {
         setToast({ message, type });
@@ -150,15 +172,14 @@ export default function ModeSelectPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('knowledgeCategories')}</h2>
           <div className="flex gap-2">
-            <button onClick={() => setSelectedCategories(CATEGORIES.map(c => c.id))} className="text-xs text-[#FACC15] hover:text-[#4F46E5] transition-colors">{t('all')}</button>
+            <button onClick={() => setSelectedCategories(categories.map(c => c.id))} className="text-xs text-[#FACC15] hover:text-[#4F46E5] transition-colors">{t('all')}</button>
             <span className="text-slate-300">·</span>
-            <button onClick={() => setSelectedCategories([CATEGORIES[0].id])} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{t('none')}</button>
+            <button onClick={() => setSelectedCategories([categories[0]?.id].filter(Boolean))} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{t('none')}</button>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {CATEGORIES.map(({ id, name, icon, color, iconColor }) => {
+          {categories.map(({ id, name, nameKm, icon, color, iconColor }) => {
             const isSelected = selectedCategories.includes(id);
-            const translationKey = `cat${id.charAt(0).toUpperCase() + id.slice(1)}`;
             return (<motion.button key={id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => toggleCategory(id)} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group" style={{
                     background: isSelected ? 'rgba(250, 204, 21, 0.04)' : 'rgba(0,0,0,0.02)',
                     border: isSelected ? '1px solid rgba(250, 204, 21, 0.2)' : '1px solid rgba(0,0,0,0.06)',
@@ -166,12 +187,12 @@ export default function ModeSelectPage() {
                 <div className={`w-8 h-8 rounded-lg bg-black/[0.03] flex items-center justify-center text-sm shadow-sm transition-transform group-hover:scale-110 ${isSelected ? '' : 'opacity-60'}`}>
                     <CategoryIcon name={icon} className="w-4 h-4" style={{ color: isSelected ? iconColor : '#94a3b8' }} />
                 </div>
-                <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`}>{t(translationKey)}</span>
+                <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`}>{(lang === 'km' && nameKm) ? nameKm : name}</span>
                 {isSelected && <Check className="w-3.5 h-3.5 text-[#FACC15] ml-auto"/>}
               </motion.button>);
         })}
         </div>
-        <p className="text-slate-400 text-xs mt-3">{selectedCategories.length} {t('of')} {CATEGORIES.length} {t('selected')}</p>
+        <p className="text-slate-400 text-xs mt-3">{selectedCategories.length} {t('of')} {categories.length} {t('selected')}</p>
       </motion.div>
 
       {/* Difficulty Info */}

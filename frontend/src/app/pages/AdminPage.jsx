@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Plus, Edit3, Trash2, Search, Filter, BarChart2, Trophy, Settings2, X, Check, AlertTriangle, ChevronDown, Layers, ToggleLeft, ToggleRight, FolderOpen, Globe, Zap, Database, Brain, Cpu, History, Palette, Target, Microscope, Rocket, Music, FlaskConical } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { getFixedAvatar } from '../utils/avatar';
 import api from '../../api/axios';
-import { ANALYTICS_DATA } from '../data/mockData';
 const SYSTEM_CONFIG_STORAGE_KEY = 'quiz_admin_system_config';
 
 const DEFAULT_SYSTEM_CONFIG = {
@@ -93,7 +93,8 @@ function VertBar({ label, value, max, color, index }) {
     </div>);
 }
 function MiniLineChart({ data }) {
-    const W = 400;
+    const { t } = useTranslation();
+    const W = 320;
     const H = 120;
     const PAD = { top: 10, right: 10, bottom: 28, left: 36 };
     const innerW = W - PAD.left - PAD.right;
@@ -117,13 +118,14 @@ function MiniLineChart({ data }) {
       <path d={gamesPath} fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       {data.map((d, i) => i % 2 === 0 && (<text key={d.day} x={toX(i)} y={H - 6} textAnchor="middle" fill="#64748b" fontSize="9">{d.day}</text>))}
       <circle cx={PAD.left + 4} cy={PAD.top - 2} r="3" fill="#818cf8"/>
-      <text x={PAD.left + 10} y={PAD.top + 2} fill="#94a3b8" fontSize="9">Users</text>
+      <text x={PAD.left + 10} y={PAD.top + 2} fill="#94a3b8" fontSize="9">{t('users')}</text>
       <circle cx={PAD.left + 52} cy={PAD.top - 2} r="3" fill="#34d399"/>
-      <text x={PAD.left + 58} y={PAD.top + 2} fill="#94a3b8" fontSize="9">Games</text>
+      <text x={PAD.left + 58} y={PAD.top + 2} fill="#94a3b8" fontSize="9">{t('statsGames')}</text>
     </svg>);
 }
 function DonutChart({ segments }) {
-    const total = segments.reduce((s, d) => s + d.value, 0);
+    const { t } = useTranslation();
+    const total = segments.reduce((s, x) => s + x.value, 0);
     const cx = 80;
     const cy = 80;
     const r = 60;
@@ -147,13 +149,13 @@ function DonutChart({ segments }) {
     return (<div className="flex items-center gap-6">
       <svg viewBox="0 0 160 160" width="160" height="160">
         {arcs.map(arc => (<path key={arc.name} d={arc.path} fill={arc.fill} opacity={0.85}/>))}
-        <text x={cx} y={cy - 6} textAnchor="middle" fill="#000000" fontSize="13" fontWeight="700">Mode</text>
-        <text x={cx} y={cy + 10} textAnchor="middle" fill="#64748b" fontSize="10">split</text>
+        <text x={cx} y={cy - 6} textAnchor="middle" fill="#000000" fontSize="13" fontWeight="700">{t('mode')}</text>
+        <text x={cx} y={cy + 10} textAnchor="middle" fill="#64748b" fontSize="10">{t('distribution')}</text>
       </svg>
       <div className="space-y-3">
         {arcs.map(arc => (<div key={arc.name} className="flex items-center gap-3">
             <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: arc.fill }}/>
-            <span className="text-slate-600 text-sm w-10">{arc.name}</span>
+            <span className="text-slate-600 text-sm w-20">{arc.name}</span>
             <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
               <div className="h-full rounded-full" style={{ width: `${arc.pct}%`, background: arc.fill }}/>
             </div>
@@ -165,6 +167,7 @@ function DonutChart({ segments }) {
 // Main component
 export default function AdminPage() {
     const { currentUser } = useAuth();
+    const { t, lang } = useTranslation();
     const navigate = useNavigate();
     const [tab, setTab] = useState('questions');
     const [questions, setQuestions] = useState([]);
@@ -184,6 +187,7 @@ export default function AdminPage() {
     const [configDirty, setConfigDirty] = useState(false);
     const [loading, setLoading] = useState(true);
     const [catActionLoading, setCatActionLoading] = useState(false);
+    const [showDisabledCats, setShowDisabledCats] = useState(false);
     
 
     // Category CRUD state
@@ -235,10 +239,11 @@ export default function AdminPage() {
                 const catsMap = (cRes.data.data || cRes.data || []).map(c => ({
                     id: c.id,
                     name: c.name,
+                    nameKm: c.name_km || '',
                     icon: c.icon || 'Brain',
                     color: c.color || 'from-blue-500 to-cyan-400',
                     description: c.description || '',
-                    enabled: true
+                    enabled: !!c.is_enabled
                 }));
                 setCategories(catsMap);
                 setLeaderboard(lRes.data || []);
@@ -258,11 +263,14 @@ export default function AdminPage() {
         return () => { mounted = false; };
     }, [currentUser, navigate]);
 
+    const enabledCatIds = categories.filter(c => c.enabled).map(c => c.id);
+    const enabledCatNames = categories.filter(c => c.enabled).map(c => c.name);
+
     // Questions helpers
     const filteredQs = questions.filter(q => {
         const matchSearch = q.text.toLowerCase().includes(search.toLowerCase());
         const matchDiff = diffFilter === 'All' || q.difficulty === diffFilter;
-        const matchCat = catFilter === 'All' || q.categoryId === catFilter;
+        const matchCat = catFilter === 'All' ? enabledCatIds.includes(q.categoryId) : q.categoryId === catFilter;
         return matchSearch && matchDiff && matchCat;
     });
 
@@ -297,9 +305,9 @@ export default function AdminPage() {
     };
 
     const validateForm = () => {
-        if (!form.text.trim()) return 'Question text is required';
-        if (form.answers.some(a => !a.text.trim())) return 'All answer options must be filled';
-        if (!form.answers.some(a => a.isCorrect)) return 'At least one correct answer required';
+        if (!form.text.trim()) return t('questionRequired');
+        if (form.answers.some(a => !a.text.trim())) return t('allAnswersRequired');
+        if (!form.answers.some(a => a.isCorrect)) return t('correctAnswerRequired');
         return '';
     };
 
@@ -344,7 +352,7 @@ export default function AdminPage() {
             setModal(null);
         } catch (error) {
             console.error('Failed to save question', error);
-            setFormError('Failed to save question to server.');
+            setFormError(t('saveQuestionFailed'));
         }
     };
     const markCorrect = (idx) => { setForm(f => ({ ...f, answers: f.answers.map((a, i) => ({ ...a, isCorrect: i === idx })) })); };
@@ -362,15 +370,15 @@ export default function AdminPage() {
     };
     const validateCatForm = () => {
         if (!catForm.name.trim())
-            return 'Category name is required';
+            return t('categoryNameRequired');
         if (!catForm.description.trim())
-            return 'Description is required';
+            return t('descriptionRequired');
         // Check for duplicate name (when adding or when editing to a different name)
         const existingNames = categories
             .filter(c => catModal?.mode === 'edit' ? c.id !== catModal.category?.id : true)
             .map(c => c.name.toLowerCase());
         if (existingNames.includes(catForm.name.toLowerCase()))
-            return 'Category name already exists';
+            return t('categoryExists');
         return '';
     };
     const handleSaveCategory = async () => {
@@ -405,14 +413,22 @@ export default function AdminPage() {
             }
             setCatModal(null);
         } catch (e) {
-            setCatFormError(e?.response?.data?.message || 'Failed to save category.');
+            setCatFormError(e?.response?.data?.message || t('saveCategoryFailed'));
         } finally {
             setCatActionLoading(false);
         }
     };
-    const toggleCategoryEnabled = (catId) => {
-        // Local-only toggle (no 'enabled' column on backend); persisted in-memory
-        setCategories(prev => prev.map(c => c.id === catId ? { ...c, enabled: !c.enabled } : c));
+    const toggleCategoryEnabled = async (catId) => {
+        const cat = categories.find(c => c.id === catId);
+        if (!cat) return;
+        const newEnabled = !cat.enabled;
+        
+        try {
+            await api.put(`/admin/categories/${catId}`, { is_enabled: newEnabled });
+            setCategories(prev => prev.map(c => c.id === catId ? { ...c, enabled: newEnabled } : c));
+        } catch (e) {
+            console.error('Failed to toggle category', e);
+        }
     };
     const handleDeleteCategory = async (catId) => {
         const qCount = getQuestionCount(catId);
@@ -439,15 +455,20 @@ export default function AdminPage() {
         }
     };
     const tabs = [
-        { id: 'questions', label: 'Questions', icon: Filter, color: '#3b82f6' },
-        { id: 'categories', label: 'Categories', icon: Layers, color: '#8b5cf6' },
-        { id: 'analytics', label: 'Analytics', icon: BarChart2, color: '#10b981' },
-        { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, color: '#FACC15' },
-        { id: 'system', label: 'System', icon: Settings2, color: '#6366f1' },
+        { id: 'questions', label: t('questions'), icon: Filter, color: '#3b82f6' },
+        { id: 'categories', label: t('categories'), icon: Layers, color: '#8b5cf6' },
+        { id: 'analytics', label: t('analytics'), icon: BarChart2, color: '#10b981' },
+        { id: 'leaderboard', label: t('leaderboard'), icon: Trophy, color: '#FACC15' },
+        { id: 'system', label: t('system'), icon: Settings2, color: '#6366f1' },
     ];
-    const catScoreMax = Math.max(...ANALYTICS_DATA.categoryScores.map(d => d.avgScore));
+    const stats_mostFailed = stats?.most_failed_questions || [];
+    const stats_categoryScores = (stats?.category_scores || []).filter(d => enabledCatNames.includes(d.category));
+    const stats_dailyActivity = stats?.daily_activity || [];
+    const stats_distribution = stats?.game_mode_distribution || [];
+
+    const catScoreMax = stats_categoryScores.length > 0 ? Math.max(...stats_categoryScores.map(d => d.avgScore)) : 100;
     const catColors = ['#FACC15', '#fbbf24', '#34d399', '#f472b6', '#fb923c', '#22d3ee'];
-    const updatedDistribution = ANALYTICS_DATA.gameModeDistribution.map((d, i) => ({ ...d, fill: ['#FACC15', '#34d399', '#fbbf24'][i] || d.fill }));
+    const updatedDistribution = stats_distribution.map((d, i) => ({ ...d, fill: ['#FACC15', '#34d399', '#fbbf24'][i] || '#cbd5e1' }));
     const glassCard = { background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(20px) saturate(1.8)', border: '1px solid rgba(226, 232, 240, 0.6)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)' };
     const CARD_STYLE = "glass-card rounded-[2rem] border-slate-200/60 shadow-xl overflow-hidden";
     const SECTION_STYLE = "glass-card rounded-[1.5rem] p-6 border-black/[0.03]";
@@ -465,8 +486,8 @@ export default function AdminPage() {
           <Shield className="w-6 h-6 text-[#FACC15]"/>
         </div>
         <div>
-          <h1 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>Admin Console</h1>
-          <p className="text-slate-500 text-sm font-medium opacity-80">Content Management & Global Analytics</p>
+          <h1 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('adminPanel')}</h1>
+          <p className="text-slate-500 text-sm font-medium opacity-80">{t('adminSubtitle')}</p>
         </div>
         <div className="ml-auto hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl glass-card border-[#FACC15]/20 bg-[#FACC15]/5">
           <div className="relative">
@@ -480,10 +501,10 @@ export default function AdminPage() {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         {[
-            { label: 'Total Questions', value: questions.length, color: '#FACC15', icon: Filter },
-            { label: 'Active Categories', value: categories.filter(c => c.enabled).length, color: '#8b5cf6', icon: Layers },
-            { label: 'Total Players', value: (stats?.total_users || 0).toLocaleString(), color: '#10b981', icon: Trophy },
-            { label: 'Games Played', value: (stats?.total_games || 0).toLocaleString(), color: '#f59e0b', icon: BarChart2 },
+            { label: t('statsQuestions'), value: questions.length, color: '#FACC15', icon: Filter },
+            { label: t('categories'), value: categories.filter(c => c.enabled).length, color: '#8b5cf6', icon: Layers },
+            { label: t('totalUsers'), value: (stats?.total_users || 0).toLocaleString(), color: '#10b981', icon: Trophy },
+            { label: t('totalGames'), value: (stats?.total_games || 0).toLocaleString(), color: '#f59e0b', icon: BarChart2 },
         ].map(({ label, value, color, icon: Icon }) => (
           <div key={label} className="glass-card rounded-[1.5rem] p-6 border-black/[0.03] relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br opacity-[0.03] group-hover:opacity-[0.06] transition-opacity" style={{ from: color, to: 'transparent' }}/>
@@ -516,14 +537,17 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#FACC15] transition-colors"/>
-              <input type="text" placeholder="Search questions..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl text-[#000000] placeholder-slate-400 focus:outline-none text-sm glass-card border-black/[0.03] transition-all focus:border-[#FACC15]/20"/>
+              <input type="text" placeholder={t('searchQuestions')} value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl text-[#000000] placeholder-slate-400 focus:outline-none text-sm glass-card border-black/[0.03] transition-all focus:border-[#FACC15]/20"/>
             </div>
             <select value={diffFilter} onChange={e => setDiffFilter(e.target.value)} className="px-5 py-3 rounded-2xl text-[#000000] focus:outline-none text-xs font-bold uppercase tracking-normal glass-card border-black/[0.03]">
-              {['All', 'Easy', 'Medium', 'Hard'].map(d => <option key={d} value={d}>{d} Difficulty</option>)}
+              <option value="All">{t('allDifficulties')}</option>
+              <option value="Easy">{t('difficultyEasy')}</option>
+              <option value="Medium">{t('difficultyMedium')}</option>
+              <option value="Hard">{t('difficultyHard')}</option>
             </select>
             <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="px-5 py-3 rounded-2xl text-[#000000] focus:outline-none text-xs font-bold uppercase tracking-normal glass-card border-black/[0.03]">
-              <option value="All">All Categories</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              <option value="All">{t('allCategories')}</option>
+              {categories.filter(c => c.enabled).map(c => <option key={c.id} value={c.id}>{(lang === 'km' && c.nameKm) ? c.nameKm : c.name}</option>)}
             </select>
             <motion.button 
               whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}
@@ -531,18 +555,18 @@ export default function AdminPage() {
               className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white text-[11px] font-bold uppercase tracking-normal shadow-xl transition-all" 
               style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(99,102,241,0.25)' }}
             >
-              <Plus className="w-4 h-4"/> Add New
+              <Plus className="w-4 h-4"/> {t('addNewQuestion')}
             </motion.button>
           </div>
 
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-4 opacity-60 px-2">{filteredQs.length} Questions matched</p>
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-4 opacity-60 px-2">{filteredQs.length} {t('questionsMatched')}</p>
 
           <div className={CARD_STYLE}>
             <div className="hidden sm:grid grid-cols-12 px-6 py-4 text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em]" style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
-              <span className="col-span-6">Question Content</span>
-              <span className="col-span-2">Category</span>
-              <span className="col-span-2">Difficulty</span>
-              <span className="col-span-2 text-right">Actions</span>
+              <span className="col-span-6">{t('questionContent')}</span>
+              <span className="col-span-2">{t('category')}</span>
+              <span className="col-span-2">{t('difficulty')}</span>
+              <span className="col-span-2 text-right">{t('actions')}</span>
             </div>
             <div className="divide-y max-h-[500px] overflow-y-auto" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
               {filteredQs.map((q, i) => {
@@ -554,14 +578,14 @@ export default function AdminPage() {
                 };
                 const ds = diffStyle[q.difficulty];
                 return (<motion.div key={q.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }} className="grid grid-cols-12 items-center px-6 py-4 hover:bg-black/[0.01] transition-colors gap-4 group">
-                    <div className="col-span-12 sm:col-span-6"><p className="text-[#000000] text-sm font-medium leading-relaxed line-clamp-2">{q.text}</p></div>
+                    <div className="col-span-12 sm:col-span-6"><p className="text-[#000000] text-sm font-medium leading-relaxed line-clamp-2">{(lang === 'km' && q.textKm) ? q.textKm : q.text}</p></div>
                     <div className="col-span-4 sm:col-span-2 flex items-center gap-2">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-normal bg-black/[0.03] px-2 py-1 rounded-lg border border-black/[0.02] flex items-center gap-1.5">
                             <CategoryIcon name={cat?.icon} className="w-3 h-3" />
-                            {cat?.name || 'Unset'}
+                            {(lang === 'km' && cat?.nameKm) ? cat.nameKm : (cat?.name || t('notSet'))}
                         </span>
                     </div>
-                    <div className="col-span-4 sm:col-span-2"><span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full shadow-sm" style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.color}20` }}>{q.difficulty}</span></div>
+                    <div className="col-span-4 sm:col-span-2"><span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full shadow-sm" style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.color}20` }}>{q.difficulty === 'Easy' ? t('difficultyEasy') : q.difficulty === 'Medium' ? t('difficultyMedium') : t('difficultyHard')}</span></div>
                     <div className="col-span-4 sm:col-span-2 flex justify-end gap-1">
                       <button onClick={() => openEdit(q)} className="p-2.5 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-[#FACC15] hover:bg-[#FACC15]/5 shadow-sm"><Edit3 className="w-4 h-4"/></button>
                       {deleteConfirm === q.id ? (<div className="flex gap-1 animate-in zoom-in-95 duration-200">
@@ -577,17 +601,22 @@ export default function AdminPage() {
 
       {/* ═══════ Categories Tab ═══════ */}
       {tab === 'categories' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-slate-400 text-sm">{categories.length} categories ({categories.filter(c => c.enabled).length} active)</p>
+              <p className="text-slate-400 text-sm">{categories.length} {t('categories')} ({categories.filter(c => c.enabled).length} {t('active')})</p>
             </div>
-            <button onClick={openAddCategory} className="flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm" style={{ background: 'linear-gradient(135deg, #FACC15, #4F46E5)', boxShadow: '0 2px 10px rgba(99,102,241,0.3)' }}>
-              <Plus className="w-4 h-4"/> Add Category
-            </button>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowDisabledCats(!showDisabledCats)} className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-normal transition-all border ${showDisabledCats ? 'bg-[#FACC15]/10 border-[#FACC15]/20 text-[#FACC15]' : 'bg-black/[0.02] border-black/[0.05] text-slate-400'}`}>
+                {showDisabledCats ? t('hideDisabled') : t('showDisabled')}
+              </button>
+              <button onClick={openAddCategory} className="flex items-center gap-2 px-6 py-3 rounded-2xl text-white text-xs font-bold uppercase tracking-normal shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(99,102,241,0.25)' }}>
+                <Plus className="w-4 h-4"/> {t('addCategory')}
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((cat, i) => {
+            {categories.filter(c => showDisabledCats || c.enabled).map((cat, i) => {
                 const qCount = getQuestionCount(cat.id);
                 return (<motion.div key={cat.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="rounded-[1.5rem] p-6 relative group overflow-hidden" style={{
                         ...glassCard,
@@ -603,7 +632,7 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <h3 className="text-[#000000] text-sm font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>
-                          {cat.name}
+                          {(lang === 'km' && cat.nameKm) ? cat.nameKm : cat.name}
                         </h3>
                         <p className="text-slate-500 text-[10px] font-medium opacity-60 leading-tight line-clamp-1">{cat.description}</p>
                       </div>
@@ -618,25 +647,25 @@ export default function AdminPage() {
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FACC15]/5 border border-[#FACC15]/10">
                       <FolderOpen className="w-3.5 h-3.5 text-[#FACC15]"/>
                       <span className="text-[#FACC15] text-[10px] font-bold uppercase tracking-normal">
-                        {qCount} Questions
+                        {qCount} {t('statsQuestions')}
                       </span>
                     </div>
                     <span className={`text-[10px] font-bold uppercase tracking-normal px-3 py-1.5 rounded-xl ${cat.enabled ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/10' : 'bg-slate-500/10 text-slate-500 border border-slate-500/10'}`}>
-                      {cat.enabled ? 'Active' : 'Disabled'}
+                      {cat.enabled ? t('active') : t('disabled')}
                     </span>
                   </div>
 
                   {/* Actions */}
                   <div className="flex gap-2 relative z-10">
                     <button onClick={() => openEditCategory(cat)} className="flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-normal flex items-center justify-center gap-2 text-slate-500 hover:text-[#FACC15] transition-all bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]">
-                      <Edit3 className="w-3.5 h-3.5"/> Edit
+                      <Edit3 className="w-3.5 h-3.5"/> {t('edit')}
                     </button>
                     {catDeleteConfirm === cat.id ? (<div className="flex gap-1">
                         <button onClick={() => handleDeleteCategory(cat.id)} className="px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-normal text-red-500 hover:bg-red-50 transition-all border border-red-500/10">
-                          Confirm
+                          {t('confirm')}
                         </button>
                         <button onClick={() => setCatDeleteConfirm(null)} className="px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-normal text-slate-500 hover:bg-black/5 transition-all border border-black/[0.05]">
-                          X
+                          {t('cancel')}
                         </button>
                       </div>) : (<button onClick={() => {
                             setCatDeleteConfirm(cat.id);
@@ -652,19 +681,19 @@ export default function AdminPage() {
                     {catDeleteConfirm === cat.id && qCount > 0 && (<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-3 p-3 rounded-xl overflow-hidden" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
                         <p className="text-red-400 text-xs mb-2">
                           <AlertTriangle className="w-3 h-3 inline mr-1"/>
-                          {qCount} orphaned questions found
+                          {t('deleteConfirmDesc').replace('{count}', qCount)}
                         </p>
                         <div className="space-y-2">
                           <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
                             <input type="radio" name={`delete-${cat.id}`} checked={catDeleteAction === 'reassign'} onChange={() => setCatDeleteAction('reassign')} className="accent-[#FACC15]"/>
-                            Reassign to:
+                            {t('moveQuestions')}
                             <select value={catReassignTarget} onChange={e => setCatReassignTarget(e.target.value)} className="px-2 py-1 rounded text-xs text-[#000000] focus:outline-none" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
                               {categories.filter(c => c.id !== cat.id).map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
                             </select>
                           </label>
                           <label className="flex items-center gap-2 text-xs text-red-400 cursor-pointer">
                             <input type="radio" name={`delete-${cat.id}`} checked={catDeleteAction === 'delete'} onChange={() => setCatDeleteAction('delete')} className="accent-red-500"/>
-                            Delete all {qCount} questions
+                            {t('delete')} {qCount} {t('statsQuestions')}
                           </label>
                         </div>
                       </motion.div>)}
@@ -678,56 +707,66 @@ export default function AdminPage() {
       {tab === 'analytics' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           <div className="grid lg:grid-cols-2 gap-6">
             <div className={SECTION_STYLE} style={glassCard}>
-              <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>Most Failed Questions</h3>
+              <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>{t('mostFailedQuestions')}</h3>
               <div className="space-y-4">
-                {ANALYTICS_DATA.mostFailedQuestions.map((d, i) => (<HorizBar key={d.question} label={d.question.length > 32 ? d.question.slice(0, 32) + '...' : d.question} value={d.failRate} max={100} color="#f472b6" index={i}/>))}
+                {stats_mostFailed.length > 0 ? stats_mostFailed.map((d, i) => (<HorizBar key={d.question} label={d.question.length > 32 ? d.question.slice(0, 32) + '...' : d.question} value={d.failRate} max={100} color="#f472b6" index={i}/>)) : (
+                  <p className="text-slate-400 text-xs italic py-4">{t('noDataAvailable')}</p>
+                )}
               </div>
             </div>
             <div className={SECTION_STYLE} style={glassCard}>
-              <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>Avg Score by Category</h3>
+              <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>{t('avgScoreByCategory')}</h3>
               <div className="flex items-end gap-3 h-40 px-2 mb-6">
-                {ANALYTICS_DATA.categoryScores.map((d, i) => (<VertBar key={d.category} label={d.category.slice(0, 6)} value={d.avgScore} max={catScoreMax} color={catColors[i % catColors.length]} index={i}/>))}
+                {stats_categoryScores.length > 0 ? stats_categoryScores.map((d, i) => (<VertBar key={d.category} label={d.category.slice(0, 6)} value={d.avgScore} max={catScoreMax} color={catColors[i % catColors.length]} index={i}/>)) : (
+                   <p className="text-slate-400 text-xs italic py-4 w-full text-center">{t('noDataAvailable')}</p>
+                )}
               </div>
               <div className="flex flex-wrap gap-3">
-                {ANALYTICS_DATA.categoryScores.map((d, i) => (<span key={d.category} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/[0.02] border border-black/[0.03]">
+                {stats_categoryScores.map((d, i) => (<span key={d.category} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/[0.02] border border-black/[0.03]">
                     <span className="w-2 h-2 rounded-full inline-block" style={{ background: catColors[i % catColors.length] }}/>
                     <span className="text-[10px] font-bold uppercase text-slate-500 tracking-normal">{d.category}</span>
                   </span>))}
               </div>
             </div>
             <div className={SECTION_STYLE} style={{ ...glassCard, gridColumn: 'span 2' }}>
-              <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>Daily Activity (March 2026)</h3>
-              <div style={{ height: 160 }}><MiniLineChart data={ANALYTICS_DATA.dailyUsers.slice(0, 10)}/></div>
+              <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>{t('recentMatches')}</h3>
+              <div style={{ height: 160 }}>
+                {stats_dailyActivity.length > 0 ? <MiniLineChart data={stats_dailyActivity}/> : (
+                  <div className="h-full flex items-center justify-center text-slate-400 text-xs italic">{t('noDataAvailable')}</div>
+                )}
+              </div>
             </div>
           </div>
           <div className={SECTION_STYLE} style={glassCard}>
-            <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-8" style={{ fontFamily: 'inherit' }}>Game Mode Distribution</h3>
-            <DonutChart segments={updatedDistribution}/>
+            <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-8" style={{ fontFamily: 'inherit' }}>{t('gameModeDistribution')}</h3>
+            {stats_distribution.length > 0 ? <DonutChart segments={updatedDistribution}/> : (
+              <p className="text-slate-400 text-xs italic py-4">{t('noDataAvailable')}</p>
+            )}
           </div>
         </motion.div>)}
 
       {/* ═══════ Leaderboard Tab ═══════ */}
       {tab === 'leaderboard' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-slate-500 text-sm">{leaderboard.length} players ranked</p>
+            <p className="text-slate-500 text-sm">{leaderboard.length} {t('player')} {t('inTable')}</p>
             <div className="flex gap-2">
               {confirmReset ? (<div className="flex items-center gap-2 text-sm">
-                  <span className="text-slate-400">Confirm reset?</span>
-                  <button onClick={() => { setLeaderboard([]); setConfirmReset(false); }} className="px-3 py-1.5 rounded-lg text-red-500 transition-colors" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>Yes, Reset</button>
-                  <button onClick={() => setConfirmReset(false)} className="px-3 py-1.5 rounded-lg text-slate-500 hover:text-[#000000] transition-colors" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>Cancel</button>
+                  <span className="text-slate-400">{t('areYouSure')}</span>
+                  <button onClick={() => { setLeaderboard([]); setConfirmReset(false); }} className="px-3 py-1.5 rounded-lg text-red-500 transition-colors" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>{t('yes')}, {t('resetStats')}</button>
+                  <button onClick={() => setConfirmReset(false)} className="px-3 py-1.5 rounded-lg text-slate-500 hover:text-[#000000] transition-colors" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>{t('cancel')}</button>
                 </div>) : (<>
                   <button onClick={() => setLeaderboard(l => l.slice(0, 10))} className="px-3 py-2 rounded-lg text-slate-500 hover:text-[#000000] text-sm transition-colors flex items-center gap-1.5" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
-                    <ChevronDown className="w-3.5 h-3.5"/> Keep Top 10
+                    <ChevronDown className="w-3.5 h-3.5"/> {t('keepTop10')}
                   </button>
                   <button onClick={() => setConfirmReset(true)} className="px-3 py-2 rounded-lg text-red-400 text-sm transition-colors flex items-center gap-1.5" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
-                    <AlertTriangle className="w-3.5 h-3.5"/> Reset All
+                    <AlertTriangle className="w-3.5 h-3.5"/> {t('resetStats')}
                   </button>
                 </>)}
             </div>
           </div>
           <div className={CARD_STYLE}>
             <div className="hidden sm:grid grid-cols-10 px-6 py-4 text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em]" style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
-              <span className="col-span-1">Rank</span><span className="col-span-4">Player Identity</span><span className="col-span-2 text-right">Total Score</span><span className="col-span-1 text-right">Games</span><span className="col-span-1 text-right">Wins</span><span className="col-span-1 text-right">Actions</span>
+              <span className="col-span-1">{t('rank')}</span><span className="col-span-4">{t('player')}</span><span className="col-span-2 text-right">{t('totalScore')}</span><span className="col-span-1 text-right">{t('statsGames')}</span><span className="col-span-1 text-right">{t('wins')}</span><span className="col-span-1 text-right">{t('actions')}</span>
             </div>
             <div className="divide-y max-h-[500px] overflow-y-auto no-scrollbar" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
               {leaderboard.map((entry, i) => (<div key={entry.id} className="grid grid-cols-10 items-center px-6 py-4 hover:bg-black/[0.01] transition-colors group">
@@ -747,7 +786,7 @@ export default function AdminPage() {
                 </div>))}
               {leaderboard.length === 0 && (<div className="py-20 text-center">
                   <Trophy className="w-12 h-12 text-slate-200 mx-auto mb-4 opacity-50"/>
-                  <p className="text-slate-400 font-bold uppercase tracking-normal text-xs">Leaderboard is empty</p>
+                  <p className="text-slate-400 font-bold uppercase tracking-normal text-xs">{t('leaderboardEmpty')}</p>
                 </div>)}
             </div>
           </div>
@@ -762,8 +801,8 @@ export default function AdminPage() {
                     <Globe className="w-5 h-5 text-amber-600"/>
                 </div>
                 <div>
-                    <h3 className="text-[#000000] text-sm font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>Multiplayer Matchmaking</h3>
-                    <p className="text-slate-500 text-[10px] font-medium opacity-60">Global 1v1 queue status</p>
+                    <h3 className="text-[#000000] text-sm font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('matchmaking')}</h3>
+                    <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('matchmakingDesc')}</p>
                 </div>
               </div>
               <button onClick={() => setSystemConfig(prev => ({ ...prev, matchmakingEnabled: !prev.matchmakingEnabled }))} className="p-1 rounded-lg">
@@ -777,8 +816,8 @@ export default function AdminPage() {
                     <Zap className="w-5 h-5 text-cyan-600"/>
                 </div>
                 <div>
-                    <h3 className="text-[#000000] text-sm font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>Maintenance Mode</h3>
-                    <p className="text-slate-500 text-[10px] font-medium opacity-60">Lock all game features</p>
+                    <h3 className="text-[#000000] text-sm font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('maintenanceMode')}</h3>
+                    <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('maintenanceDesc')}</p>
                 </div>
               </div>
               <button onClick={() => setSystemConfig(prev => ({ ...prev, maintenanceMode: !prev.maintenanceMode }))} className="p-1 rounded-lg">
@@ -788,21 +827,21 @@ export default function AdminPage() {
           </div>
 
           <div className={SECTION_STYLE}>
-            <h3 className="text-[#000000] text-sm font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>Database & Storage</h3>
+            <h3 className="text-[#000000] text-sm font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>{t('databaseStorage')}</h3>
             <div className="space-y-3">
                 <button className="w-full flex items-center justify-between p-4 rounded-xl bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04] transition-all group">
                     <div className="flex items-center gap-3">
                         <Database className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"/>
-                        <span className="text-xs font-bold text-slate-500">Flush Redis Cache</span>
+                        <span className="text-xs font-bold text-slate-500">{t('clearCache')}</span>
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-normal text-slate-400">Purge Now</span>
+                    <span className="text-[10px] font-bold uppercase tracking-normal text-slate-400">{t('clearNow')}</span>
                 </button>
                 <button className="w-full flex items-center justify-between p-4 rounded-xl bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04] transition-all group">
                     <div className="flex items-center gap-3">
                         <Shield className="w-4 h-4 text-slate-400 group-hover:text-[#FACC15] transition-colors"/>
-                        <span className="text-xs font-bold text-slate-500">Recalculate Ranks</span>
+                        <span className="text-xs font-bold text-slate-500">{t('recomputeRankings')}</span>
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-normal text-slate-400">Run Sync</span>
+                    <span className="text-[10px] font-bold uppercase tracking-normal text-slate-400">{t('process')}</span>
                 </button>
             </div>
           </div>
@@ -816,8 +855,8 @@ export default function AdminPage() {
               
               <div className="p-8 pb-4 flex items-center justify-between border-b border-black/[0.03]">
                 <div>
-                    <h2 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{modal.mode === 'edit' ? 'Edit Question' : 'Create Question'}</h2>
-                    <p className="text-slate-500 text-xs font-medium opacity-60">Manage content for the global pool</p>
+                    <h2 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{modal.mode === 'edit' ? t('editQuestion') : t('addNewQuestion')}</h2>
+                    <p className="text-slate-500 text-xs font-medium opacity-60">{t('manageContentGlobal')}</p>
                 </div>
                 <button onClick={() => setModal(null)} className="p-3 rounded-2xl bg-black/[0.03] text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm">
                     <X className="w-5 h-5"/>
@@ -826,24 +865,24 @@ export default function AdminPage() {
 
               <div className="p-8 overflow-y-auto no-scrollbar space-y-6">
                 <div>
-                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Question Content (English)</label>
-                  <textarea value={form.text} onChange={e => setForm({ ...form, text: e.target.value })} className="w-full p-4 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all h-20 resize-none" placeholder="Enter question text..."/>
+                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('questionEn')}</label>
+                  <textarea value={form.text} onChange={e => setForm({ ...form, text: e.target.value })} className="w-full p-4 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all h-20 resize-none" placeholder={t('enterQuestionEn')}/>
                 </div>
 
                 <div>
-                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Question Content (Khmer)</label>
-                  <textarea value={form.textKm} onChange={e => setForm({ ...form, textKm: e.target.value })} className="w-full p-4 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all h-20 resize-none" placeholder="Enter question text in Khmer..."/>
+                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('questionKm')}</label>
+                  <textarea value={form.textKm} onChange={e => setForm({ ...form, textKm: e.target.value })} className="w-full p-4 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all h-20 resize-none" placeholder={t('enterQuestionKm')}/>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Category</label>
+                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('category')}</label>
                     <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm font-bold glass-card border-black/[0.03] focus:outline-none">
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      {categories.filter(c => c.enabled || c.id === form.categoryId).map(c => <option key={c.id} value={c.id}>{(lang === 'km' && c.nameKm) ? c.nameKm : c.name}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Difficulty</label>
+                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('difficulty')}</label>
                     <select value={form.difficulty} onChange={e => setForm({ ...form, difficulty: e.target.value })} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm font-bold glass-card border-black/[0.03] focus:outline-none">
                       {['Easy', 'Medium', 'Hard'].map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
@@ -851,7 +890,7 @@ export default function AdminPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal block opacity-70">Answer Options (A-D)</label>
+                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal block opacity-70">{t('answerOptions')} (A-D)</label>
                   {(form.answers || []).map((ans, i) => (<div key={i} className="relative group">
                       <div className={`absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold border transition-colors ${ans.isCorrect ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-black/[0.03] text-slate-400 border-black/[0.05]'}`}>
                         {String.fromCharCode(65 + i)}
@@ -869,7 +908,7 @@ export default function AdminPage() {
                         }} className="bg-transparent text-slate-500 text-xs focus:outline-none" placeholder={`Option ${String.fromCharCode(65 + i)} (Khmer)`}/>
                       </div>
                       <button onClick={() => markCorrect(i)} className={`absolute right-4 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-normal transition-all ${ans.isCorrect ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-400 hover:text-emerald-500 bg-black/[0.03]'}`}>
-                        {ans.isCorrect ? 'Correct' : 'Set Correct'}
+                        {ans.isCorrect ? t('correct') : t('markAsCorrect')}
                       </button>
                     </div>))}
                 </div>
@@ -880,9 +919,9 @@ export default function AdminPage() {
               </div>
 
               <div className="p-8 pt-4 flex gap-3 border-t border-black/[0.03]">
-                <button onClick={() => setModal(null)} className="flex-1 py-4 rounded-2xl text-slate-500 text-xs font-bold uppercase tracking-normal hover:bg-black/[0.03] transition-all">Cancel</button>
+                <button onClick={() => setModal(null)} className="flex-1 py-4 rounded-2xl text-slate-500 text-xs font-bold uppercase tracking-normal hover:bg-black/[0.03] transition-all">{t('cancel')}</button>
                 <button onClick={handleSave} className="flex-[2] py-4 rounded-2xl text-white text-xs font-bold uppercase tracking-normal shadow-xl transition-all" style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(99,102,241,0.25)' }}>
-                  {modal.mode === 'edit' ? 'Save Changes' : 'Create Question'}
+                  {modal.mode === 'edit' ? t('saveChanges') : t('addNewQuestion')}
                 </button>
               </div>
             </motion.div>
@@ -896,8 +935,8 @@ export default function AdminPage() {
               
               <div className="p-8 pb-4 flex items-center justify-between border-b border-black/[0.03]">
                 <div>
-                    <h2 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{catModal.mode === 'add' ? 'Create Category' : 'Edit Category'}</h2>
-                    <p className="text-slate-500 text-xs font-medium opacity-60">Define quiz domains and visual themes</p>
+                    <h2 className="text-[#000000] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{catModal.mode === 'add' ? t('addCategory') : t('editCategory')}</h2>
+                    <p className="text-slate-500 text-xs font-medium opacity-60">{t('categoryModalSubtitle')}</p>
                 </div>
                 <button onClick={() => setCatModal(null)} className="p-3 rounded-2xl bg-black/[0.03] text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm">
                     <X className="w-5 h-5"/>
@@ -906,7 +945,7 @@ export default function AdminPage() {
 
               <div className="p-8 overflow-y-auto no-scrollbar space-y-6">
                 <div>
-                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Icon & Visual Identity</label>
+                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('iconAndVisual')}</label>
                   <div className="flex flex-wrap gap-2.5">
                     {ICON_OPTIONS.map(icon => (<button key={icon} onClick={() => setCatForm(f => ({ ...f, icon }))} className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${catForm.icon === icon ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md scale-110' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}>
                         <CategoryIcon name={icon} className={`w-5 h-5 ${catForm.icon === icon ? 'text-[#FACC15]' : 'text-slate-400'}`} />
@@ -916,17 +955,17 @@ export default function AdminPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Category Name</label>
-                    <input type="text" value={catForm.name} onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all" placeholder="e.g. Science & Tech"/>
+                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('categoryName')}</label>
+                    <input type="text" value={catForm.name} onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all" placeholder={t('catNamePlaceholder')}/>
                   </div>
                   <div>
-                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Description</label>
-                    <input type="text" value={catForm.description} onChange={e => setCatForm(f => ({ ...f, description: e.target.value }))} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all" placeholder="Brief tagline..."/>
+                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('description')}</label>
+                    <input type="text" value={catForm.description} onChange={e => setCatForm(f => ({ ...f, description: e.target.value }))} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all" placeholder={t('catDescPlaceholder')}/>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Color Theme Palette</label>
+                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('colorPalette')}</label>
                   <div className="grid grid-cols-2 gap-3">
                     {COLOR_OPTIONS.map(opt => (<button key={opt.value} onClick={() => setCatForm(f => ({ ...f, color: opt.value }))} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${catForm.color === opt.value ? 'bg-black/[0.04] border-2 border-[#000000] shadow-sm' : 'bg-black/[0.01] border border-black/[0.04] hover:bg-black/[0.03]'}`}>
                         <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${opt.value} shadow-inner`}/>
@@ -937,9 +976,9 @@ export default function AdminPage() {
               </div>
 
               <div className="p-8 pt-4 flex gap-3 border-t border-black/[0.03]">
-                <button onClick={() => setCatModal(null)} className="flex-1 py-4 rounded-2xl text-slate-500 text-xs font-bold uppercase tracking-normal hover:bg-black/[0.03] transition-all">Cancel</button>
+                <button onClick={() => setCatModal(null)} className="flex-1 py-4 rounded-2xl text-slate-500 text-xs font-bold uppercase tracking-normal hover:bg-black/[0.03] transition-all">{t('cancel')}</button>
                 <button onClick={handleSaveCategory} className="flex-[2] py-4 rounded-2xl text-white text-xs font-bold uppercase tracking-normal shadow-xl transition-all" style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(99,102,241,0.25)' }}>
-                  {catModal.mode === 'add' ? 'Create Domain' : 'Save Changes'}
+                  {catModal.mode === 'add' ? t('addCategory') : t('saveChanges')}
                 </button>
               </div>
             </motion.div>

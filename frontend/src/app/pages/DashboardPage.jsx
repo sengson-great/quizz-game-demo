@@ -65,7 +65,7 @@ const CategoryIcon = ({ name, className, style }) => {
 
 export default function DashboardPage() {
     const { currentUser } = useAuth();
-    const { t } = useTranslation();
+    const { t, lang } = useTranslation();
     const navigate = useNavigate();
 
     const [stats, setStats]           = useState(null);
@@ -112,13 +112,12 @@ export default function DashboardPage() {
 
     const BAR_COLORS = ['#FACC15', '#818CF8', '#06b6d4', '#34d399', '#f59e0b', '#8b5cf6'];
     
-    const CATEGORY_DATA = CATEGORIES.map(cat => {
-        const realStat = categoryStats.find(s => s.category_id === cat.id || s.slug === cat.id);
+    const CATEGORY_DATA = categoryStats.map((stat, i) => {
         return { 
-            subject: t(`cat${cat.id.charAt(0).toUpperCase() + cat.id.slice(1)}`), 
-            value: realStat ? realStat.accuracy : 0, 
-            icon: cat.icon,
-            iconColor: cat.iconColor
+            subject: (lang === 'km' && stat.name_km) ? stat.name_km : stat.name,
+            value: stat.accuracy, 
+            icon: stat.icon || 'Brain',
+            iconColor: BAR_COLORS[i % BAR_COLORS.length]
         };
     });
 

@@ -1,4 +1,4 @@
-# 🏆 QuizBlitz: Cartoon Edition
+# 🏆 Quiz No Cap: Cartoon Edition
 
 A high-energy, real-time multiplayer quiz game built with **Laravel 11** and **React (Vite)**. Featuring a bold **Neubrutalist (Cartoon)** aesthetic, full **Khmer & English** localization, and a powerful real-time engine.
 
