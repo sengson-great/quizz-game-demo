@@ -10,10 +10,10 @@ const CARD_STYLE = "glass-card rounded-[2rem] transition-all duration-300 overfl
 const STAT_CARD_STYLE = "glass-card rounded-[1.5rem] p-5 border-black/[0.03]";
 
 const SORT_OPTIONS = [
-    { key: 'total_score', label: 'Total Score' },
-    { key: 'high_score',  label: 'Best Score'  },
-    { key: 'wins',        label: 'Wins'        },
-    { key: 'win_rate',    label: 'Win Rate'    },
+    { key: 'total_score', label: 'totalScore' },
+    { key: 'high_score',  label: 'bestScore'  },
+    { key: 'wins',        label: 'wins'        },
+    { key: 'win_rate',    label: 'winRate'     },
 ];
 
 function SkeletonRow({ i }) {
@@ -94,7 +94,7 @@ export default function LeaderboardPage() {
             setEntries(res.data);
         } catch (err) {
             console.error(err);
-            setError('Failed to load leaderboard. Please try again.');
+            setError(t('failedToLoadLeaderboard'));
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -144,7 +144,7 @@ export default function LeaderboardPage() {
                 <h1 className="text-[#000000] text-3xl font-bold tracking-tight mb-2" style={{ fontFamily: 'inherit' }}>
                     {t('leaderboard')}
                 </h1>
-                <p className="text-slate-500 text-sm font-medium opacity-80">Top quiz champions worldwide</p>
+                <p className="text-slate-500 text-sm font-medium opacity-80">{t('topQuizChampions')}</p>
             </motion.div>
 
             {/* Podium */}
@@ -170,16 +170,16 @@ export default function LeaderboardPage() {
                         <Medal className="w-5 h-5 text-[#FACC15]"/>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-[#FACC15] text-[10px] font-bold uppercase tracking-normal mb-0.5">Your Current Ranking</p>
+                        <p className="text-[#FACC15] text-[10px] font-bold uppercase tracking-normal mb-0.5">{t('yourCurrentRanking')}</p>
                         <p className="text-[#000000] text-sm font-bold truncate">
-                            #{myEntry.rank} • {(myEntry.total_score || 0).toLocaleString()} pts • {myEntry.wins || 0} wins
+                            #{myEntry.rank} • {(myEntry.total_score || 0).toLocaleString()} {t('points')} • {myEntry.wins || 0} {t('wins').toLowerCase()}
                         </p>
                     </div>
                     <button
                         onClick={() => fetchLeaderboard(sortBy, true)}
                         disabled={refreshing}
                         className="p-3 rounded-xl transition-all glass-card border-black/[0.03] hover:bg-black/[0.02]"
-                        title="Refresh"
+                        title={t('refresh')}
                     >
                         <RefreshCw className={`w-4 h-4 text-indigo-500 ${refreshing ? 'animate-spin' : ''}`}/>
                     </button>
@@ -192,7 +192,7 @@ export default function LeaderboardPage() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#FACC15] transition-colors"/>
                     <input
                         type="text"
-                        placeholder="Search player…"
+                        placeholder={t('searchPlayer')}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="w-full pl-12 pr-4 py-3.5 rounded-2xl text-[#000000] placeholder-slate-400 focus:outline-none text-sm glass-card border-black/[0.03] transition-all focus:border-[#FACC15]/20"
@@ -206,7 +206,7 @@ export default function LeaderboardPage() {
                             className={`px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-normal transition-all flex items-center gap-2 whitespace-nowrap ${sortBy === key ? 'bg-white shadow-sm text-[#FACC15] border border-black/[0.02]' : 'text-slate-500 hover:text-[#000000]'}`}
                         >
                             <TrendingUp className={`w-3.5 h-3.5 ${sortBy === key ? 'text-[#FACC15]' : 'opacity-40'}`}/>
-                            {label}
+                            {t(label)}
                         </button>
                     ))}
                 </div>
@@ -217,7 +217,7 @@ export default function LeaderboardPage() {
                 <div className="text-center py-10 text-red-400">
                     <p className="mb-3">{error}</p>
                     <button onClick={() => fetchLeaderboard(sortBy)} className="px-5 py-2 rounded-xl text-white text-sm" style={{ background: 'linear-gradient(135deg, #FACC15, #8B5CF6)' }}>
-                        Retry
+                        {t('retry')}
                     </button>
                 </div>
             )}
@@ -227,11 +227,11 @@ export default function LeaderboardPage() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className={CARD_STYLE}>
                     {/* Table header */}
                     <div className="grid grid-cols-12 px-6 py-4 text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em]" style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
-                        <span className="col-span-1">Rank</span>
-                        <span className="col-span-6 sm:col-span-4">Player</span>
-                        <span className="col-span-3 text-right">Score</span>
-                        <span className="hidden sm:block sm:col-span-2 text-right">Wins / Games</span>
-                        <span className="col-span-2 text-right">Win %</span>
+                        <span className="col-span-1">{t('rank')}</span>
+                        <span className="col-span-6 sm:col-span-4">{t('player')}</span>
+                        <span className="col-span-3 text-right">{t('score')}</span>
+                        <span className="hidden sm:block sm:col-span-2 text-right">{t('winsGames')}</span>
+                        <span className="col-span-2 text-right">{t('winPercentage')}</span>
                     </div>
 
                     {/* Skeleton */}
@@ -276,7 +276,7 @@ export default function LeaderboardPage() {
                                                         {entry.name}
                                                     </p>
                                                     <p className="text-slate-500 text-[10px] font-medium opacity-60">
-                                                        Level {Math.floor(entry.total_score / 1000) + 1}
+                                                        {t('level')} {Math.floor(entry.total_score / 1000) + 1}
                                                     </p>
                                                 </div>
                                             </div>
@@ -286,13 +286,13 @@ export default function LeaderboardPage() {
                                                 <p className="text-[#000000] text-sm sm:text-lg font-bold tabular-nums tracking-tight">
                                                     {(entry.total_score || 0).toLocaleString()}
                                                 </p>
-                                                <p className="text-slate-500 text-[9px] font-bold uppercase tracking-normal opacity-60">pts</p>
+                                                <p className="text-slate-500 text-[9px] font-bold uppercase tracking-normal opacity-60">{t('points')}</p>
                                             </div>
 
                                             {/* Games */}
                                             <div className="hidden sm:block sm:col-span-2 text-right">
                                                 <p className="text-[#000000] text-sm font-bold">{entry.wins}</p>
-                                                <p className="text-slate-500 text-[10px] font-medium opacity-60">of {entry.games_played} games</p>
+                                                <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('ofGames').replace('{count}', entry.games_played)}</p>
                                             </div>
 
                                             {/* Win rate */}
@@ -327,7 +327,7 @@ export default function LeaderboardPage() {
                     {/* Empty state */}
                     {!loading && filtered.length === 0 && !error && (
                         <div className="text-center py-12 text-slate-400">
-                            {search ? `No players found matching "${search}"` : 'No data yet — play some games!'}
+                            {search ? t('noPlayersFound').replace('{search}', search) : t('noDataYet')}
                         </div>
                     )}
                 </motion.div>
@@ -336,7 +336,7 @@ export default function LeaderboardPage() {
             {/* Footer count */}
             {!loading && !error && filtered.length > 0 && (
                 <p className="text-center text-slate-400 text-xs mt-4">
-                    Showing {filtered.length} player{filtered.length !== 1 ? 's' : ''}
+                    {t('showingPlayers').replace('{count}', filtered.length)}
                 </p>
             )}
         </div>

@@ -59,7 +59,7 @@ const MODE_STYLE  = {
 
 const CategoryIcon = ({ name, className, style }) => {
     const icons = { Brain, Cpu, History, Globe, Zap, Palette, Shield, Target, Swords, Trophy, Sparkles };
-    const Icon = icons[name] || Gamepad2;
+    const Icon = (typeof name === 'string' ? icons[name] : name) || Brain;
     return <Icon className={className} style={style} />;
 };
 
@@ -112,12 +112,14 @@ export default function DashboardPage() {
 
     const BAR_COLORS = ['#FACC15', '#818CF8', '#06b6d4', '#34d399', '#f59e0b', '#8b5cf6'];
     
-    const CATEGORY_DATA = categoryStats.map((stat, i) => {
+    const CATEGORY_DATA = CATEGORIES.map((cat) => {
+        const stat = categoryStats.find(s => String(s.id) === String(cat.id) || s.name === cat.name);
         return { 
-            subject: (lang === 'km' && stat.name_km) ? stat.name_km : stat.name,
-            value: stat.accuracy, 
-            icon: stat.icon || 'Brain',
-            iconColor: BAR_COLORS[i % BAR_COLORS.length]
+            id: cat.id,
+            subject: (lang === 'km' && cat.nameKm) ? cat.nameKm : cat.name,
+            value: stat ? stat.accuracy : 0, 
+            icon: cat.icon,
+            iconColor: cat.iconColor
         };
     });
 
@@ -230,7 +232,7 @@ export default function DashboardPage() {
                                 <h3 className="text-[#000000] text-sm font-bold mb-1" style={{ fontFamily: 'inherit' }}>{title}</h3>
                                 <p className="text-slate-600 text-[10px] font-medium leading-snug line-clamp-2">{desc}</p>
                                 <div className="flex items-center gap-1 text-[9px] font-bold text-[#FACC15] mt-4 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-normal">
-                                    Start <ChevronRight className="w-3 h-3"/>
+                                    {t('start')} <ChevronRight className="w-3 h-3"/>
                                 </div>
                             </motion.button>
                         ))}
@@ -246,9 +248,13 @@ export default function DashboardPage() {
                         transition={{ delay: 0.3 }} 
                         className={`p-6 space-y-5 ${CARD_STYLE} border-black/[0.03]`}
                     >
-                        {CATEGORY_DATA.map(({ subject, value, icon, iconColor }, i) => (
-                            <CategoryBar key={subject} subject={subject} value={value} icon={icon} iconColor={iconColor} index={i}/>
-                        ))}
+                        {CATEGORY_DATA.map(({ id, subject, value, icon, iconColor }, i) => {
+                            const tKey = `cat${id.charAt(0).toUpperCase() + id.slice(1)}`;
+                            const translatedSubject = t(tKey);
+                            // If translation returns the key itself (meaning it's missing), use the original subject
+                            const finalSubject = translatedSubject === tKey ? subject : translatedSubject;
+                            return <CategoryBar key={id} subject={finalSubject} value={value} icon={icon} iconColor={iconColor} index={i}/>
+                        })}
                     </motion.div>
                 </div>
             </div>
@@ -278,7 +284,7 @@ export default function DashboardPage() {
                                     className="px-6 py-2.5 rounded-xl text-white text-[10px] font-bold uppercase tracking-normal shadow-md"
                                     style={{ background: 'var(--grad-primary)' }}
                                 >
-                                    Play First Game
+                                    {t('playFirstGame')}
                                 </motion.button>
                             </div>
                         )}
@@ -317,7 +323,7 @@ export default function DashboardPage() {
                                         <p className="text-[#000000] text-xl font-bold tabular-nums tracking-tighter">
                                             {(game.score || 0).toLocaleString()}
                                         </p>
-                                        <p className="text-slate-500 text-[8px] font-bold uppercase tracking-normal">pts</p>
+                                        <p className="text-slate-500 text-[8px] font-bold uppercase tracking-normal">{t('points')}</p>
                                     </div>
                                 </motion.div>
                             );

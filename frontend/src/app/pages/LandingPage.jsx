@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import api from '../api/axios';
+import api from '../../api/axios';
 import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap, Download, Cpu, History, Palette } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { usePWA } from '../contexts/PWAContext';
+import { CATEGORIES } from '../data/questions';
 
 const LIGHT_BG = 'var(--grad-surface)';
 const CARD_STYLE = { 
@@ -14,8 +15,8 @@ const CARD_STYLE = {
 };
 
 const CategoryIcon = ({ name, className, style }) => {
-    const icons = { Brain, Cpu, History, Globe, Zap, Palette };
-    const Icon = icons[name] || Zap;
+    const icons = { Brain, Cpu, History, Globe, Zap, Palette, Sparkles, Users, Shield, Trophy, Star, Swords, BarChart3, Download };
+    const Icon = (typeof name === 'string' ? icons[name] : name) || Brain;
     return <Icon className={className} style={style} />;
 };
 
@@ -25,7 +26,7 @@ export default function LandingPage() {
 
     const FEATURES = [
         { icon: Zap, title: t('soloPractice'), desc: t('soloDesc'), color: 'text-amber-500', gradient: 'from-amber-500 to-orange-500' },
-        { icon: Swords, title: t('battle1v1'), desc: t('battleDesc'), color: 'text-[#FACC15]', gradient: 'from-[#FACC15] to-purple-500' },
+        { icon: Swords, title: t('battle1v1'), desc: t('battleDesc'), color: 'text-[#000000]', gradient: 'from-[#FACC15] to-purple-500' },
         { icon: Users, title: t('roomMode'), desc: t('roomDesc'), color: 'text-cyan-500', gradient: 'from-cyan-500 to-purple-500' },
     ];
     const STATS = [
@@ -49,14 +50,6 @@ export default function LandingPage() {
         }).catch(e => console.error('Failed to fetch categories', e));
     }, []);
 
-    const CATEGORIES = dynamicCategories.length > 0 ? dynamicCategories : [
-        { icon: 'Brain', name: t('catScience'), color: '#3b82f6' },
-        { icon: 'History', name: t('catHistory'), color: '#f59e0b' },
-        { icon: 'Cpu', name: t('catTechnology'), color: '#8b5cf6' },
-        { icon: 'Globe', name: t('catGeography'), color: '#10b981' },
-        { icon: 'Zap', name: t('catSports'), color: '#ef4444' },
-        { icon: 'Palette', name: t('catArts'), color: '#ec4899' },
-    ];
     const STEPS = [
         { num: '01', title: t('step1Title'), desc: t('step1Desc') },
         { num: '02', title: t('step2Title'), desc: t('step2Desc') },
@@ -151,7 +144,7 @@ export default function LandingPage() {
           </h2>
           <p className="text-center text-slate-600 mb-16 font-bold uppercase tracking-normal text-sm">{t('threeModes')}</p>
           <div className="grid md:grid-cols-3 gap-8">
-            {FEATURES.map(({ icon: Icon, title, desc, color, gradient }, i) => (<motion.div key={title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }} className="rounded-3xl p-8 border-[3px] border-black shadow-[8px_8px_0_0_#000000] bg-white transition-all hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[12px_12px_0_0_#000000]">
+            {FEATURES.map(({ icon: Icon, title, desc, color }, i) => (<motion.div key={title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }} className="rounded-3xl p-8 border-[3px] border-black shadow-[8px_8px_0_0_#000000] bg-white transition-all hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[12px_12px_0_0_#000000]">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border-2 border-black shadow-[4px_4px_0_0_#000000]" style={{ background: '#FACC15' }}>
                   <Icon className={`w-7 h-7 ${color}`}/>
                 </div>

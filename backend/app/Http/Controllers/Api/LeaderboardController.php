@@ -61,7 +61,7 @@ class LeaderboardController extends Controller
     public function stats()
     {
         // 1. Most Failed Questions
-        $mostFailed = GameSessionQuestion::with('question:id,text')
+        $mostFailed = GameSessionQuestion::with('question:id,text,text_km')
             ->where('is_correct', false)
             ->select('question_id', DB::raw('count(*) as fails'))
             ->groupBy('question_id')
@@ -72,6 +72,7 @@ class LeaderboardController extends Controller
                 $totalAttempts = GameSessionQuestion::where('question_id', $q->question_id)->count();
                 return [
                     'question' => $q->question->text ?? 'Unknown',
+                    'question_km' => $q->question->text_km ?? null,
                     'fails'    => $q->fails,
                     'failRate' => round(($q->fails / max($totalAttempts, 1)) * 100, 1)
                 ];
@@ -87,6 +88,7 @@ class LeaderboardController extends Controller
 
             return [
                 'category' => $cat->name,
+                'category_km' => $cat->name_km,
                 'avgScore' => (int)($matching->avg('score') ?? 0)
             ];
         })->sortByDesc('avgScore')->values();
@@ -120,8 +122,8 @@ class LeaderboardController extends Controller
             'category_scores'       => $categoryScores,
             'daily_activity'        => $dailyActivity,
             'game_mode_distribution' => [
-                ['name' => 'Solo Mode', 'value' => $soloCount],
-                ['name' => 'Multiplayer', 'value' => $multiCount],
+                ['name' => 'soloMode', 'value' => $soloCount],
+                ['name' => 'multiplayer', 'value' => $multiCount],
             ],
             'top_players'  => GameSession::with('user:id,name,avatar')
                 ->select('user_id', DB::raw('MAX(score) as high_score'))

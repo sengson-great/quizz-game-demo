@@ -78,8 +78,8 @@ export default function SettingsPage() {
                         <Smartphone className="w-5 h-5 text-cyan-600"/>
                     </div>
                     <div>
-                        <p className="text-[#1A1A2E] text-sm font-bold tracking-tight">{isIOS ? 'Add to Home Screen' : 'Install App'}</p>
-                        <p className="text-slate-500 text-[10px] font-medium opacity-70">{isIOS ? 'Get the full app experience' : 'Get a better experience on your home screen'}</p>
+                        <p className="text-[#1A1A2E] text-sm font-bold tracking-tight">{isIOS ? t('addToHomeScreen') : t('installApp')}</p>
+                        <p className="text-slate-500 text-[10px] font-medium opacity-70">{isIOS ? t('getFullAppExperience') : t('getBetterExperience')}</p>
                     </div>
                 </div>
                 {isInstalled ? (
@@ -98,7 +98,7 @@ export default function SettingsPage() {
                     </motion.button>
                 ) : (
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-normal bg-black/[0.02] px-3 py-1.5 rounded-lg border border-black/[0.03]">
-                        {supportsPWA ? 'Mobile Ready' : 'Desktop Mode'}
+                        {supportsPWA ? t('mobileReady') : t('desktopMode')}
                     </div>
                 )}
             </div>
@@ -137,15 +137,15 @@ export default function SettingsPage() {
                   </div>
                   <div>
                     <p className="text-[#1A1A2E] text-sm font-bold">{t('soundEffects')}</p>
-                    <p className="text-slate-500 text-[10px] font-medium opacity-60">UI and interaction sounds</p>
+                    <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('uiAndInteractionSounds')}</p>
                   </div>
                 </div>
                 <ToggleSwitch value={form.soundEnabled} onChange={v => setForm(f => ({ ...f, soundEnabled: v }))}/>
               </div>
               <div className="flex items-center gap-4 px-1">
-                 <span className="text-[10px] font-bold text-slate-400 w-6">OFF</span>
+                 <span className="text-[10px] font-bold text-slate-400 w-6">{t('off')}</span>
                  <VolumeSlider value={sfxVolume} onChange={setSfxVolume} />
-                 <span className="text-[10px] font-bold text-slate-400 w-6">MAX</span>
+                 <span className="text-[10px] font-bold text-slate-400 w-6">{t('max')}</span>
               </div>
             </div>
 
@@ -157,15 +157,15 @@ export default function SettingsPage() {
                   </div>
                   <div>
                     <p className="text-[#1A1A2E] text-sm font-bold">{t('backgroundMusic')}</p>
-                    <p className="text-slate-500 text-[10px] font-medium opacity-60">Atmospheric game music</p>
+                    <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('atmosphericGameMusic')}</p>
                   </div>
                 </div>
                 <ToggleSwitch value={form.musicEnabled} onChange={v => setForm(f => ({ ...f, musicEnabled: v }))}/>
               </div>
               <div className="flex items-center gap-4 px-1">
-                 <span className="text-[10px] font-bold text-slate-400 w-6">OFF</span>
+                 <span className="text-[10px] font-bold text-slate-400 w-6">{t('off')}</span>
                  <VolumeSlider value={volume} onChange={setMusicVolume} />
-                 <span className="text-[10px] font-bold text-slate-400 w-6">MAX</span>
+                 <span className="text-[10px] font-bold text-slate-400 w-6">{t('max')}</span>
               </div>
             </div>
           </div>
@@ -215,7 +215,7 @@ export default function SettingsPage() {
                     </div>
                     <div className="text-left flex-1 min-w-0">
                       <p className={`text-sm font-bold truncate ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-500'}`}>{t(tKey)}</p>
-                      <p className="text-[10px] text-slate-400 font-medium">{isSelected ? 'Active Domain' : 'Tap to enable'}</p>
+                      <p className="text-[10px] text-slate-400 font-medium">{isSelected ? t('activeDomain') : t('tapToEnable')}</p>
                     </div>
                     {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#FACC15] shadow-[0_0_10px_rgba(99,102,241,0.6)] animate-pulse"/>}
                   </button>

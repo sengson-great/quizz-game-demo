@@ -117,10 +117,10 @@ function MiniLineChart({ data }) {
       <path d={usersPath} fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       <path d={gamesPath} fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       {data.map((d, i) => i % 2 === 0 && (<text key={d.day} x={toX(i)} y={H - 6} textAnchor="middle" fill="#64748b" fontSize="9">{d.day}</text>))}
-      <circle cx={PAD.left + 4} cy={PAD.top - 2} r="3" fill="#818cf8"/>
+      <circle cx={PAD.left + 4} cy={PAD.top - 1} r="3" fill="#818cf8"/>
       <text x={PAD.left + 10} y={PAD.top + 2} fill="#94a3b8" fontSize="9">{t('users')}</text>
-      <circle cx={PAD.left + 52} cy={PAD.top - 2} r="3" fill="#34d399"/>
-      <text x={PAD.left + 58} y={PAD.top + 2} fill="#94a3b8" fontSize="9">{t('statsGames')}</text>
+      <circle cx={PAD.left + 62} cy={PAD.top - 1} r="3" fill="#34d399"/>
+      <text x={PAD.left + 68} y={PAD.top + 2} fill="#94a3b8" fontSize="9">{t('statsGames')}</text>
     </svg>);
 }
 function DonutChart({ segments }) {
@@ -155,7 +155,7 @@ function DonutChart({ segments }) {
       <div className="space-y-3">
         {arcs.map(arc => (<div key={arc.name} className="flex items-center gap-3">
             <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: arc.fill }}/>
-            <span className="text-slate-600 text-sm w-20">{arc.name}</span>
+            <span className="text-slate-600 text-sm w-20">{t(arc.name)}</span>
             <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
               <div className="h-full rounded-full" style={{ width: `${arc.pct}%`, background: arc.fill }}/>
             </div>
@@ -709,7 +709,10 @@ export default function AdminPage() {
             <div className={SECTION_STYLE} style={glassCard}>
               <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>{t('mostFailedQuestions')}</h3>
               <div className="space-y-4">
-                {stats_mostFailed.length > 0 ? stats_mostFailed.map((d, i) => (<HorizBar key={d.question} label={d.question.length > 32 ? d.question.slice(0, 32) + '...' : d.question} value={d.failRate} max={100} color="#f472b6" index={i}/>)) : (
+                {stats_mostFailed.length > 0 ? stats_mostFailed.map((d, i) => {
+                  const label = (lang === 'km' && d.question_km) ? d.question_km : d.question;
+                  return <HorizBar key={d.question} label={label.length > 32 ? label.slice(0, 32) + '...' : label} value={d.failRate} max={100} color="#f472b6" index={i}/>
+                }) : (
                   <p className="text-slate-400 text-xs italic py-4">{t('noDataAvailable')}</p>
                 )}
               </div>
@@ -717,14 +720,14 @@ export default function AdminPage() {
             <div className={SECTION_STYLE} style={glassCard}>
               <h3 className="text-[#000000] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>{t('avgScoreByCategory')}</h3>
               <div className="flex items-end gap-3 h-40 px-2 mb-6">
-                {stats_categoryScores.length > 0 ? stats_categoryScores.map((d, i) => (<VertBar key={d.category} label={d.category.slice(0, 6)} value={d.avgScore} max={catScoreMax} color={catColors[i % catColors.length]} index={i}/>)) : (
+                {stats_categoryScores.length > 0 ? stats_categoryScores.map((d, i) => (<VertBar key={d.category} label={(lang === 'km' && d.category_km) ? d.category_km : d.category} value={d.avgScore} max={catScoreMax} color={catColors[i % catColors.length]} index={i}/>)) : (
                    <p className="text-slate-400 text-xs italic py-4 w-full text-center">{t('noDataAvailable')}</p>
                 )}
               </div>
               <div className="flex flex-wrap gap-3">
                 {stats_categoryScores.map((d, i) => (<span key={d.category} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/[0.02] border border-black/[0.03]">
                     <span className="w-2 h-2 rounded-full inline-block" style={{ background: catColors[i % catColors.length] }}/>
-                    <span className="text-[10px] font-bold uppercase text-slate-500 tracking-normal">{d.category}</span>
+                    <span className="text-[10px] font-bold uppercase text-slate-500 tracking-normal">{(lang === 'km' && d.category_km) ? d.category_km : d.category}</span>
                   </span>))}
               </div>
             </div>
