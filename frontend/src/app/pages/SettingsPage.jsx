@@ -18,7 +18,7 @@ const CategoryIcon = ({ name, className, style }) => {
 };
 
 const LANGUAGES = [
-    { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭' }, { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'km', name: 'ខ្មែរ', flag: 'KH' }, { code: 'en', name: 'English', flag: 'EN' },
 ];
 const AVATARS = ['🦊', '🐺', '🦋', '🐉', '🦅', '🐬', '🦁', '🐙', '🐸', '🦄', '🦉', '🐆', '🐯', '🐻', '🐼'];
 

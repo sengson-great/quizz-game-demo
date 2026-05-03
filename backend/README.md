@@ -17,6 +17,8 @@ The backend service for the QuizBlitz game, handling real-time matches, authenti
     php artisan key:generate
     ```
 
+    The example file already includes the local Reverb settings used by the frontend (`127.0.0.1:8081` over `http`).
+
 3.  **Database Configuration (SQLite)**:
     -   Ensure `DB_CONNECTION=sqlite` in `.env`.
     -   Create the database file: `touch database/database.sqlite`.
@@ -24,6 +26,7 @@ The backend service for the QuizBlitz game, handling real-time matches, authenti
 4.  **Run Migrations & Seeds**:
     ```bash
     php artisan migrate:fresh --seed
+    php artisan passport:keys
     ```
 
 5.  **Start Real-Time Broadcast Server (Laravel Reverb)**:

@@ -54,9 +54,15 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui': ['lucide-react', 'motion/react'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-router')) {
+              return 'vendor';
+            }
+            if (id.includes('lucide') || id.includes('motion')) {
+              return 'ui';
+            }
+          }
         }
       }
     }

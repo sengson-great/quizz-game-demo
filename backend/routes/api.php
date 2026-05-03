@@ -9,6 +9,10 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\GameSettingController;
 use App\Models\Question;
+use Laravel\Passport\Passport;
+
+// Register Passport routes for token generation
+Passport::routes();
 
 // ─── Public Routes ───────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);

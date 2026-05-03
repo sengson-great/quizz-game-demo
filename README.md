@@ -20,15 +20,15 @@ The application has been overhauled with a playful, high-impact design system:
 The fastest way to get QuizBlitz running is using Docker Compose.
 
 ```bash
-# 1. Clone and enter the project
-cd millionaire-quiz
+# 1. From the repo root, make sure Docker Desktop is running
+cd quizz-game-demo
 
 # 2. Build and start all services (Backend, Frontend, DB, Reverb)
-docker-compose up --build -d
+docker compose up --build -d
 
 # 3. Setup the database & keys
-docker-compose exec backend php artisan migrate --seed
-docker-compose exec backend php artisan passport:keys
+docker compose exec backend php artisan migrate --seed
+docker compose exec backend php artisan passport:keys
 ```
 
 **Access the App:**
@@ -63,7 +63,7 @@ docker-compose exec backend php artisan passport:keys
 ### Adding Questions
 Questions are stored in `backend/database/data/questions.json`. After modifying, re-run the seeders:
 ```bash
-docker-compose exec backend php artisan migrate:fresh --seed
+docker compose exec backend php artisan migrate:fresh --seed
 ```
 
 ### Modifying Styles
