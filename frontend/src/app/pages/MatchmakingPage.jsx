@@ -5,13 +5,18 @@ import { Users, CheckCircle, Wifi, Bot, Copy, Check } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ReturnButton } from '../components/ui/ReturnButton';
+import { translations } from '../data/translations';
+
+// inside the component:
+; 
 
 const LIGHT_BG = 'var(--grad-surface)';
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 
 export default function MatchmakingPage() {
+    const { currentUser } = useAuth(); 
+    const t = translations[currentUser?.language || 'KH'];
     const { gameState, startBattle } = useGame();
-    const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [stage, setStage] = useState('searching');
     const [copied, setCopied] = useState(false);
@@ -117,10 +122,10 @@ export default function MatchmakingPage() {
                                 </div>
                             </div>
                             <h2 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'inherit', fontWeight: 700 }}>
-                                {gameState.mode === 'Solo' ? 'Preparing Game...' : isRanked1v1 ? 'Finding Opponent...' : isRandomRoom ? 'Filling Room...' : 'Setting Up Room...'}
+                                {gameState.mode === 'Solo' ? t.preparingGame : isRanked1v1 ? t.findingOpponent : isRandomRoom ? t.fillingRoom : t.settingUpRoom}
                             </h2>
                             <p className="text-slate-500 text-sm mb-6">
-                                {isRanked1v1 ? 'Searching for a human player... AI backup ready' : isRandomRoom ? 'Auto-filling with available players...' : 'Loading your questions...'}
+                                {isRanked1v1 ? t.searchingAiBackup : isRandomRoom ? t.autoFilling : t.loadingQuestions}
                             </p>
 
                             {isRandomRoom && (
@@ -196,7 +201,7 @@ export default function MatchmakingPage() {
                                     <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
                                         <Wifi className="w-4 h-4"/>
                                     </motion.div>
-                                    Scanning matchmaking pool...
+                                    {t.scanningMatchmakingPool}
                                 </div>
                             )}
                         </motion.div>

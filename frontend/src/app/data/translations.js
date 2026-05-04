@@ -1,5 +1,25 @@
 export const translations = {
   en: {
+      // English (en)
+    preparingGame: 'Preparing Game...',
+    findingOpponent: 'Finding Opponent...',
+    fillingRoom: 'Filling Room...',
+    settingUpRoom: 'Setting Up Room...',
+    searchingAiBackup: 'Searching for a human player... AI backup ready',
+    autoFilling: 'Auto-filling with available players...',
+    loadingQuestions: 'Loading your questions...',
+    scanningPool: 'Scanning matchmaking pool...',
+    startEarly: 'Start Early',
+    inviteFriends: 'Invite friends with code',
+    friendsCanJoin: 'Friends can join from Mode Select → Room → Join',
+    gameReady: 'Game Ready!',
+    roomReady: 'Room Ready!',
+    systemMatched: 'System Random Matched!',
+    noHumanFound: 'No human found - matched with AI opponent',
+    getReady: 'Get Ready!',
+    starting: 'Starting...',
+    players: 'players joined',
+    Scanning_matchmaking_pool: 'Scanning matchmaking pool...',
     // Navbar
     dashboard: 'Dashboard',
     leaderboard: 'Leaderboard',
@@ -695,5 +715,26 @@ export const translations = {
     forgotPassword: 'ភ្លេចពាក្យសម្ងាត់?',
     soloMode: 'របៀបលេងម្នាក់ឯង',
     multiplayer: 'លេងច្រើននាក់',
+
+        // Khmer (km)
+    Scanning_matchmaking_pool: 'កំពុងស្កេនជ្រើសរើសគូរប្រកួត...',
+    preparingGame: 'កំពុងត្រៀមហ្គេម...',
+    findingOpponent: 'កំពុងស្វែងរកគូប្រកួត...',
+    fillingRoom: 'កំពុងបំពេញបន្ទប់...',
+    settingUpRoom: 'កំពុងរៀបចំបន្ទប់...',
+    searchingAiBackup: 'កំពុងស្វែងរកអ្នកលេង... AI រង់ចាំ',
+    autoFilling: 'កំពុងបំពេញដោយស្វ័យប្រវត្តិ...',
+    loadingQuestions: 'កំពុងទាញសំណួរ...',
+    scanningPool: 'កំពុងស្វែងរកក្នុងប្រព័ន្ធ...',
+    startEarly: 'ចាប់ផ្តើមភ្លាម',
+    inviteFriends: 'អញ្ជើញមិត្តភក្តិជាមួយកូដ',
+    friendsCanJoin: 'មិត្តអាចចូលពី ជ្រើសរើសរបៀប → បន្ទប់ → ចូល',
+    gameReady: 'ហ្គេមត្រៀមរួចរាល់!',
+    roomReady: 'បន្ទប់ត្រៀមរួចរាល់!',
+    systemMatched: 'ប្រព័ន្ធបានជ្រើសគូប្រកួត!',
+    noHumanFound: 'រកអ្នកលេងពិតមិនឃើញ - ប្រកួតជាមួយ AI',
+    getReady: 'ត្រៀមខ្លួន!',
+    starting: 'កំពុងចាប់ផ្តើម...',
+    players: 'នាក់បានចូល',
   }
 };
