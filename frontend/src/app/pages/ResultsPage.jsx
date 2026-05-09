@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trophy, Star, CheckCircle, XCircle, Home, RotateCcw, Medal, Sparkles, Brain, Cpu, History, Globe, Zap, Palette, Target, Flag, Award, Crown } from 'lucide-react';
+import { Trophy, Star, CheckCircle, XCircle, Home, RotateCcw, Medal, Sparkles, Brain, Cpu, History, Globe, Zap, Palette, Target, Flag, Award, Crown, Swords } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useAudio } from '../contexts/AudioContext';
-import { CATEGORIES } from '../data/questions';
 import { useTranslation } from '../hooks/useTranslation';
+import api from '../../api/axios';
 
 const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
 
@@ -25,6 +25,24 @@ export default function ResultsPage() {
     const navigate = useNavigate();
     const [showReview, setShowReview] = useState(false);
     const [animScore, setAnimScore] = useState(0);
+    const [dbCategories, setDbCategories] = useState([]);
+    const [finalMatchScores, setFinalMatchScores] = useState({});
+
+    useEffect(() => {
+        api.get('/categories').then(res => {
+            setDbCategories(res.data.data || res.data || []);
+        }).catch(err => console.error("Failed to load categories:", err));
+    }, []);
+
+    useEffect(() => {
+        if (gameState && gameState.matchId) {
+            api.get(`/multiplayer/scores/${gameState.matchId}`)
+                .then(res => {
+                    setFinalMatchScores(res.data.data || res.data || {});
+                })
+                .catch(err => console.error("Failed to load match scores:", err));
+        }
+    }, [gameState?.matchId]);
 
     useEffect(() => { 
         if (!gameState || !currentUser) {
@@ -72,7 +90,7 @@ export default function ResultsPage() {
         ...(gameState?.opponents || []).map(o => ({ 
             name: o.username || o.name, 
             avatar: o.avatar || '🦊', 
-            score: o.score || 0, 
+            score: Math.max(o.score || 0, finalMatchScores[o.id] || 0), 
             isPlayer: false 
         }))
     ].sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -99,8 +117,8 @@ export default function ResultsPage() {
         return { grade: 'C', label: t('gradeGood') }; return { grade: 'D', label: t('gradeKeepPracticing') }; };
     const { grade, label } = getGrade();
 
-    const categoryBreakdown = CATEGORIES.map(cat => { 
-        const catAnswers = (gameState?.answers || []).filter((a, i) => gameState?.questions?.[i]?.categoryId === cat.id); 
+    const categoryBreakdown = dbCategories.map(cat => { 
+        const catAnswers = (gameState?.answers || []).filter((a, i) => String(gameState?.questions?.[i]?.category_id) === String(cat.id)); 
         const correct = catAnswers.filter(a => a.isCorrect).length; 
         return { ...cat, correct, total: catAnswers.length }; 
     }).filter(c => c.total > 0);
@@ -125,7 +143,12 @@ export default function ResultsPage() {
           </div>
         </motion.div>
         <h1 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '2rem' }}>
-          {isWinner ? t('victory') : gameState.mode === 'Solo' ? t('gameComplete') : `${getRankIcon(playerRank)} ${t('rank')}`}
+          {isWinner ? t('victory') : gameState.mode === 'Solo' ? t('gameComplete') : (
+              <span className="inline-flex items-center justify-center gap-2">
+                  {getRankIcon(playerRank)}
+                  <span>{t('rank')}</span>
+              </span>
+          )}
         </h1>
         <p className="text-slate-500">{label}</p>
       </motion.div>
@@ -157,13 +180,13 @@ export default function ResultsPage() {
       {categoryBreakdown.length > 0 && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="rounded-2xl p-5 mb-6 relative z-10" style={CARD}>
           <h3 className="text-[#1A1A2E] mb-4 flex items-center gap-2" style={{ fontFamily: 'inherit', fontWeight: 600 }}><Star className="w-4 h-4 text-[#FACC15]"/> {t('domains')}</h3>
           <div className="space-y-2">
-            {categoryBreakdown.map(({ id, icon, name, correct, total, iconColor }) => {
+            {categoryBreakdown.map(({ id, icon, name, correct, total, iconColor, name_km }) => {
                 const pct = total > 0 ? (correct / total) * 100 : 0;
                 return (<div key={id}>
                   <div className="flex items-center justify-between text-sm mb-1">
                     <div className="flex items-center gap-2 text-[#1A1A2E]">
                       <CategoryIcon name={icon} className="w-3.5 h-3.5" style={{ color: iconColor }} />
-                      {t(`cat${id.charAt(0).toUpperCase() + id.slice(1)}`)}
+                      {(isKhmer && name_km) ? name_km : name}
                     </div>
                     <span className={`${pct === 100 ? 'text-emerald-500' : pct >= 60 ? 'text-amber-500' : 'text-red-500'}`} style={{ fontWeight: 600 }}>{Math.round(pct)}% ({correct}/{total})</span>
                   </div>
@@ -187,7 +210,7 @@ export default function ResultsPage() {
                 const q = gameState.questions?.[i];
                 if (!q)
                     return null;
-                const cat = CATEGORIES.find(c => c.id === q.categoryId);
+                const cat = dbCategories.find(c => String(c.id) === String(q.category_id));
                 return (<div key={`${answer.questionId}-${i}`} className="flex items-start gap-3 p-3 rounded-xl text-sm" style={{ background: answer.isCorrect ? 'rgba(52,211,153,0.04)' : 'rgba(239,68,68,0.04)' }}>
                       {answer.isCorrect ? <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"/> : <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"/>}
                       <div className="flex-1 min-w-0">

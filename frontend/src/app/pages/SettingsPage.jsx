@@ -85,7 +85,7 @@ export default function SettingsPage() {
                 {isInstalled ? (
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/10">
                         <Check className="w-3.5 h-3.5"/>
-                        <span className="text-[10px] font-bold uppercase tracking-normal">Installed</span>
+                        <span className="text-[10px] font-bold uppercase tracking-normal">{t('installed')}</span>
                     </div>
                 ) : isInstallable || isIOS ? (
                     <motion.button 
@@ -94,7 +94,7 @@ export default function SettingsPage() {
                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-lg transition-all"
                         style={{ background: 'linear-gradient(135deg, #06B6D4, #0891B2)', boxShadow: '0 4px 12px rgba(8,145,178,0.25)' }}
                     >
-                        <Download className="w-4 h-4"/> {isIOS ? 'How to' : 'Install'}
+                        <Download className="w-4 h-4"/> {isIOS ? t('howToInstall') : t('install')}
                     </motion.button>
                 ) : (
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-normal bg-black/[0.02] px-3 py-1.5 rounded-lg border border-black/[0.03]">

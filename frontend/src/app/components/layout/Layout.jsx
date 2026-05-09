@@ -10,15 +10,7 @@ export function Layout() {
         <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full opacity-[0.12]" style={{ background: 'radial-gradient(circle, rgba(250, 204, 21, 0.02), transparent)', filter: 'blur(100px)' }}/>
       </div>
       <Navbar />
-      <div className="w-full" style={{ height: 'var(--navbar-height)' }} />
-      <main 
-        className="relative mx-auto max-w-7xl main-content-wrapper" 
-        style={{ 
-          paddingBottom: 'calc(var(--safe-area-bottom) + 2rem)',
-          paddingLeft: 'calc(1rem + var(--safe-area-left))',
-          paddingRight: 'calc(1rem + var(--safe-area-right))'
-        }}
-      >
+      <main className="relative mx-auto max-w-7xl main-content-wrapper">
         <Outlet />
       </main>
     </div>);
@@ -33,10 +25,10 @@ export function FullLayout() {
       <main 
         className="relative mx-auto max-w-7xl" 
         style={{ 
-          paddingTop: 'var(--safe-area-top)', 
-          paddingBottom: 'calc(var(--safe-area-bottom) + 2rem)',
-          paddingLeft: 'calc(1rem + var(--safe-area-left))',
-          paddingRight: 'calc(1rem + var(--safe-area-right))'
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)', 
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)',
+          paddingLeft: 'calc(1rem + env(safe-area-inset-left, 0px))',
+          paddingRight: 'calc(1rem + env(safe-area-inset-right, 0px))'
         }}
       >
         <Outlet />

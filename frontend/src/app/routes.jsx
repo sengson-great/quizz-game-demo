@@ -6,22 +6,49 @@ import { Layout, FullLayout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Trophy } from 'lucide-react';
 
+// A resilient lazy loader helper to handle dynamic import failures gracefully (common on mobile and after new builds)
+const lazyWithRetry = (componentImport, name) => {
+    return lazy(async () => {
+        const storageKey = `retry-lazy-${name}`;
+        const hasRetried = window.sessionStorage.getItem(storageKey);
+        try {
+            const component = await componentImport();
+            window.sessionStorage.removeItem(storageKey);
+            return component;
+        } catch (error) {
+            console.error(`Failed to dynamically import module [${name}]:`, error);
+            if (!hasRetried) {
+                window.sessionStorage.setItem(storageKey, 'true');
+                console.log(`Retrying import for [${name}]...`);
+                try {
+                    return await componentImport();
+                } catch (retryError) {
+                    console.error(`Retry failed for [${name}]:`, retryError);
+                }
+            }
+            console.log(`Forcing window reload to fetch updated assets for [${name}]...`);
+            window.location.reload();
+            return new Promise(() => {}); // Keeps React Router pending until reload finishes
+        }
+    });
+};
+
 // Lazy load pages
-const LandingPage = lazy(() => import('./pages/LandingPage'));
-const AuthPage = lazy(() => import('./pages/AuthPage'));
-const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
-const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
-const DashboardPage = lazy(() => import('./pages/DashboardPage'));
-const ModeSelectPage = lazy(() => import('./pages/ModeSelectPage'));
-const MatchmakingPage = lazy(() => import('./pages/MatchmakingPage'));
-const SmallRoomLobbyPage = lazy(() => import('./pages/SmallRoomLobbyPage'));
-const PrivateBattleLobbyPage = lazy(() => import('./pages/PrivateBattleLobbyPage'));
-const GamePage = lazy(() => import('./pages/GamePage'));
-const ResultsPage = lazy(() => import('./pages/ResultsPage'));
-const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
-const AdminPage = lazy(() => import('./pages/AdminPage'));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const LandingPage = lazyWithRetry(() => import('./pages/LandingPage'), 'LandingPage');
+const AuthPage = lazyWithRetry(() => import('./pages/AuthPage'), 'AuthPage');
+const ForgotPasswordPage = lazyWithRetry(() => import('./pages/ForgotPasswordPage'), 'ForgotPasswordPage');
+const ResetPasswordPage = lazyWithRetry(() => import('./pages/ResetPasswordPage'), 'ResetPasswordPage');
+const DashboardPage = lazyWithRetry(() => import('./pages/DashboardPage'), 'DashboardPage');
+const ModeSelectPage = lazyWithRetry(() => import('./pages/ModeSelectPage'), 'ModeSelectPage');
+const MatchmakingPage = lazyWithRetry(() => import('./pages/MatchmakingPage'), 'MatchmakingPage');
+const SmallRoomLobbyPage = lazyWithRetry(() => import('./pages/SmallRoomLobbyPage'), 'SmallRoomLobbyPage');
+const PrivateBattleLobbyPage = lazyWithRetry(() => import('./pages/PrivateBattleLobbyPage'), 'PrivateBattleLobbyPage');
+const GamePage = lazyWithRetry(() => import('./pages/GamePage'), 'GamePage');
+const ResultsPage = lazyWithRetry(() => import('./pages/ResultsPage'), 'ResultsPage');
+const LeaderboardPage = lazyWithRetry(() => import('./pages/LeaderboardPage'), 'LeaderboardPage');
+const SettingsPage = lazyWithRetry(() => import('./pages/SettingsPage'), 'SettingsPage');
+const AdminPage = lazyWithRetry(() => import('./pages/AdminPage'), 'AdminPage');
+const NotFoundPage = lazyWithRetry(() => import('./pages/NotFoundPage'), 'NotFoundPage');
 
 // A premium loading component for suspense fallback
 const PageLoader = () => (

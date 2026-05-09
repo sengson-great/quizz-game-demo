@@ -5,7 +5,7 @@ import api from '../../api/axios';
 import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap, Download, Cpu, History, Palette } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { usePWA } from '../contexts/PWAContext';
-import { CATEGORIES } from '../data/questions';
+
 
 const LIGHT_BG = 'var(--grad-surface)';
 const CARD_STYLE = { 
@@ -66,8 +66,8 @@ export default function LandingPage() {
       </div>
 
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b-[3px] border-black shadow-[0_4px_0_0_rgba(0,0,0,0.1)]" style={{ background: '#FFFFFF' }}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b-[3px] border-black shadow-[0_4px_0_0_rgba(0,0,0,0.1)]" style={{ background: '#FFFFFF', paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4" style={{ paddingLeft: 'calc(1.5rem + env(safe-area-inset-left, 0px))', paddingRight: 'calc(1.5rem + env(safe-area-inset-right, 0px))' }}>
           <div className="flex items-center gap-2.5">
             <div className="w-11 h-11 rounded-2xl flex items-center justify-center border-2 border-black shadow-[3px_3px_0_0_#000000]" style={{ background: '#FACC15' }}>
               <Brain className="w-6 h-6 text-[#EAB308]"/>
@@ -86,7 +86,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="relative z-10 text-center px-4 pt-32 pb-24 max-w-5xl mx-auto">
+      <section className="relative z-10 text-center px-4 pb-24 max-w-5xl mx-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8rem)' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
           <div className="inline-flex items-center gap-2 px-6 py-2 rounded-2xl text-sm mb-10 border-2 border-black shadow-[3px_3px_0_0_#000000]" style={{ background: '#FFFFFF', color: '#000000', fontWeight: 800 }}>
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse border border-black"/>
@@ -163,8 +163,8 @@ export default function LandingPage() {
           </h2>
           <p className="text-center text-slate-500 mb-12">{t('difficultyScales')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {CATEGORIES.map((cat) => (
-              <motion.div key={cat.name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} whileHover={{ scale: 1.05, y: -4 }} className="flex items-center gap-3 p-4 rounded-2xl glass-card border-[3px] border-black shadow-[4px_4px_0_0_#000000] bg-white group hover:bg-[#FACC15]/5 transition-all">
+            {dynamicCategories.map((cat) => (
+              <motion.div key={cat.id} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} whileHover={{ scale: 1.05, y: -4 }} className="flex items-center gap-3 p-4 rounded-2xl glass-card border-[3px] border-black shadow-[4px_4px_0_0_#000000] bg-white group hover:bg-[#FACC15]/5 transition-all">
                 <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
                   <CategoryIcon name={cat.icon} className="w-5 h-5" style={{ color: cat.color }} />
                 </div>

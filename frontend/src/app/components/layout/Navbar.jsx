@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Trophy, LayoutDashboard, Settings, Shield, LogOut, Sparkles, Music, VolumeX, Crown, Brain } from 'lucide-react';
+import { Trophy, LayoutDashboard, Settings, Shield, LogOut, Sparkles, Music, VolumeX, Brain } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAudio } from '../../contexts/AudioContext';
@@ -26,8 +26,8 @@ export function Navbar() {
 
     const showMusicBtn = currentUser?.musicEnabled && isPlaying;
 
-    return (<nav className="fixed top-0 left-0 right-0 z-50 border-b-[3px] border-black shadow-[0_4px_0_0_rgba(0,0,0,0.1)]" style={{ background: '#FFFFFF', paddingTop: 'var(--safe-area-top)' }}>
-      <div className="max-w-7xl mx-auto" style={{ paddingLeft: 'calc(1rem + var(--safe-area-left))', paddingRight: 'calc(1rem + var(--safe-area-right))', paddingBottom: '0.5rem' }}>
+    return (<><nav className="fixed top-0 left-0 right-0 z-50 border-b-[3px] border-black shadow-[0_4px_0_0_rgba(0,0,0,0.1)]" style={{ background: '#FFFFFF', paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      <div className="max-w-7xl mx-auto" style={{ paddingLeft: 'calc(1rem + env(safe-area-inset-left, 0px))', paddingRight: 'calc(1rem + env(safe-area-inset-right, 0px))', paddingBottom: '0.5rem' }}>
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-3 group">
@@ -113,7 +113,7 @@ export function Navbar() {
                   <div className="flex flex-col">
                     <span className="text-[#000000] text-[13px] font-bold leading-none">{currentUser.username}</span>
                     <span className="text-[10px] text-[#FACC15] font-black uppercase tracking-normal mt-0.5 opacity-70">
-                        PLAYER
+                        {currentUser.role === 'admin' ? t('admin') : t('player')}
                     </span>
                   </div>
                 </div>
@@ -134,18 +134,38 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile nav */}
-        {currentUser && (<div className="md:hidden flex items-center gap-1.5 pb-3 overflow-x-auto no-scrollbar scrollbar-hide px-1">
-            {navLinks.map(({ to, label, icon: Icon, color }) => {
-                const active = location.pathname === to;
-                return (<Link key={to} to={to} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all duration-300 ${active ? 'bg-white text-black shadow-md border-2 border-black' : 'bg-black/[0.03] text-slate-500 hover:text-[#000000]'}`} style={active ? { color, borderColor: color } : {}}>
-                  <Icon className="w-4 h-4" style={active ? { color } : {}}/>
-                  {label}
-                </Link>);
-            })}
-          </div>)}
       </div>
-    </nav>);
+    </nav>
+    {/* Bottom Navigation Tab Bar for Mobile */}
+    {currentUser && (
+      <div 
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t-[3px] border-black shadow-[0_-4px_0_0_rgba(0,0,0,0.05)]"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
+        <div className="flex items-center justify-around h-16 px-2">
+          {navLinks.map(({ to, label, icon: Icon, color }) => {
+            const active = location.pathname === to;
+            return (
+              <Link 
+                key={to} 
+                to={to} 
+                className="flex flex-col items-center justify-center flex-1 h-full py-1 text-center"
+              >
+                <motion.div 
+                  whileTap={{ scale: 0.9 }}
+                  className={`flex flex-col items-center gap-0.5 transition-all duration-300 ${active ? 'scale-110 font-black' : 'text-slate-500 hover:text-black'}`}
+                  style={active ? { color } : {}}
+                >
+                  <Icon className="w-5 h-5" strokeWidth={3} />
+                  <span className="text-[9px] tracking-tight uppercase font-black" style={{ fontFamily: 'inherit' }}>{label}</span>
+                </motion.div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    )}
+    </>);
 }
 
 

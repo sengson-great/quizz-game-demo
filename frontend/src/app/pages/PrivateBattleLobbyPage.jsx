@@ -1,17 +1,19 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Users, Copy, CheckCircle, Clock, AlertCircle, Play, Swords, Shuffle, Link2, Wifi } from 'lucide-react';
+import { Users, Copy, CheckCircle, Clock, AlertCircle, Play, Swords, Shuffle, Link2, Wifi, Check } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ReturnButton } from '../components/ui/ReturnButton';
 import { loadSystemConfig } from '../data/systemConfig';
+import { useTranslation } from '../hooks/useTranslation';
+
 const LIGHT_BG = 'var(--grad-surface)';
-const CARD = { background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
-const MODAL_BG = { background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' };
+
 export default function PrivateBattleLobbyPage() {
     const { gameState, resetGame, switchToRandom, startBattle, joinBattle } = useGame();
     const { currentUser } = useAuth();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
     const [copied, setCopied] = useState(false);
@@ -39,7 +41,7 @@ export default function PrivateBattleLobbyPage() {
             .then(() => setJoining(false))
             .catch((err) => {
                 setJoining(false);
-                setJoinError(err?.response?.data?.message || 'Invalid or expired battle code.');
+                setJoinError(err?.response?.data?.message || t('invalidBattleCode'));
                 setTimeout(() => navigate('/mode-select'), 2500);
             });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -62,6 +64,7 @@ export default function PrivateBattleLobbyPage() {
 
     useEffect(() => {
         if (gameState?.status === 'active') {
+            setGameStarting(true);
             setTimeout(() => navigate('/game'), 1500);
         }
     }, [gameState?.status, navigate]);
@@ -97,7 +100,9 @@ export default function PrivateBattleLobbyPage() {
     const canStart = gameState.isHost && opponentJoined;
 
     return (<div className="min-h-screen px-4 py-10" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
-      <div className="fixed z-40" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}><ReturnButton context="lobby"/></div>
+      <div className="fixed z-40" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}>
+          <ReturnButton context="lobby"/>
+      </div>
       
       <AnimatePresence>
         {joining && (
@@ -107,7 +112,7 @@ export default function PrivateBattleLobbyPage() {
           >
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-[#FACC15] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-[#1A1A2E] font-semibold">Joining Battle...</p>
+              <p className="text-[#1A1A2E] font-semibold">{t('joiningBattle')}</p>
             </div>
           </motion.div>
         )}
@@ -118,7 +123,7 @@ export default function PrivateBattleLobbyPage() {
             className="fixed top-20 left-1/2 -translate-x-1/2 z-[101] w-full max-w-sm px-4"
           >
             <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3">
-              <span className="text-xl">⚠️</span>
+              <AlertCircle className="w-6 h-6"/>
               <p className="font-medium">{joinError}</p>
             </div>
           </motion.div>
@@ -133,126 +138,155 @@ export default function PrivateBattleLobbyPage() {
       <div className="relative z-10 max-w-2xl mx-auto pt-12">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <div className="inline-block px-4 py-1.5 rounded-full mb-4" style={{ background: switchedToRandom ? 'rgba(6,182,212,0.06)' : 'rgba(250,204,21,0.06)', border: `1px solid ${switchedToRandom ? 'rgba(6,182,212,0.15)' : 'rgba(250,204,21,0.12)'}` }}>
-            <span className={switchedToRandom ? 'text-cyan-600 text-sm' : 'text-[#FACC15] text-sm'}>
-              {switchedToRandom ? '🔄 Random Matchmaking' : '⚔️ Private 1v1 Battle'}
+            <span className={switchedToRandom ? 'text-cyan-600 text-sm font-black' : 'text-[#FACC15] text-sm font-black'}>
+              {switchedToRandom ? `🔄 ${t('randomMatchmaking')}` : `⚔️ ${t('privateBattle')}`}
             </span>
           </div>
-          <h1 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '2rem' }}>
-            {searchingRandom ? 'Searching for Opponent...' : opponentJoined ? 'Opponent Found!' : 'Waiting for Opponent'}
+          <h1 className="text-[#1A1A2E] mb-2 uppercase" style={{ fontFamily: 'var(--font-family-heading)', fontWeight: 700, fontSize: '2.5rem' }}>
+            {searchingRandom ? t('searchingOpponent') : opponentJoined ? t('matchFound') : t('waitingForOpponent')}
           </h1>
-          <p className="text-slate-500 text-sm">
-            {searchingRandom ? 'Looking for an available player...' : opponentJoined ? 'Both players ready! Start the battle.' : isPrivateMode ? 'Share the battle code or link with your friend!' : 'Finding a random opponent...'}
+          <p className="text-slate-500 font-medium">
+            {searchingRandom ? t('lookingForPlayer') : opponentJoined ? t('bothReadyStart') : isPrivateMode ? t('shareCodeWithFriend') : t('findingRandomOpponent')}
           </p>
         </motion.div>
 
-        {isPrivateMode && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-6 mb-6" style={CARD}>
-            <p className="text-slate-500 text-sm mb-3 text-center">Battle Code</p>
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <span className="text-5xl text-[#FACC15] tracking-[0.2em] font-mono" style={{ fontFamily: 'Luckiest Guy, Koulen, monospace', fontWeight: 800 }}>{gameState.lobbyInviteCode || '------'}</span>
-              <button onClick={copyRoomCode} className="p-3 rounded-xl transition-all" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}>
-                {copied ? <CheckCircle className="w-5 h-5 text-emerald-500"/> : <Copy className="w-5 h-5 text-slate-400"/>}
+        {isPrivateMode && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-[2.5rem] p-8 mb-6 bg-white border-3 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-4 text-center">{t('battleCode')}</p>
+            <div className="flex items-center justify-center gap-6 mb-6">
+              <span className="text-6xl text-black tracking-[0.2em] font-mono" style={{ fontFamily: 'var(--font-family-heading)', fontWeight: 800 }}>{gameState.lobbyInviteCode || '------'}</span>
+              <button onClick={copyRoomCode} className="p-4 rounded-2xl transition-all bg-white border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                {copied ? <Check className="w-6 h-6 text-emerald-500" strokeWidth={3}/> : <Copy className="w-6 h-6 text-black" strokeWidth={3}/>}
               </button>
             </div>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={copyRoomLink} className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm transition-all mb-3" style={{ background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.12)', color: '#FACC15' }}>
-              <Link2 className="w-4 h-4"/>Copy Room Link
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={copyRoomLink} className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm font-black uppercase tracking-widest transition-all mb-4 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: '#FACC15', color: 'black' }}>
+              <Link2 className="w-5 h-5" strokeWidth={3}/>{t('copyRoomLink')}
             </motion.button>
-            <p className="text-center text-slate-400 text-xs">Share the code or link with your friend to join the battle</p>
+            <p className="text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">{t('shareCodeDesc')}</p>
           </motion.div>)}
 
-        {searchingRandom && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-8 mb-6 text-center" style={CARD}>
-            <div className="relative w-24 h-24 mx-auto mb-4">
-              {[0, 1, 2].map(i => (<motion.div key={i} className="absolute inset-0 rounded-full" style={{ border: '2px solid rgba(6,182,212,0.2)' }} animate={{ scale: [1, 2.5], opacity: [0.5, 0] }} transition={{ duration: 2, delay: i * 0.6, repeat: Infinity }}/>))}
+        {searchingRandom && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-[2.5rem] p-10 mb-6 text-center bg-white border-3 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="relative w-24 h-24 mx-auto mb-6">
+              {[0, 1, 2].map(i => (<motion.div key={i} className="absolute inset-0 rounded-full" style={{ border: '3px solid black' }} animate={{ scale: [1, 2.5], opacity: [0.3, 0] }} transition={{ duration: 2, delay: i * 0.6, repeat: Infinity }}/>))}
               <div className="absolute inset-0 flex items-center justify-center">
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: 'linear' }} className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(6,182,212,0.08)', border: '2px solid rgba(6,182,212,0.15)' }}>
-                  <Wifi className="w-7 h-7 text-cyan-500"/>
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: 'linear' }} className="w-16 h-16 rounded-full flex items-center justify-center bg-[#FACC15] border-3 border-black">
+                  <Wifi className="w-8 h-8 text-black" strokeWidth={3}/>
                 </motion.div>
               </div>
             </div>
-            <p className="text-cyan-600 text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>Searching for players...</p>
-            <p className="text-slate-400 text-xs mt-1">If no human found, you'll be matched with AI opponent</p>
+            <p className="text-black text-xl font-black uppercase" style={{ fontFamily: 'inherit' }}>{t('searchingForPlayers')}</p>
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">{t('aiMatchedDesc')}</p>
           </motion.div>)}
 
-        <div className="grid grid-cols-1 gap-4 mb-6 text-center">
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 text-center" style={CARD}>
-            <Users className={`w-6 h-6 mx-auto mb-2 ${opponentJoined ? 'text-emerald-500' : 'text-amber-500'}`}/>
-            <div className={`text-3xl mb-1 ${opponentJoined ? 'text-emerald-500' : 'text-amber-500'}`} style={{ fontFamily: 'inherit', fontWeight: 700 }}>{opponentJoined ? '2' : '1'} / 2</div>
-            <p className="text-slate-400 text-xs">Players Joined</p>
+        <div className="grid grid-cols-1 gap-4 mb-6">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-6 flex items-center justify-between bg-white border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center border-2 border-black">
+                    <Users className={`w-6 h-6 ${opponentJoined ? 'text-emerald-500' : 'text-amber-500'}`}/>
+                </div>
+                <div className="text-left">
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">{t('playersJoined')}</p>
+                    <div className="text-2xl font-black text-black" style={{ fontFamily: 'inherit' }}>{opponentJoined ? '2' : '1'} / 2</div>
+                </div>
+            </div>
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl p-6 mb-6" style={CARD}>
-          <div className="flex items-center justify-between mb-4"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>Battle Arena</h3><Swords className="w-5 h-5 text-[#FACC15]"/></div>
-          <div className="space-y-3">
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.04)' }}>
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.06)' }}>{currentUser.avatar}</div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2"><p className="text-[#1A1A2E]">{currentUser.username}</p><span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">You</span></div>
-                <p className="text-slate-400 text-xs">Ready to battle</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-[2.5rem] p-8 mb-8 bg-white border-3 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-black uppercase" style={{ fontFamily: 'var(--font-family-heading)' }}>{t('battleArena')}</h3>
+              <Swords className="w-6 h-6 text-[#FACC15]" strokeWidth={3}/>
+          </div>
+          <div className="space-y-4">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-5 p-5 rounded-3xl bg-slate-50 border-3 border-black">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl bg-white border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">{currentUser.avatar}</div>
+              <div className="flex-1 text-left">
+                <div className="flex items-center gap-2">
+                    <p className="text-xl font-black uppercase">{currentUser.username}</p>
+                    <span className="text-[10px] px-3 py-1 rounded-full bg-emerald-400 text-black font-black border-2 border-black uppercase">{t('you')}</span>
+                </div>
+                <p className="text-slate-400 text-xs font-bold uppercase">{t('readyToBattle')}</p>
               </div>
-              <CheckCircle className="w-5 h-5 text-emerald-500"/>
+              <CheckCircle className="w-6 h-6 text-emerald-500" strokeWidth={3}/>
             </motion.div>
+
             <AnimatePresence mode="wait">
-              {opponentJoined ? (<motion.div key="opponent" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.04)' }}>
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.06)' }}>{opponent.avatar}</div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2"><p className="text-[#1A1A2E]">{opponent.name || opponent.username}</p>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#FACC15]/5 text-[#FACC15] border border-[#FACC15]/15">Challenger</span>
+              {opponentJoined ? (<motion.div key="opponent" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-5 p-5 rounded-3xl bg-slate-50 border-3 border-black">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl bg-white border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">{opponent.avatar}</div>
+                  <div className="flex-1 text-left">
+                    <div className="flex items-center gap-2">
+                        <p className="text-xl font-black uppercase">{opponent.name || opponent.username}</p>
+                        <span className="text-[10px] px-3 py-1 rounded-full bg-amber-400 text-black font-black border-2 border-black uppercase">{t('challenger')}</span>
                     </div>
-                    <p className="text-slate-400 text-xs">Ready to battle</p>
+                    <p className="text-slate-400 text-xs font-bold uppercase">{t('readyToBattle')}</p>
                   </div>
-                  <CheckCircle className="w-5 h-5 text-emerald-500"/>
-                </motion.div>) : (<motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-4 p-4 rounded-xl border-2 border-dashed" style={{ borderColor: 'rgba(0,0,0,0.08)' }}>
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.02)' }}><Users className="w-5 h-5 text-slate-300 animate-pulse"/></div>
-                  <p className="text-slate-400 text-sm">{searchingRandom ? 'Searching for opponent...' : 'Waiting for opponent to join...'}</p>
+                  <CheckCircle className="w-6 h-6 text-emerald-500" strokeWidth={3}/>
+                </motion.div>) : (<motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-5 p-6 rounded-3xl border-4 border-dashed border-slate-200">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-50"><Users className="w-8 h-8 text-slate-300 animate-pulse"/></div>
+                  <p className="text-slate-400 text-sm font-black uppercase tracking-widest">{searchingRandom ? t('searchingOpponent') : t('waitingForOpponentJoin')}</p>
                 </motion.div>)}
             </AnimatePresence>
           </div>
         </motion.div>
 
-        {isPrivateMode && !opponentJoined && !gameStarting && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSwitchToRandom} className="w-full py-4 rounded-xl text-white flex items-center justify-center gap-3 transition-all" style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 4px 20px rgba(220,38,38,0.25)', fontFamily: 'inherit', fontWeight: 600 }}>
-              <Shuffle className="w-5 h-5"/>Switch to Random Match
+        {isPrivateMode && !opponentJoined && !gameStarting && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-8">
+            <motion.button whileHover={{ scale: 1.02, rotate: 1 }} whileTap={{ scale: 0.98 }} onClick={handleSwitchToRandom} className="w-full py-5 rounded-[2rem] text-white flex items-center justify-center gap-3 transition-all border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-red-500" style={{ fontFamily: 'inherit', fontWeight: 800 }}>
+              <Shuffle className="w-6 h-6" strokeWidth={3}/>{t('switchToRandomMatch')}
             </motion.button>
-            <p className="text-center text-slate-400 text-xs mt-2">Tired of waiting? Convert this lobby to public matchmaking.</p>
+            <p className="text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-4 leading-relaxed">{t('tiredOfWaiting')}</p>
           </motion.div>)}
 
         <AnimatePresence>
-          {countdown <= 15 && !opponentJoined && !searchingRandom && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="rounded-2xl p-4 mb-6 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
-              <AlertCircle className="w-5 h-5 text-red-500"/><div className="flex-1"><p className="text-red-600 text-sm">Time is running out! Battle will auto-return to mode selection.</p></div>
+          {countdown <= 15 && !opponentJoined && !searchingRandom && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="rounded-2xl p-4 mb-6 flex items-center gap-3 bg-red-50 border-3 border-black">
+              <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={3}/><div className="flex-1 text-left"><p className="text-red-600 text-xs font-black uppercase">{t('timeRunningOut')}</p></div>
             </motion.div>)}
         </AnimatePresence>
 
         <AnimatePresence>
-          {gameStarting && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl p-6 mb-6 text-center" style={{ background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.12)' }}>
-              <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 0.6, repeat: Infinity }} className="text-4xl mb-3">⚔️</motion.div>
-              <p className="text-[#FACC15] text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>Battle Starting...</p>
+          {gameStarting && (<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="rounded-[2.5rem] p-8 mb-8 text-center bg-white border-4 border-black shadow-[10px_10px_0px_0px_#FACC15]">
+              <motion.div animate={{ scale: [1, 1.3, 1], rotate: [0, 360] }} transition={{ duration: 1, repeat: Infinity }} className="text-6xl mb-4">⚔️</motion.div>
+              <p className="text-black text-2xl font-black uppercase tracking-widest">{t('battleStarting')}</p>
             </motion.div>)}
         </AnimatePresence>
 
         {!gameStarting && (<div className="flex gap-4">
-            <motion.button whileHover={{ scale: canStart ? 1.02 : 1 }} whileTap={{ scale: canStart ? 0.98 : 1 }} onClick={handleStart} disabled={!canStart} className={`flex-1 py-4 rounded-xl text-white flex items-center justify-center gap-2 transition-all ${canStart ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`} style={{ background: canStart ? 'linear-gradient(135deg, #FACC15, #065F46)' : 'rgba(0,0,0,0.06)', boxShadow: canStart ? '0 4px 20px rgba(250,204,21,0.3)' : 'none', fontFamily: 'inherit', fontWeight: 600 }}>
-              <Play className="w-5 h-5"/>{canStart ? 'Start Battle' : 'Waiting for Opponent'}
+            <motion.button 
+                whileHover={{ scale: canStart ? 1.05 : 1, rotate: canStart ? 1 : 0 }} 
+                whileTap={{ scale: canStart ? 0.95 : 1 }} 
+                onClick={handleStart} 
+                disabled={!canStart} 
+                className={`flex-1 py-6 rounded-[2rem] text-black font-black text-2xl uppercase tracking-widest transition-all border-4 border-black flex items-center justify-center gap-3 ${canStart ? 'bg-[#FACC15] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] cursor-pointer' : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'}`}
+            >
+              <Play className="w-8 h-8" fill="currentColor"/>{canStart ? t('startBattle') : t('waitingForOpponent')}
             </motion.button>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCancel} className="py-4 rounded-xl text-slate-500 transition-all px-8" style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 600 }}>Cancel</motion.button>
+            <motion.button 
+                whileHover={{ scale: 1.05, rotate: -1 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={handleCancel} 
+                className="py-6 rounded-[2rem] text-black font-black text-xl uppercase tracking-widest transition-all px-10 bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+            >
+                {t('cancel')}
+            </motion.button>
           </div>)}
-        <p className="text-center text-slate-400 text-sm mt-4">
-          {gameStarting ? 'Preparing the arena...' : opponentJoined ? 'Both players ready! Click "Start Battle" to begin.' : searchingRandom ? 'Searching for an available player...' : 'Waiting for your friend to join...'}
+        <p className="text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-6 leading-relaxed">
+          {gameStarting ? t('preparingArena') : opponentJoined ? t('clickStartToBegin') : searchingRandom ? t('lookingForPlayer') : t('waitingFriendToJoin')}
         </p>
       </div>
 
       <AnimatePresence>
         {showSwitchConfirm && (<>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSwitchConfirm(false)} className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"/>
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
-              <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(220,38,38,0.08)' }}><Shuffle className="w-5 h-5 text-red-500"/></div>
-                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.25rem' }}>Switch to Random?</h2>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSwitchConfirm(false)} className="fixed inset-0 bg-black/40 backdrop-blur-md z-[150]"/>
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 50 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[151] w-full max-w-md px-6">
+              <div className="rounded-[3rem] p-10 bg-white border-4 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-red-100 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <Shuffle className="w-8 h-8 text-red-500" strokeWidth={3}/>
+                  </div>
+                  <h2 className="text-2xl font-black uppercase text-left leading-tight" style={{ fontFamily: 'var(--font-family-heading)' }}>{t('switchToRandomTitle')}</h2>
                 </div>
-                <p className="text-slate-600 mb-6 text-sm">This will convert your private lobby into a public matchmaking queue. Your room code will no longer be valid for your friend to join.</p>
-                <div className="flex gap-3">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowSwitchConfirm(false)} className="flex-1 py-3 rounded-xl text-[#1A1A2E] transition-all" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 600 }}>Keep Waiting</motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmSwitchToRandom} className="flex-1 py-3 rounded-xl text-white transition-all" style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 2px 15px rgba(220,38,38,0.25)', fontFamily: 'inherit', fontWeight: 600 }}>Switch to Random</motion.button>
+                <p className="text-slate-600 mb-10 text-left font-bold leading-relaxed">{t('switchToRandomDesc')}</p>
+                <div className="flex flex-col gap-4">
+                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={confirmSwitchToRandom} className="w-full py-4 rounded-[1.5rem] text-white font-black uppercase tracking-widest transition-all bg-red-500 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">{t('switchToRandomMatch')}</motion.button>
+                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowSwitchConfirm(false)} className="w-full py-4 rounded-[1.5rem] text-black font-black uppercase tracking-widest transition-all bg-slate-100 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">{t('keepWaiting')}</motion.button>
                 </div>
               </div>
             </motion.div>

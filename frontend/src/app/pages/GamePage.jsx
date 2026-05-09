@@ -168,10 +168,10 @@ export default function GamePage() {
                         nextQuestion();
                     } else {
                         if (gameState.mode === 'Solo') {
-                            finalizeGame();
+                            finalizeGame(result.score);
                             navigate('/results');
                         } else {
-                            finalizeGame();
+                            finalizeGame(result.score);
                         }
                     }
                 }, RESULT_DELAY);
@@ -220,11 +220,11 @@ export default function GamePage() {
 
                 // If no next question, the game is finished for this player
                 if (gameState.mode === 'Solo') {
-                    finalizeGame();
+                    finalizeGame(result.score);
                     navigate('/results');
                 } else {
                     // Signal to others that we are finished
-                    finalizeGame();
+                    finalizeGame(result.score);
                 }
             }, RESULT_DELAY);
         } catch (error) {
@@ -342,29 +342,39 @@ export default function GamePage() {
             <ReturnButton context="game"/>
         </div>
 
-        <header className="flex items-start justify-between mb-6 relative z-30 pt-1">
-            <div className="flex items-center gap-3 ml-14">
-                <motion.div 
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="text-[10px] uppercase tracking-normal px-3 py-1.5 rounded-xl backdrop-blur-md" 
-                    style={{ background: ds.bg, color: ds.color, border: `1.5px solid ${ds.border}`, fontWeight: 800 }}
-                >
-                    {ds.label}
-                </motion.div>
-                <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold">
-                    <span className="text-sm">
-                        <CategoryIcon name={category?.icon} className="w-4 h-4" style={{ color: category?.iconColor }} />
-                    </span>
-                    <span className="hidden sm:inline opacity-70">
-                        {category ? ((lang === 'km' && (category.nameKm || category.name_km)) ? (category.nameKm || category.name_km) : (category.name || category.title)) : ''}
-                    </span>
+        <header className="flex flex-col gap-3 mb-6 relative z-30 pt-1">
+            <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3 ml-14">
+                    <motion.div 
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="text-[10px] uppercase tracking-normal px-3 py-1.5 rounded-xl backdrop-blur-md" 
+                        style={{ background: ds.bg, color: ds.color, border: `1.5px solid ${ds.border}`, fontWeight: 800 }}
+                    >
+                        {ds.label}
+                    </motion.div>
+                    <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold">
+                        <span className="text-sm">
+                            <CategoryIcon name={category?.icon} className="w-4 h-4" style={{ color: category?.iconColor }} />
+                        </span>
+                        <span className="hidden sm:inline opacity-70">
+                            {category ? ((lang === 'km' && (category.nameKm || category.name_km)) ? (category.nameKm || category.name_km) : (category.name || category.title)) : ''}
+                        </span>
+                    </div>
                 </div>
+
+                <LiveScorePanel 
+                    playerScore={gameState.playerScore} 
+                    playerAvatar={currentUser.avatar} 
+                    playerName={currentUser.username} 
+                    opponents={gameState.opponents} 
+                    mode={gameState.mode}
+                />
             </div>
 
-            <div className="flex flex-col items-center gap-2 absolute left-1/2 -translate-x-1/2 top-1">
+            <div className="flex flex-col items-center gap-1 w-full mt-1">
                 <span className="text-slate-400 text-[10px] tracking-normal font-black" style={{ fontFamily: 'inherit' }}>
-                    QUESTION {qNum} / {total}
+                    {t('question')} {qNum} / {total}
                 </span>
                 <div className="w-32 sm:w-44 h-1.5 rounded-full overflow-hidden bg-slate-200/50 backdrop-blur-sm border border-white/20">
                     <motion.div 
@@ -375,17 +385,9 @@ export default function GamePage() {
                     />
                 </div>
             </div>
-
-            <LiveScorePanel 
-                playerScore={gameState.playerScore} 
-                playerAvatar={currentUser.avatar} 
-                playerName={currentUser.username} 
-                opponents={gameState.opponents} 
-                mode={gameState.mode}
-            />
         </header>
 
-        {(gameState.mode === '1v1' || gameState.mode === 'Room') && gameState.opponents.length > 0 && (
+        {(gameState.mode === '1v1' || gameState.mode === 'battle') && gameState.opponents.length > 0 && (
             <div className="mb-6 relative z-20">
                 <div className="flex items-center gap-2 overflow-x-auto py-2 no-scrollbar">
                     <motion.div 

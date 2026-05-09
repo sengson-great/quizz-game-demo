@@ -211,7 +211,13 @@ export default function ModeSelectPage() {
             boxShadow: selectedMode ? '0 4px 25px rgba(99,102,241,0.3)' : 'none',
             fontFamily: 'inherit', fontWeight: 600,
         }}>
-          {selectedMode === 'Room' ? t('chooseRoomOption') : selectedMode === '1v1' ? t('chooseBattleOption') : selectedMode ? `${t('start')} ${selectedMode} ${t('gameMode')}` : t('selectMode')}
+          {selectedMode === 'Room' 
+            ? t('chooseRoomOption') 
+            : selectedMode === '1v1' 
+                ? t('chooseBattleOption') 
+                : selectedMode 
+                    ? t('startGameMode').replace('{mode}', t(selectedMode.toLowerCase()) || selectedMode) 
+                    : t('selectMode')}
           <ChevronRight className="w-5 h-5"/>
         </motion.button>
       </motion.div>

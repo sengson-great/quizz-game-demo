@@ -157,7 +157,7 @@ export default function DashboardPage() {
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>
                                     <span className="text-emerald-600 text-[9px] font-bold uppercase tracking-normal">{currentUser.role === 'admin' ? t('admin') : t('player')}</span>
                                 </span>
-                                <span className="text-slate-500 text-[9px] font-bold uppercase tracking-normal opacity-60">Level {Math.floor((stats?.total_score || 0) / 1000) + 1}</span>
+                                <span className="text-slate-500 text-[9px] font-bold uppercase tracking-normal opacity-60">{t('level')} {Math.floor((stats?.total_score || 0) / 1000) + 1}</span>
                             </div>
                         </div>
                     </div>
@@ -310,12 +310,12 @@ export default function DashboardPage() {
                                                 </span>
                                                 {isWin && (
                                                     <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-normal">
-                                                        VICTORY
+                                                        {t('victory')}
                                                     </span>
                                                 )}
                                             </div>
                                             <p className="text-slate-500 text-[9px] font-bold mt-1">
-                                                {game.date} • Level {game.level}
+                                                {game.date} • {t('level')} {game.level}
                                             </p>
                                         </div>
                                     </div>

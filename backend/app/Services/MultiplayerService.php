@@ -22,7 +22,9 @@ class MultiplayerService
      */
     public function createLobby(User $user, int $playerCount, bool $isPrivate, array $categories = []): array
     {
-        return Cache::lock('create_lobby_lock', 5)->block(5, function () use ($user, $playerCount, $isPrivate, $categories) {
+        $resolvedCategories = $this->resolveCategories($categories);
+        
+        return Cache::lock('create_lobby_lock', 5)->block(5, function () use ($user, $playerCount, $isPrivate, $resolvedCategories) {
             if (!$isPrivate) {
                 $publicLobbies = Cache::get('public_lobbies', []);
                 $validLobbies = [];
@@ -76,7 +78,7 @@ class MultiplayerService
 
                         // Check if lobby is valid and has space to join
                         $lobbyCategories = $lobby['categories'] ?? [];
-                        $playerCategories = $categories;
+                        $playerCategories = $resolvedCategories;
                         sort($lobbyCategories);
                         sort($playerCategories);
                         $categoriesMatch = $lobbyCategories === $playerCategories;
@@ -119,7 +121,7 @@ class MultiplayerService
                 'host_avatar' => $user->avatar,
                 'player_count' => $playerCount,
                 'is_private' => $isPrivate,
-                'categories' => $categories,
+                'categories' => $resolvedCategories,
                 'players' => [
                     [
                         'id' => $user->id,
@@ -399,8 +401,10 @@ class MultiplayerService
     {
         Log::info("Matchmaking: Request from User {$user->id} ({$user->name}) with categories: " . json_encode($categories));
         
-        sort($categories);
-        $catKey = empty($categories) ? 'all' : implode('_', $categories);
+        $resolvedCategories = $this->resolveCategories($categories);
+        
+        sort($resolvedCategories);
+        $catKey = empty($resolvedCategories) ? 'all' : implode('_', $resolvedCategories);
         $queueKey = 'matchmaking_queue_1v1_' . $catKey;
 
         $queue = Cache::get($queueKey);
@@ -416,7 +420,8 @@ class MultiplayerService
             Cache::forget('user_matchmake_key_' . $opponent['id']);
             Cache::forget('user_matchmake_key_' . $user->id);
             
-            $matchQuestions = $this->generateMatchQuestions($categories);
+            // Pass the resolved numeric IDs
+            $matchQuestions = $this->generateMatchQuestions($resolvedCategories);
             Log::info("Matchmaking: Generated " . count($matchQuestions) . " questions for match {$matchId}");
 
             GameMatch::create([
@@ -492,10 +497,7 @@ class MultiplayerService
 
     private function generateMatchQuestions(array $categories = []): array
     {
-        // Resolve slugs to IDs if needed
-        if (!empty($categories) && isset($categories[0]) && is_string($categories[0])) {
-            $categories = \App\Models\Category::whereIn('slug', $categories)->pluck('id')->toArray();
-        }
+        $categories = $this->resolveCategories($categories);
 
         $questions = [];
         $usedIds = [];
@@ -568,5 +570,20 @@ class MultiplayerService
             if (!$player['ready']) return false;
         }
         return true;
+    }
+
+    private function resolveCategories(array $categories): array
+    {
+        $resolvedCategories = [];
+        foreach ($categories as $cat) {
+            if (is_numeric($cat)) {
+                $resolvedCategories[] = (int) $cat;
+            } elseif (is_string($cat)) {
+                $id = \App\Models\Category::where('slug', $cat)->value('id');
+                if ($id) $resolvedCategories[] = $id;
+            }
+        }
+        $resolvedCategories = array_unique($resolvedCategories);
+        return $resolvedCategories;
     }
 }

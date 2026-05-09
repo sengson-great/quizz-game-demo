@@ -209,14 +209,15 @@ export function GameProvider({ children }) {
     }, []);
 
     const finalizedRef = useRef(new Set());
-    const finalizeGame = useCallback(() => {
+    const finalizeGame = useCallback((finalScore = null) => {
         if (gameState && gameState.matchId && !finalizedRef.current.has(gameState.matchId)) {
             finalizedRef.current.add(gameState.matchId);
+            const scoreToSend = finalScore !== null ? finalScore : gameState.playerScore;
             // Signal to others we finished
             api.post('/multiplayer/action', {
                 match_id: gameState.matchId,
                 action_type: 'player_finished',
-                payload: { score: gameState.playerScore }
+                payload: { score: scoreToSend }
             }).catch(error => {
                 console.error(error);
                 finalizedRef.current.delete(gameState.matchId); // allow retry on failure
