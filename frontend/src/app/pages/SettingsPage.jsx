@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Settings, Volume2, Music, Globe, Tag, Save, Check, Download, Smartphone, Brain, Cpu, History, Palette, Zap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,8 +22,8 @@ const LANGUAGES = [
 ];
 const AVATARS = ['🦊', '🐺', '🦋', '🐉', '🦅', '🐬', '🦁', '🐙', '🐸', '🦄', '🦉', '🐆', '🐯', '🐻', '🐼'];
 
-const ToggleSwitch = memo(({ value, onChange }) => (<button onClick={() => onChange(!value)} className="relative w-12 h-6 rounded-full transition-all duration-300" style={{ background: value ? '#FACC15' : 'rgba(0,0,0,0.12)' }}>
-  <motion.div animate={{ x: value ? 24 : 2 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"/>
+const ToggleSwitch = memo(({ value, onChange }) => (<button onClick={() => onChange(!value)} className="relative w-14 h-7 rounded-full transition-all duration-300 flex-shrink-0" style={{ background: value ? '#FACC15' : 'rgba(0,0,0,0.12)' }}>
+  <motion.div animate={{ x: value ? 28 : 3 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} className="absolute top-1.5 w-4 h-4 rounded-full bg-white shadow-sm"/>
 </button>));
 
 const VolumeSlider = memo(({ value, onChange }) => (
@@ -41,28 +41,42 @@ export default function SettingsPage() {
     const { t } = useTranslation();
     const { isInstallable, isInstalled, isIOS, supportsPWA, installPWA } = usePWA();
     const navigate = useNavigate();
+    const { lang: urlLang } = useParams();
     const [saved, setSaved] = useState(false);
     const [form, setForm] = useState({
-        username: currentUser?.username || '', avatar: currentUser?.avatar || '🦊', language: currentUser?.language || 'km',
+        username: currentUser?.username || '', avatar: currentUser?.avatar || '🦊', language: ['en', 'km'].includes(urlLang) ? urlLang : (currentUser?.language || 'km'),
         soundEnabled: currentUser?.soundEnabled ?? true, musicEnabled: currentUser?.musicEnabled ?? true,
         preferredCategories: currentUser?.preferredCategories || CATEGORIES.map(c => c.id),
     });
 
+    useEffect(() => {
+        if (urlLang && ['en', 'km'].includes(urlLang)) {
+            setForm(f => ({ ...f, language: urlLang }));
+        }
+    }, [urlLang]);
+
     const toggleCategory = (id) => { setForm(f => ({ ...f, preferredCategories: f.preferredCategories.includes(id) ? (f.preferredCategories.length > 1 ? f.preferredCategories.filter(c => c !== id) : f.preferredCategories) : [...f.preferredCategories, id] })); };
-    const handleSave = () => { updateUser({ username: form.username, avatar: form.avatar, language: form.language, soundEnabled: form.soundEnabled, musicEnabled: form.musicEnabled, preferredCategories: form.preferredCategories }); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+    const handleSave = () => { 
+        updateUser({ username: form.username, avatar: form.avatar, language: form.language, soundEnabled: form.soundEnabled, musicEnabled: form.musicEnabled, preferredCategories: form.preferredCategories }); 
+        setSaved(true); 
+        setTimeout(() => setSaved(false), 2000); 
+        const currentPath = window.location.pathname;
+        const cleanPath = currentPath.replace(/^\/(en|km)/, '');
+        navigate(`/${form.language}${cleanPath}`);
+    };
     if (!currentUser)
         return null;
 
-    return (<div className="min-h-screen px-4 py-8 max-w-2xl mx-auto relative overflow-hidden" style={{ fontFamily: 'inherit' }}>
+    return (<div className="min-h-screen px-3 sm:px-4 py-6 sm:py-8 max-w-2xl mx-auto relative overflow-x-hidden" style={{ fontFamily: 'inherit' }}>
       
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 opacity-30">
         <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-amber-100/20 rounded-full blur-[100px] animate-blob" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-[#FACC15]/5 rounded-full blur-[80px] animate-blob" style={{ animationDelay: '2s' }} />
       </div>
 
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4 mb-10">
-        <div className="w-12 h-12 rounded-2xl glass-card flex items-center justify-center shadow-lg border-black/[0.03]">
-          <Settings className="w-6 h-6 text-[#FACC15]"/>
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 sm:gap-4 mb-8 sm:mb-10">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl glass-card flex items-center justify-center shadow-lg border-black/[0.03] flex-shrink-0">
+          <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-[#FACC15]"/>
         </div>
         <div>
           <h1 className="text-[#1A1A2E] text-2xl font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('settings')}</h1>
@@ -72,18 +86,18 @@ export default function SettingsPage() {
 
       <div className="space-y-6">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={SECTION_STYLE}>
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-cyan-500/10 border border-cyan-500/10 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-3 flex-1">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center bg-cyan-500/10 border border-cyan-500/10 shadow-sm flex-shrink-0">
                         <Smartphone className="w-5 h-5 text-cyan-600"/>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                         <p className="text-[#1A1A2E] text-sm font-bold tracking-tight">{isIOS ? t('addToHomeScreen') : t('installApp')}</p>
                         <p className="text-slate-500 text-[10px] font-medium opacity-70">{isIOS ? t('getFullAppExperience') : t('getBetterExperience')}</p>
                     </div>
                 </div>
                 {isInstalled ? (
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/10">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/10 self-start sm:self-auto">
                         <Check className="w-3.5 h-3.5"/>
                         <span className="text-[10px] font-bold uppercase tracking-normal">{t('installed')}</span>
                     </div>
@@ -91,13 +105,13 @@ export default function SettingsPage() {
                     <motion.button 
                         whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
                         onClick={installPWA}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-lg transition-all"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-lg transition-all self-start sm:self-auto"
                         style={{ background: 'linear-gradient(135deg, #06B6D4, #0891B2)', boxShadow: '0 4px 12px rgba(8,145,178,0.25)' }}
                     >
                         <Download className="w-4 h-4"/> {isIOS ? t('howToInstall') : t('install')}
                     </motion.button>
                 ) : (
-                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-normal bg-black/[0.02] px-3 py-1.5 rounded-lg border border-black/[0.03]">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-normal bg-black/[0.02] px-3 py-1.5 rounded-lg border border-black/[0.03] self-start sm:self-auto">
                         {supportsPWA ? t('mobileReady') : t('desktopMode')}
                     </div>
                 )}
@@ -112,12 +126,12 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-3 block opacity-70">{t('avatar')}</label>
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-5 gap-2">
               {AVATARS.map(avatar => (
                 <button 
                   key={avatar} 
                   onClick={() => setForm(f => ({ ...f, avatar }))} 
-                  className={`h-14 rounded-2xl text-2xl flex items-center justify-center transition-all duration-300 ${form.avatar === avatar ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] scale-110 shadow-lg' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.05]'}`}
+                  className={`aspect-square rounded-2xl text-xl sm:text-2xl flex items-center justify-center transition-all duration-300 ${form.avatar === avatar ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] scale-105 shadow-lg' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.05]'}`}
                 >
                   <span className={form.avatar === avatar ? 'drop-shadow-sm' : 'opacity-60'}>{avatar}</span>
                 </button>
@@ -130,14 +144,14 @@ export default function SettingsPage() {
           <h2 className="text-[#1A1A2E] text-lg font-bold tracking-tight mb-6" style={{ fontFamily: 'inherit' }}>{t('audio')}</h2>
           <div className="space-y-8">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/10 shadow-sm">
+              <div className="flex items-center justify-between gap-4 mb-4 min-h-[3.5rem]">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/10 shadow-sm flex-shrink-0">
                     <Volume2 className="w-5 h-5 text-amber-600"/>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[#1A1A2E] text-sm font-bold">{t('soundEffects')}</p>
-                    <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('uiAndInteractionSounds')}</p>
+                    <p className="text-slate-500 text-[10px] font-medium opacity-60 truncate">{t('uiAndInteractionSounds')}</p>
                   </div>
                 </div>
                 <ToggleSwitch value={form.soundEnabled} onChange={v => setForm(f => ({ ...f, soundEnabled: v }))}/>
@@ -150,14 +164,14 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#FACC15]/10 border border-[#FACC15]/10 shadow-sm">
+              <div className="flex items-center justify-between gap-4 mb-4 min-h-[3.5rem]">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#FACC15]/10 border border-[#FACC15]/10 shadow-sm flex-shrink-0">
                     <Music className="w-5 h-5 text-[#FACC15]"/>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[#1A1A2E] text-sm font-bold">{t('backgroundMusic')}</p>
-                    <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('atmosphericGameMusic')}</p>
+                    <p className="text-slate-500 text-[10px] font-medium opacity-60 truncate">{t('atmosphericGameMusic')}</p>
                   </div>
                 </div>
                 <ToggleSwitch value={form.musicEnabled} onChange={v => setForm(f => ({ ...f, musicEnabled: v }))}/>
@@ -178,16 +192,16 @@ export default function SettingsPage() {
             </div>
             <h2 className="text-[#1A1A2E] text-lg font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('language')}</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {LANGUAGES.map(({ code, name, flag }) => (
               <button 
                 key={code} 
                 onClick={() => setForm(f => ({ ...f, language: code }))} 
-                className={`flex items-center gap-3 p-4 rounded-2xl transition-all duration-300 ${form.language === code ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}
+                className={`flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 relative ${form.language === code ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}
               >
-                <span className="text-2xl drop-shadow-sm">{flag}</span>
-                <span className={`text-sm font-bold ${form.language === code ? 'text-[#FACC15]' : 'text-slate-500'}`}>{name}</span>
-                {form.language === code && <Check className="w-4 h-4 text-[#FACC15] ml-auto"/>}
+                <span className="text-3xl drop-shadow-sm">{flag}</span>
+                <span className={`text-xs font-bold text-center leading-tight ${form.language === code ? 'text-[#FACC15]' : 'text-slate-500'}`}>{name}</span>
+                {form.language === code && <Check className="w-3.5 h-3.5 text-[#FACC15] absolute top-2 right-2"/>}
               </button>
             ))}
           </div>

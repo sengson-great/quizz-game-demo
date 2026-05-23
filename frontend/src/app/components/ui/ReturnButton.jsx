@@ -1,24 +1,46 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Home, AlertTriangle, X } from 'lucide-react';
+import { Home, AlertTriangle, X, Flag } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
 import { useTranslation } from '../../hooks/useTranslation';
+import api from '../../../api/axios';
+
 export function ReturnButton({ context, variant = 'default', onClick, className, style, children }) {
-    const { gameState, resetGame, cancelMatchmake, leaveBattle } = useGame();
+    const { gameState, resetGame, cancelMatchmake, leaveBattle, surrenderGame } = useGame();
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [showConfirmation, setShowConfirmation] = useState(false);
     
+    const isSurrenderMode = context === 'game' && gameState?.mode !== 'Solo' && gameState?.status === 'active';
+
     const leaveAndReset = async () => {
-        // For Room lobbies, always call leaveBattle regardless of context label
-        if (gameState?.mode === 'Room' || context === 'lobby') {
-            leaveBattle(); // fire and don't await — optimistic, UI navigates instantly
-        } else if (context === 'matchmaking') {
-            cancelMatchmake(); // fire and don't await
+        console.log('[DEBUG] leaveAndReset called. isSurrenderMode:', isSurrenderMode, 'matchId:', gameState?.matchId);
+        if (gameState?.matchId) {
+            console.log('[DEBUG] Sending player_left API request...');
+            try {
+                // Await so the Pusher event is dispatched before we wipe state and navigate away.
+                // Sending non-empty payload to satisfy any strict validation rules.
+                const res = await api.post('/multiplayer/action', {
+                    match_id: gameState.matchId,
+                    action_type: 'player_left',
+                    payload: { left: true }
+                });
+                console.log('[DEBUG] player_left API request completed successfully! Response:', res.data);
+            } catch (err) {
+                console.error('[DEBUG] player_left API request failed:', err);
+            }
         }
-        resetGame();
-        navigate('/dashboard');
+
+        if (isSurrenderMode) {
+            console.log('[DEBUG] Triggering surrenderGame state action and navigating to /results.');
+            surrenderGame();
+            navigate('/results');
+        } else {
+            console.log('[DEBUG] Triggering resetGame state action and navigating to /dashboard.');
+            resetGame();
+            navigate('/dashboard');
+        }
     };
 
     const handleReturn = () => {
@@ -47,19 +69,33 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
         whileHover={{ scale: 1.05, x: 2 }} 
         whileTap={{ scale: 0.95 }} 
         onClick={handleReturn} 
-        className={`flex items-center justify-center transition-all ${variant === 'minimal'
-            ? 'text-slate-400 hover:text-[#FACC15]'
-            : 'px-3 py-3 rounded-2xl glass-card border-white/20'}`} 
-        style={variant === 'default'
+        className={className || `flex items-center justify-center transition-all ${
+            isSurrenderMode
+                ? 'p-2.5 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-black shadow-lg shadow-red-500/25 border border-red-400/20'
+                : variant === 'minimal'
+                    ? 'text-slate-400 hover:text-[#FACC15]'
+                    : 'p-2.5 sm:p-3 rounded-xl sm:rounded-2xl glass-card border-white/20'
+        }`} 
+        style={style || (variant === 'default' && !isSurrenderMode
             ? {
                 boxShadow: '0 8px 20px -5px rgba(0,0,0,0.05)',
             }
-            : undefined}>
-        <Home className="w-5 h-5 text-slate-600"/>
-        {variant === 'default' && (
-            <span className="ml-2 text-xs font-black tracking-normal text-slate-600 uppercase hidden sm:inline">
-                {t('returnHome')}
+            : undefined)}>
+        {isSurrenderMode ? (
+            <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white fill-white sm:mr-2 animate-pulse" />
+        ) : (
+            <Home className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600"/>
+        )}
+        {isSurrenderMode ? (
+            <span className="text-xs font-black uppercase tracking-normal text-white hidden sm:inline">
+                Surrender 🏳️
             </span>
+        ) : (
+            variant === 'default' && (
+                <span className="ml-2 text-xs font-black tracking-normal text-slate-600 uppercase hidden sm:inline">
+                    {t('returnHome')}
+                </span>
+            )
         )}
       </motion.button>
 
@@ -75,7 +111,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                       <AlertTriangle className="w-5 h-5 text-red-500"/>
                     </div>
                     <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.25rem' }}>
-                      {t('forfeitTitle')}
+                      {isSurrenderMode ? 'Surrender Match 🏳️' : t('forfeitTitle')}
                     </h2>
                   </div>
                   <button onClick={() => setShowConfirmation(false)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors">
@@ -84,7 +120,9 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 </div>
 
                 <p className="text-slate-600 mb-6">
-                  {t('forfeitDesc')}
+                  {isSurrenderMode 
+                    ? 'Are you sure you want to surrender and leave early? You will receive a -2,000 point penalty on your profile!' 
+                    : t('forfeitDesc')}
                 </p>
 
                 <div className="flex gap-3">
@@ -94,7 +132,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 fontFamily: 'inherit',
                 fontWeight: 600,
             }}>
-                    {t('stayInGame')}
+                    {isSurrenderMode ? 'Keep Playing' : t('stayInGame')}
                   </motion.button>
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmReturn} className="flex-1 py-3 rounded-xl text-white transition-all" style={{
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
@@ -102,7 +140,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 fontFamily: 'inherit',
                 fontWeight: 600,
             }}>
-                    {t('forfeitAndLeave')}
+                    {isSurrenderMode ? 'Surrender' : t('forfeitAndLeave')}
                   </motion.button>
                 </div>
               </div>

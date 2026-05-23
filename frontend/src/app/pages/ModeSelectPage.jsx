@@ -177,7 +177,7 @@ export default function ModeSelectPage() {
             <button onClick={() => setSelectedCategories([categories[0]?.id].filter(Boolean))} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{t('none')}</button>
           </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {categories.map(({ id, name, nameKm, icon, color, iconColor }) => {
             const isSelected = selectedCategories.includes(id);
             return (<motion.button key={id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => toggleCategory(id)} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group" style={{

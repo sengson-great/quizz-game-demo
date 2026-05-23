@@ -16,14 +16,14 @@ export default function AuthPage() {
     const [error, setError] = useState('');
     const [formLoading, setFormLoading] = useState(false);
     const { login, register, currentUser, loading: authLoading } = useAuth();
-    const { t } = useTranslation();
+    const { t, lang } = useTranslation();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!authLoading && currentUser) {
-            navigate('/dashboard', { replace: true });
+            navigate(`/${lang}/dashboard`, { replace: true });
         }
-    }, [currentUser, authLoading, navigate]);
+    }, [currentUser, authLoading, navigate, lang]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -33,7 +33,7 @@ export default function AuthPage() {
         if (tab === 'login') {
             const result = await login(email, password);
             if (result.success) {
-                navigate('/dashboard');
+                navigate(`/${lang}/dashboard`);
             }
             else {
                 setError(result.message);
@@ -47,7 +47,7 @@ export default function AuthPage() {
             }
             const result = await register(username, email, password);
             if (result.success) {
-                navigate('/dashboard');
+                navigate(`/${lang}/dashboard`);
             }
             else {
                 setError(result.message);
@@ -58,7 +58,7 @@ export default function AuthPage() {
 
     const inputClass = "w-full px-4 py-3 rounded-xl text-[#1A1A2E] placeholder-slate-400 focus:outline-none transition-all text-sm";
 
-    return (<div className="min-h-screen flex items-center justify-center px-4 relative" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
+    return (<div className="min-h-screen flex items-center justify-center px-4 py-6 relative overflow-x-hidden" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full opacity-[0.3]" style={{ background: 'radial-gradient(circle, rgba(250, 204, 21, 0.05), transparent)', filter: 'blur(100px)' }}/>
       </div>
@@ -66,7 +66,7 @@ export default function AuthPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
+          <Link to={`/${lang}/`} className="inline-flex items-center gap-2.5 mb-4">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #FACC15, #818CF8)', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}>
               <Brain className="w-5 h-5 text-white"/>
             </div>
@@ -109,7 +109,7 @@ export default function AuthPage() {
 
                 {tab === 'login' && (
                   <div className="flex justify-end">
-                    <Link to="/forgot-password" size="sm" className="text-xs text-slate-400 hover:text-[#FACC15] transition-colors">
+                    <Link to={`/${lang}/forgot-password`} size="sm" className="text-xs text-slate-400 hover:text-[#FACC15] transition-colors">
                       {t('forgotPassword')}
                     </Link>
                   </div>

@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Sparkles, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 const LIGHT_BG = 'var(--grad-surface)';
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
     const { resetPassword } = useAuth();
+    const { lang } = useTranslation();
     const navigate = useNavigate();
 
     const [form, setForm] = useState({
@@ -39,7 +41,7 @@ export default function ResetPasswordPage() {
 
         if (result.success) {
             setStatus({ loading: false, error: '', success: true });
-            setTimeout(() => navigate('/auth'), 3000);
+            setTimeout(() => navigate(`/${lang}/auth`), 3000);
         } else {
             setStatus({ loading: false, error: result.message, success: false });
         }
@@ -54,7 +56,7 @@ export default function ResetPasswordPage() {
                             <Sparkles className="w-5 h-5 text-white"/>
                         </div>
                         <span className="text-xl text-[#1A1A2E] tracking-normal" style={{ fontFamily: 'inherit', fontWeight: 700 }}>
-                            Quiz<span className="text-[#FACC15]">Blitz</span>
+                            Quiz No <span className="text-[#FACC15]">Cap</span>
                         </span>
                     </div>
                     <h2 className="text-[#1A1A2E] text-2xl font-bold mb-2">Create New Password</h2>
@@ -71,7 +73,7 @@ export default function ResetPasswordPage() {
                                 <h3 className="text-[#1A1A2E] font-bold text-lg">Password Reset Successfully!</h3>
                                 <p className="text-slate-500 text-sm">Your password has been updated. Redirecting to login...</p>
                             </div>
-                            <Link to="/auth" className="block w-full py-4 rounded-xl text-white text-sm font-bold bg-[#FACC15]">
+                            <Link to={`/${lang}/auth`} className="block w-full py-4 rounded-xl text-white text-sm font-bold bg-[#FACC15] text-center">
                                 Go to Login
                             </Link>
                         </div>

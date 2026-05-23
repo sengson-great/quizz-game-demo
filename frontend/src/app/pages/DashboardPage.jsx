@@ -105,9 +105,9 @@ export default function DashboardPage() {
     ];
 
     const gameModes = [
-        { icon: <Target className="w-10 h-10 text-emerald-500" />, title: t('soloPractice'), desc: t('classicDesc'),       badge: t('practiceMode'), color: '#10b981', action: () => navigate('/mode-select', { state: { preMode: 'Solo' } }) },
-        { icon: <Swords className="w-10 h-10 text-rose-500" />, title: t('battle1v1'),   desc: t('battleDescShort'),   badge: t('battle1v1'),        color: '#f43f5e', action: () => navigate('/mode-select', { state: { preMode: '1v1'  } }) },
-        { icon: <Trophy className="w-10 h-10 text-violet-500" />, title: t('roomMode'),     desc: t('privateRoomDesc'),   badge: t('roomMode'),         color: '#8b5cf6', action: () => navigate('/mode-select', { state: { preMode: 'Room' } }) },
+        { icon: <Target className="w-10 h-10 text-emerald-500" />, title: t('soloPractice'), desc: t('classicDesc'),       badge: t('practiceMode'), color: '#10b981', action: () => navigate(`/${lang}/mode-select`, { state: { preMode: 'Solo' } }) },
+        { icon: <Swords className="w-10 h-10 text-rose-500" />, title: t('battle1v1'),   desc: t('battleDescShort'),   badge: t('battle1v1'),        color: '#f43f5e', action: () => navigate(`/${lang}/mode-select`, { state: { preMode: '1v1'  } }) },
+        { icon: <Trophy className="w-10 h-10 text-violet-500" />, title: t('roomMode'),     desc: t('privateRoomDesc'),   badge: t('roomMode'),         color: '#8b5cf6', action: () => navigate(`/${lang}/mode-select`, { state: { preMode: 'Room' } }) },
     ];
 
     const BAR_COLORS = ['#FACC15', '#818CF8', '#06b6d4', '#34d399', '#f59e0b', '#8b5cf6'];
@@ -124,7 +124,7 @@ export default function DashboardPage() {
     });
 
     return (
-        <div className="min-h-screen px-4 py-6 max-w-6xl mx-auto overflow-hidden relative" style={{ fontFamily: 'inherit' }}>
+        <div className="min-h-screen px-3 sm:px-4 py-4 sm:py-6 max-w-6xl mx-auto overflow-x-hidden relative" style={{ fontFamily: 'inherit' }}>
             
             {/* Background Decorations - Subtler */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 opacity-30">
@@ -137,19 +137,19 @@ export default function DashboardPage() {
                 <motion.div 
                     initial={{ opacity: 0, y: -10 }} 
                     animate={{ opacity: 1, y: 0 }} 
-                    className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
-                    <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-3 sm:gap-5">
                         <motion.div 
                             whileHover={{ scale: 1.05 }}
-                            className="w-16 h-16 rounded-2xl glass-card flex items-center justify-center text-3xl shadow-lg relative overflow-hidden"
+                            className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl glass-card flex items-center justify-center text-2xl sm:text-3xl shadow-lg relative overflow-hidden flex-shrink-0"
                         >
                             <div className="absolute inset-0 bg-gradient-to-tr from-black/[0.03] to-transparent" />
                             {currentUser.avatar}
                         </motion.div>
-                        <div>
+                        <div className="min-w-0">
                             <p className="text-slate-500 text-[10px] font-bold tracking-[0.2em] uppercase mb-0.5">{t('welcomeBack')}</p>
-                            <h1 className="text-[#000000] text-2xl font-bold tracking-tight leading-none" style={{ fontFamily: 'inherit' }}>
+                            <h1 className="text-[#000000] text-xl sm:text-2xl font-bold tracking-tight leading-none truncate" style={{ fontFamily: 'inherit' }}>
                                 {currentUser.username}
                             </h1>
                             <div className="flex items-center gap-2 mt-1.5">
@@ -162,21 +162,21 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                         <motion.button
                             whileHover={{ scale: 1.05, backgroundColor: 'rgba(0,0,0,0.03)' }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => fetchStats(true)}
                             disabled={loading}
-                            className="p-3 rounded-xl glass-card border-black/[0.03]"
+                            className="p-2.5 sm:p-3 rounded-xl glass-card border-black/[0.03]"
                         >
-                            <RefreshCw className={`w-4.5 h-4.5 text-indigo-500 ${loading ? 'animate-spin' : ''}`}/>
+                            <RefreshCw className={`w-4 h-4 text-indigo-500 ${loading ? 'animate-spin' : ''}`}/>
                         </motion.button>
                         <motion.button
                             whileHover={{ scale: 1.02, y: -1 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate('/mode-select')}
-                            className="flex items-center gap-2 px-6 py-3 rounded-xl text-white text-xs font-black tracking-[0.1em] shadow-lg transition-all"
+                            onClick={() => navigate(`/${lang}/mode-select`)}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-xs font-black tracking-[0.1em] shadow-lg transition-all"
                             style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(250,204,21,0.25)' }}
                         >
                             <Zap className="w-4 h-4 fill-white/20"/> {t('playNow').toUpperCase()}
@@ -186,7 +186,7 @@ export default function DashboardPage() {
             </header>
 
             {/* Stat Grid - Compact Padding */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
                 {loading
                     ? Array.from({ length: 4 }).map((_, i) => <StatSkeleton key={i}/>)
                     : statCards.map(({ label, value, icon: Icon, color, bg, border }, i) => (
@@ -195,65 +195,66 @@ export default function DashboardPage() {
                             initial={{ opacity: 0, y: 10 }} 
                             animate={{ opacity: 1, y: 0 }} 
                             transition={{ delay: i * 0.05 }} 
-                            className="glass-card rounded-[1.5rem] p-5 group border-black/[0.03]"
+                            className="glass-card rounded-[1.5rem] p-3 sm:p-5 group border-black/[0.03]"
                             style={{ background: bg, borderColor: border }}
                         >
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3 bg-white shadow-sm border border-black/[0.02]">
-                                <Icon className="w-4.5 h-4.5" style={{ color }}/>
+                            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center mb-2 sm:mb-3 bg-white shadow-sm border border-black/[0.02]">
+                                <Icon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" style={{ color }}/>
                             </div>
-                            <h3 className={`text-[#000000] leading-tight font-bold tracking-tighter ${String(value).length > 8 ? 'text-xl' : 'text-2xl'}`} style={{ fontFamily: 'inherit' }}>
+                            <h3 className={`text-[#000000] leading-tight font-bold tracking-tighter ${String(value).length > 8 ? 'text-base sm:text-xl' : 'text-lg sm:text-2xl'}`} style={{ fontFamily: 'inherit' }}>
                                 {value}
                             </h3>
-                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-normal mt-1">{label}</p>
+                            <p className="text-slate-500 text-[8px] sm:text-[9px] font-bold uppercase tracking-normal mt-1">{label}</p>
                         </motion.div>
                     ))
                 }
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6 mb-8">
-                {/* Battle Modes - Unified Style */}
+            <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                {/* Battle Modes */}
                 <div className="lg:col-span-2">
-                    <h2 className="text-[#000000] text-lg font-bold tracking-tight mb-4" style={{ fontFamily: 'inherit' }}>{t('chooseBattle')}</h2>
-                    <div className="grid sm:grid-cols-3 gap-4">
+                    <h2 className="text-[#000000] text-base sm:text-lg font-bold tracking-tight mb-3" style={{ fontFamily: 'inherit' }}>{t('chooseBattle')}</h2>
+                    <div className="flex flex-col gap-2">
                         {gameModes.map(({ icon, title, desc, badge, color, action }, i) => (
                             <motion.button
                                 key={title}
                                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.1 }}
-                                whileHover={{ y: -4 }}
+                                whileHover={{ y: -2 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={action}
-                                className={`group relative text-left p-5 ${CARD_STYLE} border-black/[0.03]`}
+                                className={`group relative text-left p-3 sm:p-5 ${CARD_STYLE} border-black/[0.03]`}
                             >
-                                <div className="text-4xl mb-4 transform transition-transform group-hover:scale-110">{icon}</div>
-                                <span className="text-[8px] font-bold uppercase tracking-normal px-2 py-1 rounded-md mb-2 inline-block" 
-                                      style={{ background: `${color}10`, color, border: `1px solid ${color}15` }}>
-                                    {badge}
-                                </span>
-                                <h3 className="text-[#000000] text-sm font-bold mb-1" style={{ fontFamily: 'inherit' }}>{title}</h3>
-                                <p className="text-slate-600 text-[10px] font-medium leading-snug line-clamp-2">{desc}</p>
-                                <div className="flex items-center gap-1 text-[9px] font-bold text-[#FACC15] mt-4 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-normal">
-                                    {t('start')} <ChevronRight className="w-3 h-3"/>
+                                <div className="flex items-center gap-3">
+                                    <div className="text-2xl sm:text-3xl flex-shrink-0">{icon}</div>
+                                    <div className="flex-1 min-w-0">
+                                        <span className="text-[8px] font-bold uppercase tracking-normal px-2 py-0.5 rounded-md mb-1 inline-block" 
+                                              style={{ background: `${color}10`, color, border: `1px solid ${color}15` }}>
+                                            {badge}
+                                        </span>
+                                        <h3 className="text-[#000000] text-sm font-bold" style={{ fontFamily: 'inherit' }}>{title}</h3>
+                                        <p className="text-slate-600 text-[10px] font-medium leading-snug line-clamp-1">{desc}</p>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0"/>
                                 </div>
                             </motion.button>
                         ))}
                     </div>
                 </div>
 
-                {/* Performance - Tighter spacing */}
+                {/* Performance */}
                 <div>
-                    <h2 className="text-[#000000] text-lg font-bold tracking-tight mb-4" style={{ fontFamily: 'inherit' }}>{t('domains')}</h2>
+                    <h2 className="text-[#000000] text-base sm:text-lg font-bold tracking-tight mb-3 mt-2 lg:mt-0" style={{ fontFamily: 'inherit' }}>{t('domains')}</h2>
                     <motion.div 
                         initial={{ opacity: 0, x: 10 }} 
                         animate={{ opacity: 1, x: 0 }} 
                         transition={{ delay: 0.3 }} 
-                        className={`p-6 space-y-5 ${CARD_STYLE} border-black/[0.03]`}
+                        className={`p-4 sm:p-6 space-y-4 sm:space-y-5 ${CARD_STYLE} border-black/[0.03]`}
                     >
                         {CATEGORY_DATA.map(({ id, subject, value, icon, iconColor }, i) => {
                             const tKey = `cat${id.charAt(0).toUpperCase() + id.slice(1)}`;
                             const translatedSubject = t(tKey);
-                            // If translation returns the key itself (meaning it's missing), use the original subject
                             const finalSubject = translatedSubject === tKey ? subject : translatedSubject;
-                            return <CategoryBar key={id} subject={finalSubject} value={value} icon={icon} iconColor={iconColor} index={i}/>
+                            return <CategoryBar key={id} subject={finalSubject} value={value} icon={icon} iconColor={iconColor} index={i}/>;
                         })}
                     </motion.div>
                 </div>
@@ -262,9 +263,9 @@ export default function DashboardPage() {
             {/* Match History - Cleaner list */}
             <section>
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-[#000000] text-lg font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('recentMatches')}</h2>
+                    <h2 className="text-[#000000] text-base sm:text-lg font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>{t('recentMatches')}</h2>
                     <button 
-                        onClick={() => navigate('/leaderboard')} 
+                        onClick={() => navigate(`/${lang}/leaderboard`)} 
                         className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-[#FACC15] hover:opacity-80 transition-opacity"
                     >
                         {t('leaderboard')} <ChevronRight className="w-3.5 h-3.5"/>
@@ -297,7 +298,7 @@ export default function DashboardPage() {
                                     initial={{ opacity: 0 }} 
                                     animate={{ opacity: 1 }} 
                                     transition={{ delay: 0.4 + i * 0.05 }}
-                                    className="flex items-center justify-between px-6 py-4 hover:bg-black/[0.01] transition-colors group"
+                                    className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 hover:bg-black/[0.01] transition-colors group"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-11 h-11 rounded-xl glass-card flex items-center justify-center text-xl bg-white shadow-sm border border-black/[0.02]">

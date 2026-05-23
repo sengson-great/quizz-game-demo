@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
 import { getFixedAvatar } from '../utils/avatar';
+import { updateEchoAuthToken } from '../../api/echo';
 
 const defaultAuthContext = {
     currentUser: null,
@@ -45,12 +46,14 @@ export function AuthProvider({ children }) {
         const fetchUser = async () => {
             const token = localStorage.getItem(STORAGE_KEY);
             if (token) {
+                updateEchoAuthToken(token);
                 try {
                     const response = await api.get('/user');
                     const user = applyDefaults(response.data);
                     setCurrentUser(user);
                 } catch (error) {
                     console.error("Failed to fetch user", error);
+                    updateEchoAuthToken(null);
                     localStorage.removeItem(STORAGE_KEY);
                 }
             }
@@ -67,6 +70,7 @@ export function AuthProvider({ children }) {
             const loggedInUser = applyDefaults(user);
 
             localStorage.setItem(STORAGE_KEY, token);
+            updateEchoAuthToken(token);
             setCurrentUser(loggedInUser);
             return { success: true };
         } catch (error) {
@@ -91,6 +95,7 @@ export function AuthProvider({ children }) {
             const registeredUser = applyDefaults(user);
 
             localStorage.setItem(STORAGE_KEY, token);
+            updateEchoAuthToken(token);
             setCurrentUser(registeredUser);
             return { success: true };
         } catch (error) {
@@ -109,6 +114,7 @@ export function AuthProvider({ children }) {
             console.error("Logout Error:", error);
         } finally {
             localStorage.clear();
+            updateEchoAuthToken(null);
             setCurrentUser(null);
         }
     }, []);

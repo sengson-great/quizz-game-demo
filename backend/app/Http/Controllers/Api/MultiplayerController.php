@@ -123,6 +123,33 @@ class MultiplayerController extends Controller
         $payload['sender_id'] = $request->user()->id;
         $payload['sender_name'] = $request->user()->name;
 
+        if ($request->action_type === 'player_left') {
+            try {
+                $session = \App\Models\GameSession::where('match_id', $request->match_id)
+                    ->where('user_id', $request->user()->id)
+                    ->first();
+                if ($session) {
+                    $newScore = max(0, $session->score - 2000);
+                    $session->update([
+                        'status' => 'failed',
+                        'score' => $newScore
+                    ]);
+                    $payload['score'] = $newScore;
+                }
+                
+                $opponentSession = \App\Models\GameSession::where('match_id', $request->match_id)
+                    ->where('user_id', '!=', $request->user()->id)
+                    ->first();
+                if ($opponentSession) {
+                    $opponentSession->update([
+                        'status' => 'completed'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Forfeit penalty processing failed: ' . $e->getMessage());
+            }
+        }
+
         try {
             broadcast(new \App\Events\GameAction($request->match_id, $request->user()->id, $request->action_type, $payload));
             return $this->successResponse(null, 'Action sent');

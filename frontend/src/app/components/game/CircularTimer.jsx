@@ -1,7 +1,16 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, size = 'md' }) {
     const hasExpired = useRef(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 640);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     useEffect(() => {
         if (timeRemaining <= 0 && !hasExpired.current && isActive) {
             hasExpired.current = true;
@@ -11,8 +20,11 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, si
             hasExpired.current = false;
         }
     }, [timeRemaining, onExpire, isActive]);
-    const dims = size === 'sm' ? { w: 50, r: 20, sw: 3.5, fs: 'text-[10px]' }
-        : size === 'lg' ? { w: 120, r: 50, sw: 7, fs: 'text-3xl' }
+
+    const activeSize = (size === 'md' && isMobile) ? 'sm' : size;
+
+    const dims = activeSize === 'sm' ? { w: 50, r: 20, sw: 3.5, fs: 'text-[11px]' }
+        : activeSize === 'lg' ? { w: 120, r: 50, sw: 7, fs: 'text-3xl' }
             : { w: 86, r: 36, sw: 5, fs: 'text-xl' };
     const circumference = 2 * Math.PI * dims.r;
     const progress = timeRemaining / totalTime;

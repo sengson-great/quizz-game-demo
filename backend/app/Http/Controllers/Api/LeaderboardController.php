@@ -26,7 +26,10 @@ class LeaderboardController extends Controller
             $sortBy = 'total_score';
         }
 
-        $leaderboard = GameSession::with('user:id,name,avatar')
+        $leaderboard = GameSession::whereHas('user', function ($query) {
+            $query->where('role', '!=', 'admin');
+        })
+            ->with('user:id,name,avatar')
             ->select(
                 'user_id',
                 DB::raw('SUM(score) as total_score'),
@@ -125,7 +128,10 @@ class LeaderboardController extends Controller
                 ['name' => 'soloMode', 'value' => $soloCount],
                 ['name' => 'multiplayer', 'value' => $multiCount],
             ],
-            'top_players'  => GameSession::with('user:id,name,avatar')
+            'top_players'  => GameSession::whereHas('user', function ($query) {
+                $query->where('role', '!=', 'admin');
+            })
+                ->with('user:id,name,avatar')
                 ->select('user_id', DB::raw('MAX(score) as high_score'))
                 ->groupBy('user_id')
                 ->orderByDesc('high_score')

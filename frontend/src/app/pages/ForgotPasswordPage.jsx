@@ -11,7 +11,7 @@ export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState({ loading: false, error: '', success: false, message: '' });
     const { forgotPassword } = useAuth();
-    const { t } = useTranslation();
+    const { t, lang } = useTranslation();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -35,12 +35,12 @@ export default function ForgotPasswordPage() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
                 <div className="text-center mb-8">
-                    <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
+                    <Link to={`/${lang}/`} className="inline-flex items-center gap-2.5 mb-4">
                         <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #FACC15, #8B5CF6)', boxShadow: '0 4px 15px rgba(250,204,21,0.3)' }}>
                             <Sparkles className="w-5 h-5 text-white"/>
                         </div>
                         <span className="text-xl text-[#1A1A2E] tracking-normal" style={{ fontFamily: 'inherit', fontWeight: 700 }}>
-                            Quiz<span className="text-[#FACC15]">Blitz</span>
+                            Quiz No <span className="text-[#FACC15]">Cap</span>
                         </span>
                     </Link>
                     <h2 className="text-[#1A1A2E] text-2xl font-bold mb-2">Reset Password</h2>
@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
                                 <h3 className="text-[#1A1A2E] font-bold text-lg">Check your email</h3>
                                 <p className="text-slate-500 text-sm">{status.message || "We've sent a password reset link to your email."}</p>
                             </div>
-                            <Link to="/auth" className="flex items-center justify-center gap-2 text-[#FACC15] text-sm font-semibold hover:underline">
+                            <Link to={`/${lang}/auth`} className="flex items-center justify-center gap-2 text-[#FACC15] text-sm font-semibold hover:underline">
                                 <ChevronLeft className="w-4 h-4"/> Back to Login
                             </Link>
                         </div>
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
                                 {status.loading ? "Sending..." : "Send Reset Link"}
                             </button>
 
-                            <Link to="/auth" className="flex items-center justify-center gap-2 text-slate-400 text-sm hover:text-slate-600 transition-colors">
+                            <Link to={`/${lang}/auth`} className="flex items-center justify-center gap-2 text-slate-400 text-sm hover:text-slate-600 transition-colors">
                                 <ChevronLeft className="w-4 h-4"/> Back to Login
                             </Link>
                         </form>

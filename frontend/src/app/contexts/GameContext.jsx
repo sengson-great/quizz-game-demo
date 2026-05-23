@@ -9,15 +9,48 @@ const GameContext = createContext(null);
 const DEFAULT_LIFELINES = { fifty: false, skip: false, audience: false, phone: false, doubleDip: false };
 
 export function GameProvider({ children }) {
-    const [gameState, setGameState] = useState(null);
-    const { currentUser } = useAuth();
-    
-    // Clear game state when user logs out
+    const { currentUser, loading: authLoading } = useAuth();
+    const [gameState, setGameState] = useState(() => {
+        try {
+            const saved = sessionStorage.getItem('millionaire_game_state');
+            return saved ? JSON.parse(saved) : null;
+        } catch (e) {
+            return null;
+        }
+    });
+
+    // Synchronize game state with sessionStorage
     useEffect(() => {
-        if (!currentUser) {
+        if (gameState) {
+            sessionStorage.setItem('millionaire_game_state', JSON.stringify(gameState));
+        } else {
+            sessionStorage.removeItem('millionaire_game_state');
+        }
+    }, [gameState]);
+    
+    // Clear game state when user logs out (only after auth loading is complete)
+    useEffect(() => {
+        if (!authLoading && !currentUser) {
             setGameState(null);
         }
-    }, [currentUser]);
+    }, [currentUser, authLoading]);
+
+    // Track when each question was first loaded to compute exact remaining time across refreshes
+    useEffect(() => {
+        if (gameState && gameState.currentQuestion) {
+            const currentId = gameState.currentQuestion.id;
+            if (gameState.questionStartedAtId !== currentId) {
+                setGameState(prev => {
+                    if (!prev || prev.questionStartedAtId === currentId) return prev;
+                    return {
+                        ...prev,
+                        questionStartedAtId: currentId,
+                        questionStartedAt: Date.now()
+                    };
+                });
+            }
+        }
+    }, [gameState?.currentQuestionIndex, gameState?.currentQuestion?.id]);
 
     // Map frontend lifelines (true=used) to backend format (missing or false=used, true=available) or parse them
     const parseLifelines = (backendLifelines) => {
@@ -54,9 +87,6 @@ export function GameProvider({ children }) {
             
             setGameState(prev => ({
                 ...(prev || {}),
-                // keepLoading: caller will set 'active' after merging opponent info.
-                // This prevents MatchmakingPage from starting the countdown before
-                // the question + opponent are both ready.
                 status: (session.status === 'completed' || session.status === 'failed')
                     ? 'finished'
                     : (keepLoading ? 'loading' : 'active'),
@@ -76,6 +106,8 @@ export function GameProvider({ children }) {
                     : (res.data.opponents && res.data.opponents.length > 0
                         ? res.data.opponents.map(o => ({ ...o, name: o.username || o.name, avatar: getFixedAvatar(o.id || o.name || o.username, o.avatar), score: 0, answered: false }))
                         : (prev?.opponents?.length ? prev.opponents : [])),
+                opponentForfeited: false,
+                playerSurrendered: false,
                 session,
             }));
         } catch (error) {
@@ -208,6 +240,27 @@ export function GameProvider({ children }) {
         setGameState(null);
     }, []);
 
+    const forceQuitDueToOpponentLeft = useCallback(() => {
+        setGameState(prev => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                status: 'finished'
+            };
+        });
+    }, []);
+
+    const surrenderGame = useCallback(() => {
+        setGameState(prev => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                status: 'finished',
+                playerSurrendered: true
+            };
+        });
+    }, []);
+
     const finalizedRef = useRef(new Set());
     const finalizeGame = useCallback((finalScore = null) => {
         if (gameState && gameState.matchId && !finalizedRef.current.has(gameState.matchId)) {
@@ -241,11 +294,44 @@ export function GameProvider({ children }) {
         const channel = echo.private(`match.${matchId}`);
         
         channel.listen('.game.action', (e) => {
-            if (e.action === 'player_finished' || e.action === 'score_update') {
+            console.log('[DEBUG] bindMatchChannel received game.action event:', JSON.stringify(e));
+            if (e.action === 'player_finished' || e.action === 'score_update' || e.action === 'player_left') {
                 setGameState(prev => {
-                    if (!prev || !prev.opponents) return prev;
+                    if (!prev || !prev.opponents) {
+                        console.log('[DEBUG] No active game state or opponents array found in state to process action.');
+                        return prev;
+                    }
+                    
+                    if (e.action === 'player_left') {
+                        const senderId = e.user_id !== undefined ? e.user_id : e.userId;
+                        console.log('[DEBUG] Processing player_left action. Sender user_id:', senderId);
+                        // Mark the opponent as left
+                        const newOpponents = prev.opponents.map(opp => {
+                            console.log(`[DEBUG] Comparing opponent.id (${opp.id}) [Type: ${typeof opp.id}] with sender user_id (${senderId}) [Type: ${typeof senderId}]`);
+                            if (opp.id == senderId) {
+                                console.log(`[DEBUG] Match found! Marking opponent ${opp.name} as left with score:`, e.data?.score);
+                                return { 
+                                    ...opp, 
+                                    left: true, 
+                                    answered: true,
+                                    score: e.data?.score !== undefined ? e.data.score : opp.score
+                                };
+                            }
+                            return opp;
+                        });
+                        // If all opponents have left, mark as forfeit-win
+                        const allLeft = newOpponents.every(opp => opp.left);
+                        console.log('[DEBUG] All opponents left evaluation:', allLeft);
+                        return { 
+                            ...prev, 
+                            opponents: newOpponents,
+                            ...(allLeft ? { status: 'finished', opponentForfeited: true } : {})
+                        };
+                    }
+                    
                     const newOpponents = prev.opponents.map(opp => {
-                        if (opp.id == e.user_id) {
+                        const senderId = e.user_id !== undefined ? e.user_id : e.userId;
+                        if (opp.id == senderId) {
                             return { 
                                 ...opp, 
                                 score: e.data?.score ?? opp.score, 
@@ -438,12 +524,12 @@ export function GameProvider({ children }) {
 
     const contextValue = React.useMemo(() => ({
         gameState, 
-        initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame,
+        initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame, forceQuitDueToOpponentLeft, surrenderGame,
         createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
         createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle, joinBattle
     }), [
         gameState, 
-        initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame,
+        initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame, forceQuitDueToOpponentLeft, surrenderGame,
         createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
         createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle, joinBattle
     ]);
@@ -486,6 +572,35 @@ export function GameProvider({ children }) {
         return () => window.removeEventListener('beforeunload', sendLeave);
     }, [gameState?.lobbyInviteCode, gameState?.status]);
 
+    // Broadcast player_left on tab close or refresh during an active match
+    useEffect(() => {
+        if (!gameState?.matchId || gameState.status !== 'active') return;
+
+        const matchId = gameState.matchId;
+
+        const sendPlayerLeft = () => {
+            const token = localStorage.getItem('auth_token');
+            const apiBase = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+            fetch(`${apiBase}/multiplayer/action`, {
+                method: 'POST',
+                keepalive: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    match_id: matchId,
+                    action_type: 'player_left',
+                    payload: {}
+                }),
+            }).catch(() => {});
+        };
+
+        window.addEventListener('beforeunload', sendPlayerLeft);
+        return () => window.removeEventListener('beforeunload', sendPlayerLeft);
+    }, [gameState?.matchId, gameState?.status]);
+
     return (
         <GameContext.Provider value={contextValue}>
             {children}
@@ -503,6 +618,7 @@ export function useGame() {
         nextQuestion: async () => {},
         resetGame: () => {},
         finalizeGame: () => {},
+        forceQuitDueToOpponentLeft: () => {},
         createSmallRoom: async () => {},
         joinSmallRoom: async () => {},
         startSmallRoomGame: async () => {},

@@ -86,12 +86,20 @@ export default function ResultsPage() {
     const totalQuestions = (gameState?.questions || []).length || 1;
     const accuracy = Math.round((correctCount / totalQuestions) * 100);
     const allScores = [
-        { name: currentUser.username, avatar: currentUser.avatar, score: gameState?.playerScore || 0, isPlayer: true }, 
+        { 
+            name: currentUser.username, 
+            avatar: currentUser.avatar, 
+            score: gameState?.playerSurrendered 
+                ? Math.max(0, (gameState?.playerScore || 0) - 2000) 
+                : (gameState?.playerScore || 0), 
+            isPlayer: true 
+        }, 
         ...(gameState?.opponents || []).map(o => ({ 
             name: o.username || o.name, 
             avatar: o.avatar || '🦊', 
             score: Math.max(o.score || 0, finalMatchScores[o.id] || 0), 
-            isPlayer: false 
+            isPlayer: false,
+            left: o.left
         }))
     ].sort((a, b) => (b.score || 0) - (a.score || 0));
 
@@ -101,7 +109,7 @@ export default function ResultsPage() {
     });
 
     const playerRank = allScores.find(s => s.isPlayer)?.rank || 1;
-    const isWinner = playerRank === 1;
+    const isWinner = (playerRank === 1 || !!gameState?.opponentForfeited) && !gameState?.playerSurrendered;
 
     const getRankIcon = (rank) => { 
         if (rank === 1) return <Crown className="w-6 h-6 text-amber-500" />; 
@@ -150,6 +158,12 @@ export default function ResultsPage() {
               </span>
           )}
         </h1>
+        {gameState?.opponentForfeited && (
+          <p className="text-amber-500 text-sm font-semibold mb-0.5">🏳️ Opponent left — You win by forfeit!</p>
+        )}
+        {gameState?.playerSurrendered && (
+          <p className="text-rose-500 text-sm font-semibold mb-0.5">🏳️ You surrendered the match (-2,000 pts penalty applied)</p>
+        )}
         <p className="text-slate-500">{label}</p>
       </motion.div>
 
@@ -171,7 +185,7 @@ export default function ResultsPage() {
             {allScores.map((player, i) => (<motion.div key={`${player.name}-${i}`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.1 }} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: player.isPlayer ? 'rgba(99,102,241,0.06)' : 'rgba(0,0,0,0.02)', border: player.isPlayer ? '1px solid rgba(99,102,241,0.12)' : '1px solid transparent' }}>
                 <span className="w-8 flex justify-center">{getRankIcon(player.rank)}</span>
                 <span className="text-xl">{player.avatar}</span>
-                <span className={`flex-1 text-sm ${player.isPlayer ? 'text-[#FACC15]' : 'text-[#1A1A2E]'}`}>{player.name} {player.isPlayer && <span className="text-xs text-[#FACC15]">({t('you')})</span>}</span>
+                <span className={`flex-1 text-sm ${player.isPlayer ? 'text-[#FACC15]' : 'text-[#1A1A2E]'}`}>{player.name} {player.isPlayer ? <span className="text-xs text-[#FACC15]">({t('you')})</span> : player.left ? <span className="text-xs text-rose-500 font-black tracking-tight">(Left 🏳️)</span> : null}</span>
                 <span className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{player.score.toLocaleString()}</span>
               </motion.div>))}
           </div>

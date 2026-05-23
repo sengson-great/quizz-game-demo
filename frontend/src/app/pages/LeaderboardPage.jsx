@@ -32,12 +32,12 @@ function SkeletonRow({ i }) {
 }
 
 function PodiumCard({ entry, place }) {
-    const heights   = { 1: 'h-32 sm:h-40', 2: 'h-20 sm:h-24', 3: 'h-14 sm:h-18' };
-    const sizes     = { 1: 'text-4xl sm:text-5xl', 2: 'text-3xl sm:text-4xl', 3: 'text-2xl sm:text-3xl' };
+    const heights   = { 1: 'h-28 sm:h-40', 2: 'h-18 sm:h-24', 3: 'h-12 sm:h-18' };
+    const sizes     = { 1: 'text-3.5xl sm:text-5xl', 2: 'text-2.5xl sm:text-4xl', 3: 'text-xl sm:text-3xl' };
     const medals    = { 
-        1: <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 drop-shadow-md" />, 
-        2: <Trophy className="w-7 h-7 sm:w-9 sm:h-9 text-slate-400 drop-shadow-md" />, 
-        3: <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-700 drop-shadow-md" /> 
+        1: <Crown className="w-6 h-6 sm:w-10 sm:h-10 text-amber-400 drop-shadow-md" />, 
+        2: <Trophy className="w-5 h-5 sm:w-9 sm:h-9 text-slate-400 drop-shadow-md" />, 
+        3: <Award className="w-4 h-4 sm:w-8 sm:h-8 text-amber-700 drop-shadow-md" /> 
     };
     const gradients = {
         1: 'linear-gradient(to top, rgba(251,191,36,0.15), rgba(251,191,36,0.02))',
@@ -49,23 +49,27 @@ function PodiumCard({ entry, place }) {
     const avatar = getFixedAvatar(entry.user_id || entry.name, entry.avatar);
 
     return (
-        <div className="flex flex-col items-center gap-2" style={place === 1 ? { marginTop: '-2rem' } : {}}>
+        <div className={`flex flex-col items-center gap-1 sm:gap-2 ${place === 1 ? 'relative -top-5 sm:-top-8' : ''}`}>
             <motion.div 
-                animate={place === 1 ? { y: [-4, 4, -4] } : {}} 
+                animate={place === 1 ? { y: [-3, 3, -3] } : {}} 
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 className="relative group"
             >
                 <span className={`${sizes[place]} drop-shadow-xl group-hover:scale-110 transition-transform`}>{avatar}</span>
-                {place === 1 && <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-bounce"><Crown className="w-3.5 h-3.5 text-white" /></div>}
+                {place === 1 && (
+                    <div className="absolute -top-1.5 -right-1.5 w-5 h-5 sm:w-6 sm:h-6 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-bounce">
+                        <Crown className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-white" />
+                    </div>
+                )}
             </motion.div>
-            <p className={`text-[#000000] text-[10px] sm:text-sm text-center truncate max-w-[5rem] sm:max-w-[7rem] ${place === 1 ? 'font-bold' : 'font-medium'}`}>
+            <p className={`text-[#000000] text-[10px] sm:text-sm text-center truncate max-w-[4.5rem] sm:max-w-[7rem] ${place === 1 ? 'font-bold' : 'font-medium'}`}>
                 {entry?.name || '---'}
             </p>
             <p className={`text-[10px] sm:text-xs font-bold ${scoreColors[place]}`}>
                 {(entry?.total_score || 0).toLocaleString()}
             </p>
             <div
-                className={`w-20 sm:w-24 ${heights[place]} rounded-t-2xl flex items-center justify-center text-3xl sm:text-4xl shadow-sm border-x border-t border-white/20`}
+                className={`w-[4.5rem] sm:w-24 ${heights[place]} rounded-t-xl sm:rounded-t-2xl flex items-center justify-center text-2xl sm:text-4xl shadow-sm border-x border-t border-white/20`}
                 style={{ background: gradients[place] }}
             >
                 {medals[place]}
@@ -129,19 +133,18 @@ export default function LeaderboardPage() {
     };
 
     return (
-        <div className="min-h-screen px-4 py-8 max-w-6xl mx-auto overflow-hidden relative" style={{ fontFamily: 'inherit' }}>
+        <div className="min-h-screen px-3 sm:px-4 py-6 sm:py-8 max-w-6xl mx-auto overflow-x-hidden relative" style={{ fontFamily: 'inherit' }}>
             
             <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 opacity-30">
                 <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-amber-100/20 rounded-full blur-[100px] animate-blob" />
                 <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-[#FACC15]/5 rounded-full blur-[80px] animate-blob" style={{ animationDelay: '2s' }} />
             </div>
 
-            {/* Header */}
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8 sm:mb-12">
                 <div className="w-16 h-16 rounded-2xl glass-card flex items-center justify-center text-3xl shadow-lg mx-auto mb-4 border-black/[0.03]">
                     <Trophy className="w-8 h-8 text-amber-500"/>
                 </div>
-                <h1 className="text-[#000000] text-3xl font-bold tracking-tight mb-2" style={{ fontFamily: 'inherit' }}>
+                <h1 className="text-[#000000] text-2xl sm:text-3xl font-bold tracking-tight mb-2" style={{ fontFamily: 'inherit' }}>
                     {t('leaderboard')}
                 </h1>
                 <p className="text-slate-500 text-sm font-medium opacity-80">{t('topQuizChampions')}</p>
@@ -151,7 +154,7 @@ export default function LeaderboardPage() {
             {!loading && !error && top3.length > 0 && (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-end justify-center gap-2 sm:gap-4 mb-10 py-6 px-2"
+                    className="flex items-end justify-center gap-1.5 sm:gap-4 mb-8 pt-10 sm:pt-12 pb-4 px-2"
                 >
                     {top3[1] && <PodiumCard entry={top3[1]} place={2}/>}
                     {top3[0] && <PodiumCard entry={top3[0]} place={1}/>}
@@ -203,9 +206,9 @@ export default function LeaderboardPage() {
                         <button
                             key={key}
                             onClick={() => handleSort(key)}
-                            className={`px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-normal transition-all flex items-center gap-2 whitespace-nowrap ${sortBy === key ? 'bg-white shadow-sm text-[#FACC15] border border-black/[0.02]' : 'text-slate-500 hover:text-[#000000]'}`}
+                            className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold uppercase tracking-normal transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${sortBy === key ? 'bg-white shadow-sm text-[#FACC15] border border-black/[0.02]' : 'text-slate-500 hover:text-[#000000]'}`}
                         >
-                            <TrendingUp className={`w-3.5 h-3.5 ${sortBy === key ? 'text-[#FACC15]' : 'opacity-40'}`}/>
+                            <TrendingUp className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${sortBy === key ? 'text-[#FACC15]' : 'opacity-40'}`}/>
                             {t(label)}
                         </button>
                     ))}
@@ -226,12 +229,12 @@ export default function LeaderboardPage() {
             {!error && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className={CARD_STYLE}>
                     {/* Table header */}
-                    <div className="grid grid-cols-12 px-6 py-4 text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em]" style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
+                    <div className="hidden sm:grid grid-cols-12 px-4 sm:px-6 py-3 sm:py-4 text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em]" style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
                         <span className="col-span-1">{t('rank')}</span>
-                        <span className="col-span-6 sm:col-span-4">{t('player')}</span>
+                        <span className="col-span-5">{t('player')}</span>
                         <span className="col-span-3 text-right">{t('score')}</span>
-                        <span className="hidden sm:block sm:col-span-2 text-right">{t('winsGames')}</span>
-                        <span className="col-span-2 text-right">{t('winPercentage')}</span>
+                        <span className="col-span-2 text-right">{t('winsGames')}</span>
+                        <span className="col-span-1 text-right">{t('winPercentage').charAt(0)}%</span>
                     </div>
 
                     {/* Skeleton */}
@@ -258,63 +261,59 @@ export default function LeaderboardPage() {
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
                                             transition={{ delay: i * 0.03 }}
-                                            className="grid grid-cols-12 items-center px-6 py-4 hover:bg-black/[0.01] transition-colors group"
+                                            className="px-3 sm:px-6 py-3 sm:py-4 hover:bg-black/[0.01] transition-colors"
                                             style={isMe ? { background: 'rgba(250,204,21,0.02)' } : {}}
                                         >
-                                            {/* Rank */}
-                                            <div className={`col-span-1 text-xs sm:text-sm font-bold ${rs.color}`}>
-                                                {rs.icon}
-                                            </div>
-
-                                            {/* Player */}
-                                            <div className="col-span-6 sm:col-span-4 flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-xl bg-white shadow-sm border border-black/[0.02] group-hover:scale-105 transition-transform">
+                                            {/* Row 1: Rank + Avatar + Name */}
+                                            <div className="flex items-center gap-2 sm:gap-3">
+                                                <div className={`w-6 sm:w-7 text-xs font-bold flex-shrink-0 ${rs.color}`}>
+                                                    {rs.icon}
+                                                </div>
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl glass-card flex items-center justify-center text-lg sm:text-xl bg-white shadow-sm border border-black/[0.02] flex-shrink-0">
                                                     {avatar}
                                                 </div>
-                                                <div className="min-w-0">
+                                                <div className="flex-1 min-w-0">
                                                     <p className={`text-xs sm:text-sm truncate font-bold ${isMe ? 'text-[#FACC15]' : 'text-[#000000]'}`}>
                                                         {entry.name}
                                                     </p>
-                                                    <p className="text-slate-500 text-[10px] font-medium opacity-60">
+                                                    <p className="text-slate-500 text-[9px] sm:text-[10px] font-medium opacity-60">
                                                         {t('level')} {Math.floor(entry.total_score / 1000) + 1}
                                                     </p>
                                                 </div>
-                                            </div>
-
-                                            {/* Score */}
-                                            <div className="col-span-3 text-right">
-                                                <p className="text-[#000000] text-sm sm:text-lg font-bold tabular-nums tracking-tight">
-                                                    {(entry.total_score || 0).toLocaleString()}
-                                                </p>
-                                                <p className="text-slate-500 text-[9px] font-bold uppercase tracking-normal opacity-60">{t('points')}</p>
-                                            </div>
-
-                                            {/* Games */}
-                                            <div className="hidden sm:block sm:col-span-2 text-right">
-                                                <p className="text-[#000000] text-sm font-bold">{entry.wins}</p>
-                                                <p className="text-slate-500 text-[10px] font-medium opacity-60">{t('ofGames').replace('{count}', entry.games_played)}</p>
-                                            </div>
-
-                                            {/* Win rate */}
-                                            <div className="col-span-2 text-right">
-                                                <div className="flex flex-col items-end">
-                                                    <span
-                                                        className="text-xs sm:text-sm font-bold tabular-nums"
-                                                        style={{
-                                                            color: entry.win_rate >= 70 ? '#10b981' : entry.win_rate >= 50 ? '#f59e0b' : '#94a3b8'
-                                                        }}
-                                                    >
-                                                        {entry.win_rate.toFixed(1)}%
-                                                    </span>
-                                                    <div className="w-12 h-1 rounded-full bg-black/[0.03] mt-1 overflow-hidden">
-                                                        <div 
-                                                            className="h-full rounded-full" 
-                                                            style={{ 
-                                                                width: `${entry.win_rate}%`, 
-                                                                backgroundColor: entry.win_rate >= 70 ? '#10b981' : entry.win_rate >= 50 ? '#f59e0b' : '#94a3b8' 
-                                                            }}
-                                                        />
+                                                {/* On sm+ show stats inline */}
+                                                <div className="hidden sm:flex items-center gap-4">
+                                                    <div className="text-right w-16">
+                                                        <p className="text-[#000000] text-sm font-bold">{entry.wins}</p>
+                                                        <p className="text-slate-500 text-[9px] font-medium opacity-60">{t('ofGames').replace('{count}', entry.games_played)}</p>
                                                     </div>
+                                                    <div className="text-right w-16">
+                                                        <p className="text-[#000000] text-sm font-bold tabular-nums">
+                                                            {(entry.total_score || 0).toLocaleString()}
+                                                        </p>
+                                                        <p className="text-slate-500 text-[9px] font-bold uppercase opacity-60">{t('points')}</p>
+                                                    </div>
+                                                    <div className="text-right w-12">
+                                                        <span className="text-xs font-bold" style={{ color: entry.win_rate >= 70 ? '#10b981' : entry.win_rate >= 50 ? '#f59e0b' : '#94a3b8' }}>
+                                                            {entry.win_rate.toFixed(1)}%
+                                                        </span>
+                                                        <div className="w-10 h-1 rounded-full bg-black/[0.03] mt-1 overflow-hidden">
+                                                            <div className="h-full rounded-full" style={{ width: `${entry.win_rate}%`, backgroundColor: entry.win_rate >= 70 ? '#10b981' : entry.win_rate >= 50 ? '#f59e0b' : '#94a3b8' }}/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Row 2: Stats — mobile only, 2-column grid */}
+                                            <div className="sm:hidden mt-2 ml-8 grid grid-cols-2 gap-2">
+                                                <div className="rounded-xl bg-black/[0.02] px-3 py-2">
+                                                    <p className="text-slate-400 text-[8px] font-bold uppercase tracking-wide mb-0.5">{t('score')}</p>
+                                                    <p className="text-[#000000] text-sm font-bold tabular-nums">{(entry.total_score || 0).toLocaleString()}</p>
+                                                </div>
+                                                <div className="rounded-xl bg-black/[0.02] px-3 py-2">
+                                                    <p className="text-slate-400 text-[8px] font-bold uppercase tracking-wide mb-0.5">{t('winRate')}</p>
+                                                    <p className="text-sm font-bold" style={{ color: entry.win_rate >= 70 ? '#10b981' : entry.win_rate >= 50 ? '#f59e0b' : '#94a3b8' }}>
+                                                        {entry.win_rate.toFixed(1)}%
+                                                    </p>
                                                 </div>
                                             </div>
                                         </motion.div>

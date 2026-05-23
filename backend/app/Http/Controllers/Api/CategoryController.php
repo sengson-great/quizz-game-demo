@@ -38,12 +38,13 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name'        => 'required|string|max:255|unique:categories',
+            'name_km'     => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'icon'        => 'nullable|string|max:10',
+            'icon'        => 'nullable|string|max:50',
             'color'       => 'nullable|string|max:100',
             'is_enabled'  => 'nullable|boolean',
         ]);
-        return response()->json(Category::create($request->only('name', 'description', 'icon', 'color', 'is_enabled')), 201);
+        return response()->json(Category::create($request->only('name', 'name_km', 'description', 'icon', 'color', 'is_enabled')), 201);
     }
 
     #[OA\Get(path: "/admin/categories/{category}", summary: "Get a specific category", tags: ["Admin: Categories"])]
@@ -73,12 +74,13 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $request->validate([
             'name'        => 'sometimes|string|max:255|unique:categories,name,' . $id,
+            'name_km'     => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'icon'        => 'nullable|string|max:10',
+            'icon'        => 'nullable|string|max:50',
             'color'       => 'nullable|string|max:100',
             'is_enabled'  => 'sometimes|boolean',
         ]);
-        $category->update($request->only('name', 'description', 'icon', 'color', 'is_enabled'));
+        $category->update($request->only('name', 'name_km', 'description', 'icon', 'color', 'is_enabled'));
         return response()->json($category);
     }
 

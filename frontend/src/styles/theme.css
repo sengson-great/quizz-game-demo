@@ -6,7 +6,7 @@
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
 
-  --font-size: 16px;
+  --font-size: 20px;
   --font-family-body: 'Fredoka', 'Kantumruy Pro', sans-serif;
   --font-family-heading: 'Luckiest Guy', 'Koulen', cursive;
   --background: #FFFBEB; /* Soft Creamy Yellow */
@@ -135,6 +135,14 @@ button:not(.nav-link):active {
 }
 
 @theme inline {
+  --font-size-xs: 0.825rem;
+  --font-size-sm: 0.925rem;
+  --font-size-base: 1.05rem;
+  --font-size-lg: 1.2rem;
+  --font-size-xl: 1.35rem;
+  --font-size-2xl: 1.65rem;
+  --font-size-3xl: 2.05rem;
+  --font-size-4xl: 2.5rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -183,6 +191,11 @@ button:not(.nav-link):active {
   body {
     @apply bg-background text-foreground;
     font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: 1.05rem;
+  }
+
+  p, span, li, a, input, select, textarea {
+    font-size: 1.0rem;
   }
 
   /**
@@ -298,4 +311,9 @@ body {
 h1, h2, h3, h4, h5, h6, .logo-text, .title-text {
     font-family: var(--font-family-heading);
     letter-spacing: 0;
+}
+
+/* Force all micro-sized texts and descriptions to be comfortably legibly sized without being too big */
+.text-\[8px\], .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\], .text-xs, .text-sm {
+    font-size: 0.925rem !important;
 }

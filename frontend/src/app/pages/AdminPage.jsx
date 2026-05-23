@@ -36,8 +36,8 @@ function persistSystemConfig(config) {
     localStorage.setItem(SYSTEM_CONFIG_STORAGE_KEY, JSON.stringify(config));
 }
 const emptyForm = () => ({
-    categoryId: 'science',
-    difficulty: 'Easy',
+    categoryId: '',
+    difficulty: '',
     text: '',
     textKm: '',
     explanation: '',
@@ -51,7 +51,8 @@ const emptyForm = () => ({
 });
 const emptyCategoryForm = () => ({
     name: '',
-    icon: 'Brain',
+    nameKm: '',
+    icon: '',
     color: 'from-blue-500 to-cyan-400',
     description: '',
 });
@@ -69,7 +70,8 @@ const ICON_OPTIONS = ['Brain', 'Cpu', 'History', 'Globe', 'Zap', 'Palette', 'Tar
 
 const CategoryIcon = ({ name, className, style }) => {
     const icons = { Brain, Cpu, History, Globe, Zap, Palette, Target, Trophy, Rocket, Music, Microscope, FlaskConical };
-    const Icon = icons[name] || Zap;
+    const Icon = icons[name];
+    if (!Icon) return null;
     return <Icon className={className} style={style} />;
 };
 // Chart components
@@ -248,11 +250,7 @@ export default function AdminPage() {
                 setCategories(catsMap);
                 setLeaderboard(lRes.data || []);
                 setStats(sRes.data || { total_users: 0, total_games: 0, avg_score: 0 });
-                
-                // Initialize form with first category if available
-                if (catsMap.length > 0) {
-                    setForm(prev => ({ ...prev, categoryId: catsMap[0].id }));
-                }
+                // Do not pre-select category
             } catch (err) {
                 console.error('Failed to load admin data', err);
             } finally {
@@ -275,7 +273,7 @@ export default function AdminPage() {
     });
 
     const openAdd = () => { 
-        setForm({ ...emptyForm(), categoryId: categories[0]?.id || '' }); 
+        setForm(emptyForm()); 
         setFormError(''); 
         setModal({ mode: 'add' }); 
     };
@@ -305,6 +303,8 @@ export default function AdminPage() {
     };
 
     const validateForm = () => {
+        if (!form.categoryId) return 'Please select a Category';
+        if (!form.difficulty) return 'Please select a Difficulty Level';
         if (!form.text.trim()) return t('questionRequired');
         if (form.answers.some(a => !a.text.trim())) return t('allAnswersRequired');
         if (!form.answers.some(a => a.isCorrect)) return t('correctAnswerRequired');
@@ -364,15 +364,13 @@ export default function AdminPage() {
         setCatModal({ mode: 'add' });
     };
     const openEditCategory = (cat) => {
-        setCatForm({ name: cat.name, icon: cat.icon, color: cat.color, description: cat.description });
+        setCatForm({ name: cat.name, nameKm: cat.nameKm || '', icon: cat.icon || '', color: cat.color, description: cat.description });
         setCatFormError('');
         setCatModal({ mode: 'edit', category: cat });
     };
     const validateCatForm = () => {
         if (!catForm.name.trim())
             return t('categoryNameRequired');
-        if (!catForm.description.trim())
-            return t('descriptionRequired');
         // Check for duplicate name (when adding or when editing to a different name)
         const existingNames = categories
             .filter(c => catModal?.mode === 'edit' ? c.id !== catModal.category?.id : true)
@@ -391,6 +389,7 @@ export default function AdminPage() {
         try {
             const payload = {
                 name: catForm.name,
+                name_km: catForm.nameKm,
                 icon: catForm.icon,
                 color: catForm.color,
                 description: catForm.description,
@@ -399,7 +398,7 @@ export default function AdminPage() {
                 const res = await api.post('/admin/categories', payload);
                 const c = res.data;
                 setCategories(prev => [...prev, {
-                    id: c.id, name: c.name, icon: c.icon || 'Brain',
+                    id: c.id, name: c.name, nameKm: c.name_km || '', icon: c.icon || '',
                     color: c.color || 'from-blue-500 to-cyan-400',
                     description: c.description || '', enabled: true,
                 }]);
@@ -407,7 +406,7 @@ export default function AdminPage() {
                 const res = await api.put(`/admin/categories/${catModal.category.id}`, payload);
                 const c = res.data;
                 setCategories(prev => prev.map(x => x.id === c.id
-                    ? { ...x, name: c.name, icon: c.icon || x.icon, color: c.color || x.color, description: c.description || '' }
+                    ? { ...x, name: c.name, nameKm: c.name_km || '', icon: c.icon || '', color: c.color || x.color, description: c.description || '' }
                     : x
                 ));
             }
@@ -473,7 +472,7 @@ export default function AdminPage() {
     const CARD_STYLE = "glass-card rounded-[2rem] border-slate-200/60 shadow-xl overflow-hidden";
     const SECTION_STYLE = "glass-card rounded-[1.5rem] p-6 border-black/[0.03]";
     return (
-    <div className="min-h-screen px-4 py-8 max-w-7xl mx-auto relative overflow-hidden" style={{ fontFamily: 'inherit' }}>
+    <div className="min-h-screen px-3 sm:px-4 py-6 sm:py-8 max-w-7xl mx-auto relative overflow-x-hidden" style={{ fontFamily: 'inherit' }}>
       
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 opacity-30">
         <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-amber-100/20 rounded-full blur-[100px] animate-blob" />
@@ -499,60 +498,62 @@ export default function AdminPage() {
       </motion.div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-8 sm:mb-10">
         {[
             { label: t('statsQuestions'), value: questions.length, color: '#FACC15', icon: Filter },
             { label: t('categories'), value: categories.filter(c => c.enabled).length, color: '#8b5cf6', icon: Layers },
             { label: t('totalUsers'), value: (stats?.total_users || 0).toLocaleString(), color: '#10b981', icon: Trophy },
             { label: t('totalGames'), value: (stats?.total_games || 0).toLocaleString(), color: '#f59e0b', icon: BarChart2 },
         ].map(({ label, value, color, icon: Icon }) => (
-          <div key={label} className="glass-card rounded-[1.5rem] p-6 border-black/[0.03] relative overflow-hidden group">
+          <div key={label} className="glass-card rounded-[1.5rem] p-3 sm:p-6 border-black/[0.03] relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br opacity-[0.03] group-hover:opacity-[0.06] transition-opacity" style={{ from: color, to: 'transparent' }}/>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-white shadow-sm border border-black/[0.02]">
-                <Icon className="w-5 h-5" style={{ color }}/>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center mb-2 sm:mb-4 bg-white shadow-sm border border-black/[0.02]">
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color }}/>
             </div>
-            <p className="text-2xl font-bold tracking-tight text-[#000000]" style={{ fontFamily: 'inherit' }}>{value}</p>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mt-1 opacity-60">{label}</p>
+            <p className="text-lg sm:text-2xl font-bold tracking-tight text-[#000000]" style={{ fontFamily: 'inherit' }}>{value}</p>
+            <p className="text-slate-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-normal mt-1 opacity-60">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-8 p-1.5 rounded-2xl glass-card border-black/[0.03] overflow-x-auto no-scrollbar">
+      <div className="flex gap-1 sm:gap-2 mb-6 sm:mb-8 p-1 sm:p-1.5 rounded-2xl glass-card border-black/[0.03] overflow-x-auto no-scrollbar">
         {tabs.map(({ id, label, icon: Icon, color }) => (
           <button 
             key={id} 
             onClick={() => setTab(id)} 
-            className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-[11px] font-bold uppercase tracking-normal transition-all whitespace-nowrap ${tab === id ? 'bg-white shadow-md border border-black/[0.02]' : 'text-slate-500 hover:text-[#000000]'}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2.5 py-2.5 sm:py-3 rounded-xl text-[10px] sm:text-[11px] font-bold uppercase tracking-normal transition-all whitespace-nowrap ${tab === id ? 'bg-white shadow-md border border-black/[0.02]' : 'text-slate-500 hover:text-[#000000]'}`}
             style={tab === id ? { color } : {}}
           >
-            <Icon className="w-4 h-4" style={tab === id ? { color } : { opacity: 0.4 }}/>
-            {label}
+            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={tab === id ? { color } : { opacity: 0.4 }}/>
+            <span className="hidden sm:inline">{label}</span>
           </button>
         ))}
       </div>
 
       {/* ═══════ Questions Tab ═══════ */}
       {tab === 'questions' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1 group">
+          <div className="flex flex-col gap-3 mb-6">
+            <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#FACC15] transition-colors"/>
               <input type="text" placeholder={t('searchQuestions')} value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl text-[#000000] placeholder-slate-400 focus:outline-none text-sm glass-card border-black/[0.03] transition-all focus:border-[#FACC15]/20"/>
             </div>
-            <select value={diffFilter} onChange={e => setDiffFilter(e.target.value)} className="px-5 py-3 rounded-2xl text-[#000000] focus:outline-none text-xs font-bold uppercase tracking-normal glass-card border-black/[0.03]">
-              <option value="All">{t('allDifficulties')}</option>
-              <option value="Easy">{t('difficultyEasy')}</option>
-              <option value="Medium">{t('difficultyMedium')}</option>
-              <option value="Hard">{t('difficultyHard')}</option>
-            </select>
-            <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="px-5 py-3 rounded-2xl text-[#000000] focus:outline-none text-xs font-bold uppercase tracking-normal glass-card border-black/[0.03]">
-              <option value="All">{t('allCategories')}</option>
-              {categories.filter(c => c.enabled).map(c => <option key={c.id} value={c.id}>{(lang === 'km' && c.nameKm) ? c.nameKm : c.name}</option>)}
-            </select>
+            <div className="grid grid-cols-2 gap-3">
+              <select value={diffFilter} onChange={e => setDiffFilter(e.target.value)} className="w-full px-4 py-3 rounded-2xl text-[#000000] focus:outline-none text-xs font-bold uppercase tracking-normal glass-card border-black/[0.03]">
+                <option value="All">{t('allDifficulties')}</option>
+                <option value="Easy">{t('difficultyEasy')}</option>
+                <option value="Medium">{t('difficultyMedium')}</option>
+                <option value="Hard">{t('difficultyHard')}</option>
+              </select>
+              <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="w-full px-4 py-3 rounded-2xl text-[#000000] focus:outline-none text-xs font-bold uppercase tracking-normal glass-card border-black/[0.03]">
+                <option value="All">{t('allCategories')}</option>
+                {categories.filter(c => c.enabled).map(c => <option key={c.id} value={c.id}>{(lang === 'km' && c.nameKm) ? c.nameKm : c.name}</option>)}
+              </select>
+            </div>
             <motion.button 
               whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}
               onClick={openAdd} 
-              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white text-[11px] font-bold uppercase tracking-normal shadow-xl transition-all" 
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white text-[11px] font-bold uppercase tracking-normal shadow-xl transition-all" 
               style={{ background: 'var(--grad-primary)', boxShadow: '0 4px 15px rgba(99,102,241,0.25)' }}
             >
               <Plus className="w-4 h-4"/> {t('addNewQuestion')}
@@ -577,23 +578,68 @@ export default function AdminPage() {
                     Hard: { bg: 'rgba(239,68,68,0.1)', color: '#f87171' },
                 };
                 const ds = diffStyle[q.difficulty];
-                return (<motion.div key={q.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }} className="grid grid-cols-12 items-center px-6 py-4 hover:bg-black/[0.01] transition-colors gap-4 group">
-                    <div className="col-span-12 sm:col-span-6"><p className="text-[#000000] text-sm font-medium leading-relaxed line-clamp-2">{(lang === 'km' && q.textKm) ? q.textKm : q.text}</p></div>
-                    <div className="col-span-4 sm:col-span-2 flex items-center gap-2">
+                return (
+                  <motion.div key={q.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                    className="px-3 sm:px-6 py-3 sm:py-4 hover:bg-black/[0.01] transition-colors group"
+                  >
+                    {/* Question text — full width */}
+                    <p className="text-[#000000] text-sm font-medium leading-relaxed line-clamp-2 mb-2 sm:mb-0">
+                      {(lang === 'km' && q.textKm) ? q.textKm : q.text}
+                    </p>
+
+                    {/* Row 2 on mobile: badges + actions in one flex row */}
+                    <div className="flex items-center gap-2 flex-wrap sm:hidden mt-2">
+                      {/* Category */}
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-normal bg-black/[0.03] px-2 py-1 rounded-lg border border-black/[0.02] flex items-center gap-1 flex-shrink-0">
+                        <CategoryIcon name={cat?.icon} className="w-3 h-3" />
+                        {(lang === 'km' && cat?.nameKm) ? cat.nameKm : (cat?.name || t('notSet'))}
+                      </span>
+                      {/* Difficulty */}
+                      <span className="text-[9px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex-shrink-0" style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.color}20` }}>
+                        {q.difficulty === 'Easy' ? t('difficultyEasy') : q.difficulty === 'Medium' ? t('difficultyMedium') : t('difficultyHard')}
+                      </span>
+                      {/* Spacer */}
+                      <div className="flex-1"/>
+                      {/* Actions */}
+                      <button onClick={() => openEdit(q)} className="p-2 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-[#FACC15] shadow-sm flex-shrink-0"><Edit3 className="w-3.5 h-3.5"/></button>
+                      {deleteConfirm === q.id ? (
+                        <div className="flex gap-1">
+                          <button onClick={() => handleDelete(q.id)} className="p-2 rounded-xl bg-red-500 text-white shadow-md"><Check className="w-3.5 h-3.5"/></button>
+                          <button onClick={() => setDeleteConfirm(null)} className="p-2 rounded-xl bg-slate-100 text-slate-500"><X className="w-3.5 h-3.5"/></button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setDeleteConfirm(q.id)} className="p-2 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-red-500 shadow-sm flex-shrink-0"><Trash2 className="w-3.5 h-3.5"/></button>
+                      )}
+                    </div>
+
+                    {/* Desktop: original 12-col grid row (hidden on mobile) */}
+                    <div className="hidden sm:grid grid-cols-10 items-center gap-4 mt-1">
+                      <div className="col-span-5"/>
+                      <div className="col-span-2 flex items-center gap-2">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-normal bg-black/[0.03] px-2 py-1 rounded-lg border border-black/[0.02] flex items-center gap-1.5">
-                            <CategoryIcon name={cat?.icon} className="w-3 h-3" />
-                            {(lang === 'km' && cat?.nameKm) ? cat.nameKm : (cat?.name || t('notSet'))}
+                          <CategoryIcon name={cat?.icon} className="w-3 h-3" />
+                          {(lang === 'km' && cat?.nameKm) ? cat.nameKm : (cat?.name || t('notSet'))}
                         </span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full shadow-sm" style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.color}20` }}>
+                          {q.difficulty === 'Easy' ? t('difficultyEasy') : q.difficulty === 'Medium' ? t('difficultyMedium') : t('difficultyHard')}
+                        </span>
+                      </div>
+                      <div className="col-span-1 flex justify-end gap-1">
+                        <button onClick={() => openEdit(q)} className="p-2.5 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-[#FACC15] hover:bg-[#FACC15]/5 shadow-sm"><Edit3 className="w-4 h-4"/></button>
+                        {deleteConfirm === q.id ? (
+                          <div className="flex gap-1 animate-in zoom-in-95 duration-200">
+                            <button onClick={() => handleDelete(q.id)} className="p-2 rounded-xl bg-red-500 text-white shadow-md shadow-red-500/20"><Check className="w-4 h-4"/></button>
+                            <button onClick={() => setDeleteConfirm(null)} className="p-2 rounded-xl bg-slate-100 text-slate-500"><X className="w-4 h-4"/></button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setDeleteConfirm(q.id)} className="p-2.5 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-red-500 hover:bg-red-50 shadow-sm"><Trash2 className="w-4 h-4"/></button>
+                        )}
+                      </div>
                     </div>
-                    <div className="col-span-4 sm:col-span-2"><span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full shadow-sm" style={{ background: ds.bg, color: ds.color, border: `1px solid ${ds.color}20` }}>{q.difficulty === 'Easy' ? t('difficultyEasy') : q.difficulty === 'Medium' ? t('difficultyMedium') : t('difficultyHard')}</span></div>
-                    <div className="col-span-4 sm:col-span-2 flex justify-end gap-1">
-                      <button onClick={() => openEdit(q)} className="p-2.5 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-[#FACC15] hover:bg-[#FACC15]/5 shadow-sm"><Edit3 className="w-4 h-4"/></button>
-                      {deleteConfirm === q.id ? (<div className="flex gap-1 animate-in zoom-in-95 duration-200">
-                          <button onClick={() => handleDelete(q.id)} className="p-2 rounded-xl bg-red-500 text-white shadow-md shadow-red-500/20"><Check className="w-4 h-4"/></button>
-                          <button onClick={() => setDeleteConfirm(null)} className="p-2 rounded-xl bg-slate-100 text-slate-500"><X className="w-4 h-4"/></button>
-                        </div>) : (<button onClick={() => setDeleteConfirm(q.id)} className="p-2.5 rounded-xl transition-all glass-card border-black/[0.03] text-slate-400 hover:text-red-500 hover:bg-red-50 shadow-sm"><Trash2 className="w-4 h-4"/></button>)}
-                    </div>
-                  </motion.div>);
+                  </motion.div>
+                );
             })}
             </div>
           </div>
@@ -634,7 +680,6 @@ export default function AdminPage() {
                         <h3 className="text-[#000000] text-sm font-bold tracking-tight" style={{ fontFamily: 'inherit' }}>
                           {(lang === 'km' && cat.nameKm) ? cat.nameKm : cat.name}
                         </h3>
-                        <p className="text-slate-500 text-[10px] font-medium opacity-60 leading-tight line-clamp-1">{cat.description}</p>
                       </div>
                     </div>
                     <button onClick={() => toggleCategoryEnabled(cat.id)} className="p-1 rounded-lg hover:bg-black/5 transition-colors">
@@ -772,21 +817,40 @@ export default function AdminPage() {
               <span className="col-span-1">{t('rank')}</span><span className="col-span-4">{t('player')}</span><span className="col-span-2 text-right">{t('totalScore')}</span><span className="col-span-1 text-right">{t('statsGames')}</span><span className="col-span-1 text-right">{t('wins')}</span><span className="col-span-1 text-right">{t('actions')}</span>
             </div>
             <div className="divide-y max-h-[500px] overflow-y-auto no-scrollbar" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
-              {leaderboard.map((entry, i) => (<div key={entry.id} className="grid grid-cols-10 items-center px-6 py-4 hover:bg-black/[0.01] transition-colors group">
-                  <span className="col-span-1 text-slate-400 text-xs font-bold tabular-nums">#{i + 1}</span>
-                  <div className="col-span-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-xl bg-white shadow-sm border border-black/[0.02]">
+              {leaderboard.map((entry, i) => (
+                <div key={entry.id} className="px-3 sm:px-6 py-3 hover:bg-black/[0.01] transition-colors">
+                  {/* Row 1: rank + avatar + name */}
+                  <div className="flex items-center gap-2 sm:gap-4">
+                    <span className="w-6 text-slate-400 text-xs font-bold tabular-nums flex-shrink-0">#{i + 1}</span>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl glass-card flex items-center justify-center text-lg bg-white shadow-sm border border-black/[0.02] flex-shrink-0">
                         {getFixedAvatar(entry.user_id || entry.name, entry.avatar)}
                     </div>
-                    <span className="text-[#000000] text-sm font-bold truncate">{entry.name}</span>
+                    <span className="text-[#000000] text-xs sm:text-sm font-bold truncate flex-1 min-w-0">{entry.name}</span>
+                    {/* Desktop stats inline */}
+                    <div className="hidden sm:flex items-center gap-4">
+                      <span className="text-right text-[#000000] text-sm font-bold tabular-nums w-20">{(entry.total_score || 0).toLocaleString()}</span>
+                      <span className="text-right text-slate-500 text-xs font-medium opacity-60 w-10">{entry.games_played}</span>
+                      <span className="text-right text-[#10b981] text-xs font-bold tabular-nums w-8">{entry.wins}</span>
+                    </div>
+                    <button onClick={() => setLeaderboard(l => l.filter(e => e.id !== entry.id))} className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm border border-black/[0.03] flex-shrink-0"><Trash2 className="w-4 h-4"/></button>
                   </div>
-                  <span className="col-span-2 text-right text-[#000000] text-sm font-bold tabular-nums tracking-tight">{(entry.total_score || 0).toLocaleString()}</span>
-                  <span className="col-span-1 text-right text-slate-500 text-xs font-medium opacity-60">{entry.games_played}</span>
-                  <span className="col-span-1 text-right text-[#10b981] text-xs font-bold tabular-nums">{entry.wins}</span>
-                  <div className="col-span-1 flex justify-end">
-                    <button onClick={() => setLeaderboard(l => l.filter(e => e.id !== entry.id))} className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm border border-black/[0.03]"><Trash2 className="w-4 h-4"/></button>
+                  {/* Row 2: stats — mobile only, 3-column grid */}
+                  <div className="sm:hidden mt-2 ml-8 grid grid-cols-3 gap-2">
+                    <div className="rounded-xl bg-black/[0.02] px-2 py-1.5">
+                      <p className="text-slate-400 text-[8px] font-bold uppercase mb-0.5">{t('score')}</p>
+                      <p className="text-[#000000] text-xs font-bold tabular-nums">{(entry.total_score || 0).toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-xl bg-black/[0.02] px-2 py-1.5">
+                      <p className="text-slate-400 text-[8px] font-bold uppercase mb-0.5">{t('statsGames')}</p>
+                      <p className="text-[#000000] text-xs font-bold">{entry.games_played}</p>
+                    </div>
+                    <div className="rounded-xl bg-black/[0.02] px-2 py-1.5">
+                      <p className="text-slate-400 text-[8px] font-bold uppercase mb-0.5">{t('wins')}</p>
+                      <p className="text-[#10b981] text-xs font-bold">{entry.wins}</p>
+                    </div>
                   </div>
-                </div>))}
+                </div>
+              ))}
               {leaderboard.length === 0 && (<div className="py-20 text-center">
                   <Trophy className="w-12 h-12 text-slate-200 mx-auto mb-4 opacity-50"/>
                   <p className="text-slate-400 font-bold uppercase tracking-normal text-xs">{t('leaderboardEmpty')}</p>
@@ -881,12 +945,14 @@ export default function AdminPage() {
                   <div>
                     <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('category')}</label>
                     <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm font-bold glass-card border-black/[0.03] focus:outline-none">
+                      <option value="" disabled>Select Category</option>
                       {categories.filter(c => c.enabled || c.id === form.categoryId).map(c => <option key={c.id} value={c.id}>{(lang === 'km' && c.nameKm) ? c.nameKm : c.name}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('difficulty')}</label>
                     <select value={form.difficulty} onChange={e => setForm({ ...form, difficulty: e.target.value })} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm font-bold glass-card border-black/[0.03] focus:outline-none">
+                      <option value="" disabled>Select Difficulty Level</option>
                       {['Easy', 'Medium', 'Hard'].map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
@@ -948,22 +1014,32 @@ export default function AdminPage() {
 
               <div className="p-8 overflow-y-auto no-scrollbar space-y-6">
                 <div>
-                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('iconAndVisual')}</label>
+                  <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('iconAndVisual')} (Optional)</label>
                   <div className="flex flex-wrap gap-2.5">
-                    {ICON_OPTIONS.map(icon => (<button key={icon} onClick={() => setCatForm(f => ({ ...f, icon }))} className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${catForm.icon === icon ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md scale-110' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}>
-                        <CategoryIcon name={icon} className={`w-5 h-5 ${catForm.icon === icon ? 'text-[#FACC15]' : 'text-slate-400'}`} />
-                      </button>))}
+                    {ICON_OPTIONS.map(icon => {
+                      const isSelected = catForm.icon === icon;
+                      return (
+                        <button 
+                          key={icon} 
+                          type="button"
+                          onClick={() => setCatForm(f => ({ ...f, icon: isSelected ? '' : icon }))} 
+                          className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-[#FACC15]/10 border-2 border-[#FACC15] shadow-md scale-110' : 'bg-black/[0.02] border border-black/[0.05] hover:bg-black/[0.04]'}`}
+                        >
+                          <CategoryIcon name={icon} className={`w-5 h-5 ${isSelected ? 'text-[#FACC15]' : 'text-slate-400'}`} />
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('categoryName')}</label>
+                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('categoryName')} (English)</label>
                     <input type="text" value={catForm.name} onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all" placeholder={t('catNamePlaceholder')}/>
                   </div>
                   <div>
-                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">{t('description')}</label>
-                    <input type="text" value={catForm.description} onChange={e => setCatForm(f => ({ ...f, description: e.target.value }))} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all" placeholder={t('catDescPlaceholder')}/>
+                    <label className="text-slate-500 text-[10px] font-bold uppercase tracking-normal mb-2 block opacity-70">Category Name (Khmer)</label>
+                    <input type="text" value={catForm.nameKm} onChange={e => setCatForm(f => ({ ...f, nameKm: e.target.value }))} className="w-full px-4 py-3.5 rounded-2xl text-[#000000] text-sm glass-card border-black/[0.03] focus:border-[#FACC15]/20 focus:outline-none transition-all" placeholder="Enter category name in Khmer"/>
                   </div>
                 </div>
 

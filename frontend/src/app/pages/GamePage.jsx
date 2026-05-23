@@ -51,8 +51,32 @@ export default function GamePage() {
     const navigate = useNavigate();
     const sysConfig = useMemo(() => loadSystemConfig(), []);
     const TOTAL_TIME = sysConfig.timerDuration;
-    const [timeRemaining, setTimeRemaining] = useState(TOTAL_TIME);
-    const [timerActive, setTimerActive] = useState(true);
+    const [timeRemaining, setTimeRemaining] = useState(() => {
+        const savedStateStr = sessionStorage.getItem('millionaire_game_state');
+        if (savedStateStr) {
+            try {
+                const state = JSON.parse(savedStateStr);
+                if (state?.questionStartedAt) {
+                    const elapsed = Math.floor((Date.now() - state.questionStartedAt) / 1000);
+                    return Math.max(0, TOTAL_TIME - elapsed);
+                }
+            } catch (e) {}
+        }
+        return TOTAL_TIME;
+    });
+    const [timerActive, setTimerActive] = useState(() => {
+        const savedStateStr = sessionStorage.getItem('millionaire_game_state');
+        if (savedStateStr) {
+            try {
+                const state = JSON.parse(savedStateStr);
+                if (state?.questionStartedAt) {
+                    const elapsed = Math.floor((Date.now() - state.questionStartedAt) / 1000);
+                    return TOTAL_TIME - elapsed > 0;
+                }
+            } catch (e) {}
+        }
+        return true;
+    });
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [revealed, setRevealed] = useState(false);
     const [lastAnswer, setLastAnswer] = useState(null);
@@ -73,15 +97,24 @@ export default function GamePage() {
     }, []);
 
     useEffect(() => {
+        console.log('[DEBUG] GamePage main state effect triggered. Status:', gameState?.status, 'opponentForfeited:', gameState?.opponentForfeited);
         if (!gameState || !currentUser) {
+            console.log('[DEBUG] Missing gameState or currentUser. Navigating to mode-select.');
             navigate('/mode-select');
             return;
         }
-        if (gameState.status === 'finished' && gameState.mode === 'Solo') {
+        if (gameState.opponentForfeited) {
+            console.log('[DEBUG] Detected opponentForfeited === true! Triggering finalizeGame and navigating to /results.');
+            finalizeGame(gameState.playerScore);
             navigate('/results');
             return;
         }
-    }, [gameState, currentUser, navigate]);
+        if (gameState.status === 'finished' && gameState.mode === 'Solo') {
+            console.log('[DEBUG] Solo game finished. Navigating to /results.');
+            navigate('/results');
+            return;
+        }
+    }, [gameState, currentUser, navigate, finalizeGame]);
 
     // Check if we are spectating and waiting for others to finish
     useEffect(() => {
@@ -89,6 +122,12 @@ export default function GamePage() {
         
         // Only proceed if the player is actually finished (no more questions)
         if (gameState.status === 'finished') {
+            // Opponent forfeited — we win, go straight to results
+            if (gameState.opponentForfeited) {
+                finalizeGame(gameState.playerScore);
+                navigate('/results');
+                return;
+            }
             const opponents = gameState.opponents || [];
             const allOpponentsDone = opponents.every(opp => opp.answered);
             if (allOpponentsDone) {
@@ -96,13 +135,18 @@ export default function GamePage() {
                 navigate('/results');
             }
         }
-    }, [gameState?.status, gameState?.opponents, finalizeGame, navigate]);
+    }, [gameState?.status, gameState?.opponents, gameState?.opponentForfeited, finalizeGame, navigate]);
 
     useEffect(() => {
         if (!gameState)
             return;
-        setTimeRemaining(TOTAL_TIME);
-        setTimerActive(true);
+        
+        // Compute elapsed time since the question was started
+        const elapsed = gameState.questionStartedAt ? Math.floor((Date.now() - gameState.questionStartedAt) / 1000) : 0;
+        const remaining = Math.max(0, TOTAL_TIME - elapsed);
+        
+        setTimeRemaining(remaining);
+        setTimerActive(remaining > 0);
         setSelectedAnswer(null);
         setRevealed(false);
         setLastAnswer(null);
@@ -110,7 +154,7 @@ export default function GamePage() {
         doubleDipActiveRef.current = false;
         doubleDipFirstAnswerRef.current = null;
         setDoubleDipWrongId(null);
-    }, [gameState?.currentQuestionIndex, gameState?.currentQuestion?.id]);
+    }, [gameState?.currentQuestionIndex, gameState?.currentQuestion?.id, gameState?.questionStartedAt]);
 
     useEffect(() => {
         if (!gameState || gameState.opponents.length === 0)
@@ -338,45 +382,44 @@ export default function GamePage() {
             )}
         </AnimatePresence>
 
-        <div className="fixed z-40" style={{ top: 'calc(1rem + var(--safe-area-top))', left: 'calc(1rem + var(--safe-area-left))' }}>
-            <ReturnButton context="game"/>
-        </div>
-
-        <header className="flex flex-col gap-3 mb-6 relative z-30 pt-1">
-            <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-3 ml-14">
+        <header className="flex flex-col gap-2 mb-4 sm:mb-6 relative z-30 pt-1">
+            <div className="flex items-center justify-between w-full gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+                    <ReturnButton context="game"/>
                     <motion.div 
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="text-[10px] uppercase tracking-normal px-3 py-1.5 rounded-xl backdrop-blur-md" 
+                        className="text-[9px] sm:text-[10px] uppercase tracking-normal px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl backdrop-blur-md flex-shrink-0" 
                         style={{ background: ds.bg, color: ds.color, border: `1.5px solid ${ds.border}`, fontWeight: 800 }}
                     >
                         {ds.label}
                     </motion.div>
-                    <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold">
-                        <span className="text-sm">
-                            <CategoryIcon name={category?.icon} className="w-4 h-4" style={{ color: category?.iconColor }} />
+                    <div className="flex items-center gap-1 text-slate-500 text-xs font-semibold min-w-0">
+                        <span className="text-xs sm:text-sm flex-shrink-0">
+                            <CategoryIcon name={category?.icon} className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: category?.iconColor }} />
                         </span>
-                        <span className="hidden sm:inline opacity-70">
+                        <span className="opacity-70 truncate max-w-[70px] sm:max-w-none text-[10px] sm:text-xs">
                             {category ? ((lang === 'km' && (category.nameKm || category.name_km)) ? (category.nameKm || category.name_km) : (category.name || category.title)) : ''}
                         </span>
                     </div>
                 </div>
 
-                <LiveScorePanel 
-                    playerScore={gameState.playerScore} 
-                    playerAvatar={currentUser.avatar} 
-                    playerName={currentUser.username} 
-                    opponents={gameState.opponents} 
-                    mode={gameState.mode}
-                />
+                <div className="flex-shrink-0">
+                    <LiveScorePanel 
+                        playerScore={gameState.playerScore} 
+                        playerAvatar={currentUser.avatar} 
+                        playerName={currentUser.username} 
+                        opponents={gameState.opponents} 
+                        mode={gameState.mode}
+                    />
+                </div>
             </div>
 
             <div className="flex flex-col items-center gap-1 w-full mt-1">
-                <span className="text-slate-400 text-[10px] tracking-normal font-black" style={{ fontFamily: 'inherit' }}>
+                <span className="text-slate-400 text-[9px] sm:text-[10px] tracking-normal font-black" style={{ fontFamily: 'inherit' }}>
                     {t('question')} {qNum} / {total}
                 </span>
-                <div className="w-32 sm:w-44 h-1.5 rounded-full overflow-hidden bg-slate-200/50 backdrop-blur-sm border border-white/20">
+                <div className="w-28 sm:w-44 h-1 sm:h-1.5 rounded-full overflow-hidden bg-slate-200/50 backdrop-blur-sm border border-white/20">
                     <motion.div 
                         className="h-full rounded-full shadow-[0_0_8px_rgba(250,204,21,0.4)]" 
                         style={{ background: 'var(--grad-primary)' }} 
@@ -429,20 +472,20 @@ export default function GamePage() {
         <AnimatePresence mode="wait">
             <motion.div 
                 key={question.id} 
-                initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} 
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} 
-                exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} 
-                transition={{ duration: 0.5, type: 'spring', damping: 25 }} 
+                initial={{ opacity: 0, y: 30 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -30 }} 
+                transition={{ duration: 0.25, type: 'spring', damping: 18 }} 
                 className="relative z-10 flex-1 flex flex-col"
             >
-                <div className="glass-card rounded-[2.5rem] p-8 mb-6 relative overflow-hidden group shadow-xl">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/20 to-transparent rounded-bl-full pointer-events-none" />
-                    <p className="text-[#1A1A2E] text-xl sm:text-2xl font-semibold leading-snug text-center" style={{ fontFamily: 'inherit' }}>
+                <div className="glass-card rounded-[1.75rem] sm:rounded-[2.5rem] p-5 sm:p-8 mb-4 sm:mb-6 relative overflow-hidden group shadow-xl">
+                    <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-white/20 to-transparent rounded-bl-full pointer-events-none" />
+                    <p className="text-[#1A1A2E] text-xl sm:text-3xl font-bold leading-snug text-center" style={{ fontFamily: 'inherit' }}>
                         {(isKhmer && question.text_km) ? question.text_km : question.text}
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
                     {question.answers.map((answer, i) => {
                         const isDoubleDipWrong = doubleDipWrongId === answer.id;
                         const answeredAndCorrect = revealed && lastAnswer && String(lastAnswer.correctAnswerId) === String(answer.id);
@@ -542,9 +585,9 @@ export default function GamePage() {
             </motion.div>
         </AnimatePresence>
 
-        <footer className="mt-auto pt-4 pb-4 relative z-20">
-            <div className="flex items-center justify-between gap-4">
-                <div className="flex-1">
+        <footer className="mt-auto pt-2 sm:pt-4 pb-2 sm:pb-4 relative z-20">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+                <div className="flex-1 min-w-0">
                     <LifelineButtons 
                         lifelines={enabledLifelines} 
                         enabledTypes={enabledTypes} 
@@ -553,7 +596,7 @@ export default function GamePage() {
                     />
                 </div>
                 
-                <div className="flex-shrink-0 flex flex-col items-center gap-1 min-w-[100px]">
+                <div className="flex-shrink-0 flex flex-col items-center gap-0.5 sm:gap-1 min-w-[65px] sm:min-w-[100px]">
                     <CircularTimer 
                         timeRemaining={timeRemaining} 
                         totalTime={TOTAL_TIME} 
@@ -565,7 +608,7 @@ export default function GamePage() {
                         <motion.span 
                             animate={{ opacity: [0.4, 1, 0.4], y: [0, -2, 0] }} 
                             transition={{ duration: 1.2, repeat: Infinity }} 
-                            className="text-[9px] font-black uppercase tracking-tighter text-rose-500"
+                            className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-rose-500 text-center"
                         >
                             {t('hurryUp')}
                         </motion.span>

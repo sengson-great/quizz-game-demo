@@ -58,14 +58,14 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
         animate={{ opacity: 1, y: 0 }} 
         transition={{ delay: index * 0.1, duration: 0.4, type: 'spring', damping: 20 }} 
         whileHover={!disabled && !isEliminated ? { 
-            scale: 1.02, 
+            scale: 1.01, 
             borderColor: 'rgba(250,204,21,0.3)',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)'
+            boxShadow: '0 8px 20px -5px rgba(0, 0, 0, 0.04), 0 6px 8px -6px rgba(0, 0, 0, 0.04)'
         } : {}} 
-        whileTap={!disabled && !isEliminated ? { scale: 0.98 } : {}} 
+        whileTap={!disabled && !isEliminated ? { scale: 0.99 } : {}} 
         onClick={onClick} 
         disabled={disabled || isEliminated} 
-        className={`group relative w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-300 ${styles.text} ${isEliminated ? 'cursor-not-allowed opacity-30 grayscale' : 'cursor-pointer'}`} 
+        className={`group relative w-full flex items-center gap-2.5 sm:gap-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-left transition-all duration-300 ${styles.text} ${isEliminated ? 'cursor-not-allowed opacity-30 grayscale' : 'cursor-pointer'}`} 
         style={{
             background: styles.bg,
             backdropFilter: 'blur(16px)',
@@ -76,32 +76,32 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
       {(isSelected || (revealed && isCorrect)) && (
         <motion.div 
             layoutId={`glow-${id}`}
-            className="absolute inset-0 rounded-2xl z-0 opacity-20"
+            className="absolute inset-0 rounded-xl sm:rounded-2xl z-0 opacity-20"
             style={{ background: styles.badge.background, filter: 'blur(15px)' }}
         />
       )}
 
-      <span className="relative z-10 flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm transition-all duration-300 shadow-sm" 
+      <span className="relative z-10 flex-shrink-0 w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center text-sm sm:text-lg transition-all duration-300 shadow-sm" 
             style={{ ...styles.badge, fontFamily: 'inherit', fontWeight: 800 }}>
         {label}
       </span>
       
-      <span className="relative z-10 flex-1 font-medium tracking-tight" style={{ fontFamily: 'inherit' }}>
+      <span className="relative z-10 flex-1 text-sm sm:text-base md:text-lg font-bold tracking-tight leading-snug" style={{ fontFamily: 'inherit' }}>
         {text}
       </span>
 
-      <div className="relative z-10 flex items-center justify-center w-6 h-6">
+      <div className="relative z-10 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6">
           {revealed && isCorrect && (<motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }}>
-              <CheckCircle className="w-6 h-6 text-emerald-500"/>
+              <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500"/>
             </motion.div>)}
           {revealed && isSelected && !isCorrect && (<motion.div initial={{ scale: 0, rotate: 45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }}>
-              <XCircle className="w-6 h-6 text-red-500"/>
+              <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500"/>
             </motion.div>)}
           {!revealed && isSelected && (
             <motion.div 
                 animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }} 
                 transition={{ repeat: Infinity, duration: 1.5 }}
-                className="w-2 h-2 rounded-full bg-[#FACC15]" 
+                className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#FACC15]" 
             />
           )}
       </div>

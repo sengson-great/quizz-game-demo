@@ -1,54 +1,28 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { RootProvider } from './components/layout/RootProvider';
 import { Layout, FullLayout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { LangRedirect } from './components/layout/LangRedirect';
 import { Trophy } from 'lucide-react';
 
-// A resilient lazy loader helper to handle dynamic import failures gracefully (common on mobile and after new builds)
-const lazyWithRetry = (componentImport, name) => {
-    return lazy(async () => {
-        const storageKey = `retry-lazy-${name}`;
-        const hasRetried = window.sessionStorage.getItem(storageKey);
-        try {
-            const component = await componentImport();
-            window.sessionStorage.removeItem(storageKey);
-            return component;
-        } catch (error) {
-            console.error(`Failed to dynamically import module [${name}]:`, error);
-            if (!hasRetried) {
-                window.sessionStorage.setItem(storageKey, 'true');
-                console.log(`Retrying import for [${name}]...`);
-                try {
-                    return await componentImport();
-                } catch (retryError) {
-                    console.error(`Retry failed for [${name}]:`, retryError);
-                }
-            }
-            console.log(`Forcing window reload to fetch updated assets for [${name}]...`);
-            window.location.reload();
-            return new Promise(() => {}); // Keeps React Router pending until reload finishes
-        }
-    });
-};
-
-// Lazy load pages
-const LandingPage = lazyWithRetry(() => import('./pages/LandingPage'), 'LandingPage');
-const AuthPage = lazyWithRetry(() => import('./pages/AuthPage'), 'AuthPage');
-const ForgotPasswordPage = lazyWithRetry(() => import('./pages/ForgotPasswordPage'), 'ForgotPasswordPage');
-const ResetPasswordPage = lazyWithRetry(() => import('./pages/ResetPasswordPage'), 'ResetPasswordPage');
-const DashboardPage = lazyWithRetry(() => import('./pages/DashboardPage'), 'DashboardPage');
-const ModeSelectPage = lazyWithRetry(() => import('./pages/ModeSelectPage'), 'ModeSelectPage');
-const MatchmakingPage = lazyWithRetry(() => import('./pages/MatchmakingPage'), 'MatchmakingPage');
-const SmallRoomLobbyPage = lazyWithRetry(() => import('./pages/SmallRoomLobbyPage'), 'SmallRoomLobbyPage');
-const PrivateBattleLobbyPage = lazyWithRetry(() => import('./pages/PrivateBattleLobbyPage'), 'PrivateBattleLobbyPage');
-const GamePage = lazyWithRetry(() => import('./pages/GamePage'), 'GamePage');
-const ResultsPage = lazyWithRetry(() => import('./pages/ResultsPage'), 'ResultsPage');
-const LeaderboardPage = lazyWithRetry(() => import('./pages/LeaderboardPage'), 'LeaderboardPage');
-const SettingsPage = lazyWithRetry(() => import('./pages/SettingsPage'), 'SettingsPage');
-const AdminPage = lazyWithRetry(() => import('./pages/AdminPage'), 'AdminPage');
-const NotFoundPage = lazyWithRetry(() => import('./pages/NotFoundPage'), 'NotFoundPage');
+// Static page imports to guarantee zero "Failed to fetch dynamically imported module" errors on Android/iOS WebViews
+import LandingPage from './pages/LandingPage';
+import AuthPage from './pages/AuthPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import DashboardPage from './pages/DashboardPage';
+import ModeSelectPage from './pages/ModeSelectPage';
+import MatchmakingPage from './pages/MatchmakingPage';
+import SmallRoomLobbyPage from './pages/SmallRoomLobbyPage';
+import PrivateBattleLobbyPage from './pages/PrivateBattleLobbyPage';
+import GamePage from './pages/GamePage';
+import ResultsPage from './pages/ResultsPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import SettingsPage from './pages/SettingsPage';
+import AdminPage from './pages/AdminPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // A premium loading component for suspense fallback
 const PageLoader = () => (
@@ -104,37 +78,43 @@ export const router = createBrowserRouter([
         Component: RootProvider,
         children: [
             {
-                Component: FullLayout,
+                path: '/:lang?',
+                Component: LangRedirect,
                 children: [
-                    { path: '/', element: <Suspense fallback={<PageLoader />}><LandingPage /></Suspense> },
-                    { path: '/auth', element: <Suspense fallback={<PageLoader />}><AuthPage /></Suspense> },
-                    { path: '/forgot-password', element: <Suspense fallback={<PageLoader />}><ForgotPasswordPage /></Suspense> },
-                    { path: '/password-reset', element: <Suspense fallback={<PageLoader />}><ResetPasswordPage /></Suspense> },
+                    {
+                        Component: FullLayout,
+                        children: [
+                            { path: '', element: <Suspense fallback={<PageLoader />}><LandingPage /></Suspense> },
+                            { path: 'auth', element: <Suspense fallback={<PageLoader />}><AuthPage /></Suspense> },
+                            { path: 'forgot-password', element: <Suspense fallback={<PageLoader />}><ForgotPasswordPage /></Suspense> },
+                            { path: 'password-reset', element: <Suspense fallback={<PageLoader />}><ResetPasswordPage /></Suspense> },
+                            {
+                                element: <ProtectedRoute />,
+                                children: [
+                                    { path: 'matchmaking', element: <Suspense fallback={<PageLoader />}><MatchmakingPage /></Suspense> },
+                                    { path: 'lobby', element: <Suspense fallback={<PageLoader />}><SmallRoomLobbyPage /></Suspense> },
+                                    { path: 'battle-lobby', element: <Suspense fallback={<PageLoader />}><PrivateBattleLobbyPage /></Suspense> },
+                                    { path: 'game', element: <Suspense fallback={<PageLoader />}><GamePage /></Suspense> },
+                                ]
+                            }
+                        ],
+                    },
                     {
                         element: <ProtectedRoute />,
                         children: [
-                            { path: '/matchmaking', element: <Suspense fallback={<PageLoader />}><MatchmakingPage /></Suspense> },
-                            { path: '/lobby', element: <Suspense fallback={<PageLoader />}><SmallRoomLobbyPage /></Suspense> },
-                            { path: '/battle-lobby', element: <Suspense fallback={<PageLoader />}><PrivateBattleLobbyPage /></Suspense> },
-                            { path: '/game', element: <Suspense fallback={<PageLoader />}><GamePage /></Suspense> },
+                            {
+                                Component: Layout,
+                                children: [
+                                    { path: 'dashboard', element: <Suspense fallback={<PageLoader />}><DashboardPage /></Suspense> },
+                                    { path: 'mode-select', element: <Suspense fallback={<PageLoader />}><ModeSelectPage /></Suspense> },
+                                    { path: 'results', element: <Suspense fallback={<PageLoader />}><ResultsPage /></Suspense> },
+                                    { path: 'leaderboard', element: <Suspense fallback={<PageLoader />}><LeaderboardPage /></Suspense> },
+                                    { path: 'settings', element: <Suspense fallback={<PageLoader />}><SettingsPage /></Suspense> },
+                                    { path: 'admin', element: <Suspense fallback={<PageLoader />}><AdminPage /></Suspense> },
+                                ]
+                            }
                         ]
-                    }
-                ],
-            },
-            {
-                element: <ProtectedRoute />,
-                children: [
-                    {
-                        Component: Layout,
-                        children: [
-                            { path: '/dashboard', element: <Suspense fallback={<PageLoader />}><DashboardPage /></Suspense> },
-                            { path: '/mode-select', element: <Suspense fallback={<PageLoader />}><ModeSelectPage /></Suspense> },
-                            { path: '/results', element: <Suspense fallback={<PageLoader />}><ResultsPage /></Suspense> },
-                            { path: '/leaderboard', element: <Suspense fallback={<PageLoader />}><LeaderboardPage /></Suspense> },
-                            { path: '/settings', element: <Suspense fallback={<PageLoader />}><SettingsPage /></Suspense> },
-                            { path: '/admin', element: <Suspense fallback={<PageLoader />}><AdminPage /></Suspense> },
-                        ]
-                    }
+                    },
                 ]
             },
             { path: '*', element: <Suspense fallback={<PageLoader />}><NotFoundPage /></Suspense> },

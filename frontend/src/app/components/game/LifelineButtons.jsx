@@ -13,23 +13,23 @@ export function LifelineButtons({ lifelines, enabledTypes, onUse, disabled }) {
         ? LIFELINES.filter(({ type }) => enabledTypes[type] !== false)
         : LIFELINES;
 
-    return (<div className="flex items-center justify-center gap-3 flex-wrap">
+    return (<div className="flex items-center justify-center gap-1.5 sm:gap-3 flex-wrap">
       {visibleLifelines.map(({ type, label, icon: Icon, color, bgColor, borderColor, desc }) => {
             const used = lifelines?.[type] === true;
             return (<motion.div key={type} className="relative group">
             <motion.button 
                 whileHover={!used && !disabled ? { 
-                    y: -4,
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    y: -3,
+                    boxShadow: '0 6px 12px -3px rgba(0, 0, 0, 0.08)',
                     borderColor: color
                 } : {}} 
-                whileTap={!used && !disabled ? { scale: 0.92 } : {}} 
+                whileTap={!used && !disabled ? { scale: 0.95 } : {}} 
                 onClick={() => !used && !disabled && onUse(type)} 
                 disabled={used || disabled} 
                 title={desc} 
-                className="flex flex-col items-center gap-1.5 px-3.5 py-2.5 rounded-2xl transition-all duration-300 relative overflow-hidden glass-card" 
+                className="flex flex-col items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl transition-all duration-300 relative overflow-hidden glass-card" 
                 style={{
-                    background: used ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.6)',
+                    background: used ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.6)',
                     borderWidth: '1.5px',
                     borderColor: used ? 'rgba(0,0,0,0.06)' : borderColor,
                     opacity: used ? 0.4 : 1,
@@ -40,8 +40,8 @@ export function LifelineButtons({ lifelines, enabledTypes, onUse, disabled }) {
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" style={{ background: color }} />
               )}
 
-              <Icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" style={{ color: used ? '#94a3b8' : color }}/>
-              <span className="text-[10px] uppercase tracking-normal font-black" style={{ color: used ? '#94a3b8' : color, fontFamily: 'inherit' }}>
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110" style={{ color: used ? '#94a3b8' : color }}/>
+              <span className="text-[8px] sm:text-[10px] uppercase tracking-normal font-black leading-none" style={{ color: used ? '#94a3b8' : color, fontFamily: 'inherit' }}>
                 {label}
               </span>
 
