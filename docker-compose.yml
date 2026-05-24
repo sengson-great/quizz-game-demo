@@ -30,6 +30,16 @@ services:
       db:
         condition: service_healthy
 
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+
   db:
     image: mysql:8.0
     restart: always
