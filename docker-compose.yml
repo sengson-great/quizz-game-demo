@@ -60,6 +60,7 @@ services:
 
   reverb:
     build: ./backend
+    entrypoint: []
     ports:
       - "8081:8081"
     volumes:
