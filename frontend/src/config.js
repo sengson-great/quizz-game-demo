@@ -30,5 +30,21 @@
 //   }
 // };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-export default API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL !== '/api'
+    ? import.meta.env.VITE_API_BASE_URL
+    : '/api';
+
+const REVERB_HOST =
+  import.meta.env.VITE_REVERB_HOST || window.location.hostname;
+
+export default {
+  apiBaseUrl: API_BASE_URL,
+
+  reverb: {
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    host: REVERB_HOST,
+    port: parseInt(import.meta.env.VITE_REVERB_PORT || '8081'),
+    scheme: import.meta.env.VITE_REVERB_SCHEME || 'http',
+  }
+};
