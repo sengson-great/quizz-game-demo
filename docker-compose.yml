@@ -5,6 +5,7 @@ services:
       - "8001:8000"
     volumes:
       - ./backend:/var/www
+      - /var/www/vendor
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
@@ -63,6 +64,7 @@ services:
       - "8081:8081"
     volumes:
       - ./backend:/var/www
+      - /var/www/vendor
     command: php artisan reverb:start --host=0.0.0.0 --port=8081
     environment:
       APP_ENV: local
