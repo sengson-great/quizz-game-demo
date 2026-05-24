@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Clear caches to prevent host paths from overriding container paths
+php artisan config:clear
+
 # Wait for MySQL to be ready (even with healthchecks, this is a good safety)
 until php artisan db:monitor; do
   >&2 echo "MySQL is still unavailable - sleeping"
