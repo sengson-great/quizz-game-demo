@@ -71,9 +71,16 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+
+    allowedHosts: [
+      'parlerbien.xyz',
+      'www.parlerbien.xyz'
+    ],
+
     hmr: {
-      host: 'localhost',
+      host: 'parlerbien.xyz',
     },
+
     proxy: {
       '/api': {
         target: 'http://backend:8000',
