@@ -30,10 +30,14 @@
 //   }
 // };
 
-const API_BASE_URL =
+let API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL !== '/api'
     ? import.meta.env.VITE_API_BASE_URL
     : '/api';
+
+if (API_BASE_URL !== '/api' && !API_BASE_URL.endsWith('/api')) {
+  API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+}
 
 const REVERB_HOST =
   import.meta.env.VITE_REVERB_HOST || window.location.hostname;
