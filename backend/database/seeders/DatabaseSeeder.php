@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Admin user
-        User::create([
+        User::forceCreate([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'role' => 'admin',
@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($players as $p) {
-            User::create([
+            User::forceCreate([
                 'name' => $p['name'],
                 'email' => $p['email'],
                 'role' => 'player',

@@ -99,6 +99,21 @@ class GameService
         }
 
         // 2. Default: random question filtered by difficulty (and optionally category)
+        $cacheKey = "session_question_{$session->id}_{$session->current_level}";
+        $cachedQuestionId = \Illuminate\Support\Facades\Cache::get($cacheKey);
+
+        if ($cachedQuestionId) {
+            $question = Question::with([
+                'answers' => function ($q) {
+                    $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
+                }
+            ])->find($cachedQuestionId);
+            
+            if ($question) {
+                return $question;
+            }
+        }
+
         // Get already used questions
         $usedQuestionIds = GameSessionQuestion::where('game_session_id', $session->id)
             ->pluck('question_id')->toArray();
@@ -126,8 +141,6 @@ class GameService
 
         $question = $query->inRandomOrder()->first();
 
-        // Graceful fallback: if no question found in chosen categories for this difficulty,
-        // widen the search to any difficulty within the chosen categories.
         if (!$question && !empty($session->category_ids)) {
             $question = Question::whereIn('category_id', $session->category_ids)
                 ->whereNotIn('id', $usedQuestionIds)
@@ -138,6 +151,10 @@ class GameService
                 ])
                 ->inRandomOrder()
                 ->first();
+        }
+
+        if ($question) {
+            \Illuminate\Support\Facades\Cache::put($cacheKey, $question->id, now()->addHours(2));
         }
 
         return $question;
@@ -183,8 +200,34 @@ class GameService
             ];
         }
 
+        // Verify the answer belongs to the expected question
+        $expectedQuestionId = null;
+        if ($session->match_id) {
+            $match = \App\Models\GameMatch::find($session->match_id);
+            $levelKey = (string) $session->current_level;
+            if ($match && $match->questions && isset($match->questions[$levelKey])) {
+                $expectedQuestionId = (int)$match->questions[$levelKey];
+            }
+        } else {
+            $expectedQuestionId = \Illuminate\Support\Facades\Cache::get("session_question_{$session->id}_{$session->current_level}");
+        }
+
         $answer = Answer::find($answerId);
-        $isCorrect = $answer->is_correct;
+        
+        // If the answer is not found or belongs to a different question, treat it as wrong
+        if (!$answer || ($expectedQuestionId && $answer->question_id != $expectedQuestionId)) {
+            $isCorrect = false;
+            // Ensure we log the expected question if they tried to bypass
+            if (!$answer) {
+                $answer = new Answer(['question_id' => $expectedQuestionId]); 
+            } else {
+                // If they submitted a valid answer but for the wrong question, we will record the attempt as wrong
+                // for the actual current question to prevent cheating.
+                $answer = new Answer(['question_id' => $expectedQuestionId]);
+            }
+        } else {
+            $isCorrect = $answer->is_correct;
+        }
 
         // Check if double chance active
         // Implemented by storing flag in session or separate state.
