@@ -283,12 +283,8 @@ class GameService
                 'time_taken' => 0
             ]);
 
-            if ($session->current_level >= 15) {
-                $session->status = 'completed';
-                $session->ended_at = now();
-            } else {
-                $session->current_level += 1;
-            }
+            $session->status = 'failed';
+            $session->ended_at = now();
             $session->save();
 
             return [

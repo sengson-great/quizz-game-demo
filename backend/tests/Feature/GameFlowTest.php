@@ -37,9 +37,10 @@ class GameFlowTest extends TestCase
 
         $response = $this->postJson('/api/games');
 
-        $response->assertStatus(201)
+        $response->assertStatus(200)
             ->assertJsonStructure([
-                'id', 'current_level', 'status', 'next_question'
+                'session' => ['id', 'current_level', 'status'],
+                'question'
             ]);
             
         $this->assertDatabaseHas('game_sessions', [
