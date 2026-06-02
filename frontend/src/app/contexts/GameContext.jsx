@@ -176,6 +176,49 @@ export function GameProvider({ children }) {
             return gameAnswer;
         } catch (error) {
             console.error("Answer failed", error);
+            const isGameEndedError = error.response?.status === 400 && 
+                (error.response?.data?.error === 'Game ended' || error.response?.data?.message === 'Game ended');
+            
+            if (isGameEndedError && gameState.matchId) {
+                console.log('[DEBUG] Game ended error detected during answer submission. Fetching latest match status...');
+                try {
+                    const res = await api.get(`/multiplayer/scores/${gameState.matchId}`);
+                    const payload = res.data?.data || res.data;
+                    const scores  = payload?.scores ?? {};
+                    const done    = payload?.done ?? {};
+                    const statuses = payload?.statuses ?? {};
+                    
+                    setGameState(prev => {
+                        if (!prev) return prev;
+                        
+                        let opponentForfeited = false;
+                        const newOpponents = (prev.opponents || []).map(opp => {
+                            const polledScore = Number(scores[String(opp.id)] ?? -1);
+                            const polledStatus = statuses[String(opp.id)];
+                            const isFailed = polledStatus === 'failed';
+                            if (isFailed) {
+                                opponentForfeited = true;
+                            }
+                            return {
+                                ...opp,
+                                score: polledScore > opp.score ? polledScore : opp.score,
+                                answered: (done[String(opp.id)] || isFailed) ? true : opp.answered,
+                                left: isFailed ? true : opp.left
+                            };
+                        });
+                        
+                        return {
+                            ...prev,
+                            status: 'finished',
+                            opponentForfeited: opponentForfeited || prev.opponentForfeited,
+                            opponents: newOpponents
+                        };
+                    });
+                } catch (scoreError) {
+                    console.error("Failed to fetch scores after game ended error", scoreError);
+                    setGameState(prev => prev ? { ...prev, status: 'finished' } : null);
+                }
+            }
             throw error;
         }
     }, [gameState]);
@@ -217,6 +260,49 @@ export function GameProvider({ children }) {
             return null;
         } catch (error) {
             console.error("Lifeline failed", error);
+            const isGameEndedError = error.response?.status === 400 && 
+                (error.response?.data?.error === 'Game ended' || error.response?.data?.message === 'Game ended');
+            
+            if (isGameEndedError && gameState.matchId) {
+                console.log('[DEBUG] Game ended error detected during lifeline use. Fetching latest match status...');
+                try {
+                    const res = await api.get(`/multiplayer/scores/${gameState.matchId}`);
+                    const payload = res.data?.data || res.data;
+                    const scores  = payload?.scores ?? {};
+                    const done    = payload?.done ?? {};
+                    const statuses = payload?.statuses ?? {};
+                    
+                    setGameState(prev => {
+                        if (!prev) return prev;
+                        
+                        let opponentForfeited = false;
+                        const newOpponents = (prev.opponents || []).map(opp => {
+                            const polledScore = Number(scores[String(opp.id)] ?? -1);
+                            const polledStatus = statuses[String(opp.id)];
+                            const isFailed = polledStatus === 'failed';
+                            if (isFailed) {
+                                opponentForfeited = true;
+                            }
+                            return {
+                                ...opp,
+                                score: polledScore > opp.score ? polledScore : opp.score,
+                                answered: (done[String(opp.id)] || isFailed) ? true : opp.answered,
+                                left: isFailed ? true : opp.left
+                            };
+                        });
+                        
+                        return {
+                            ...prev,
+                            status: 'finished',
+                            opponentForfeited: opponentForfeited || prev.opponentForfeited,
+                            opponents: newOpponents
+                        };
+                    });
+                } catch (scoreError) {
+                    console.error("Failed to fetch scores after game ended error", scoreError);
+                    setGameState(prev => prev ? { ...prev, status: 'finished' } : null);
+                }
+            }
             return null;
         }
     }, [gameState]);
@@ -302,6 +388,7 @@ export function GameProvider({ children }) {
                 const payload = res.data?.data || res.data;
                 const scores  = payload?.scores ?? payload;   // backward-compat if still flat
                 const done    = payload?.done ?? {};
+                const statuses = payload?.statuses ?? {};
 
                 if (!scores || typeof scores !== 'object') return;
 
@@ -311,24 +398,39 @@ export function GameProvider({ children }) {
                     const newOpponents = prev.opponents.map(opp => {
                         const polledScore = Number(scores[String(opp.id)] ?? -1);
                         const polledDone  = done[String(opp.id)];
+                        const polledStatus = statuses[String(opp.id)];
 
                         // Only advance the score — never let polling regress it backwards.
                         // (Race condition: WS event can arrive before DB commit, or the poll
                         //  reads a stale session. Scores only ever go up, so keep the max.)
                         const scoreChanged   = polledScore > opp.score;
-                        const answeredChanged = polledDone && !opp.answered;
+                        const isFailed = polledStatus === 'failed';
+                        const answeredChanged = (polledDone || isFailed) && !opp.answered;
+                        const leftChanged = isFailed && !opp.left;
 
-                        if (scoreChanged || answeredChanged) {
+                        if (scoreChanged || answeredChanged || leftChanged) {
                             changed = true;
                             return {
                                 ...opp,
                                 score:    scoreChanged ? polledScore : opp.score,
-                                answered: answeredChanged ? true : opp.answered,
+                                answered: (answeredChanged || leftChanged) ? true : opp.answered,
+                                left:     leftChanged ? true : opp.left
                             };
                         }
                         return opp;
                     });
-                    return changed ? { ...prev, opponents: newOpponents } : prev;
+
+                    // If all opponents have left, mark as forfeit-win
+                    const allLeft = newOpponents.length > 0 && newOpponents.every(opp => opp.left);
+                    if (allLeft && !prev.opponentForfeited) {
+                        changed = true;
+                    }
+
+                    return changed ? { 
+                        ...prev, 
+                        opponents: newOpponents,
+                        ...(allLeft ? { status: 'finished', opponentForfeited: true } : {})
+                    } : prev;
                 });
             } catch (_) { /* silently ignore */ }
         }, 4000);

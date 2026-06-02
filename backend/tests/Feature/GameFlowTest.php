@@ -212,4 +212,56 @@ class GameFlowTest extends TestCase
             }
         }
     }
+
+    public function test_opponent_surrender_completes_game_for_remaining_player()
+    {
+        $player = User::factory()->create();
+        $opponent = User::factory()->create();
+        
+        $match = \App\Models\GameMatch::create([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'mode' => '1v1',
+            'players' => [
+                ['id' => $player->id, 'name' => $player->name, 'avatar' => $player->avatar],
+                ['id' => $opponent->id, 'name' => $opponent->name, 'avatar' => $opponent->avatar]
+            ],
+            'questions' => ['1' => $this->questions->first()->id],
+            'status' => 'active'
+        ]);
+
+        $playerSession = GameSession::create([
+            'user_id' => $player->id,
+            'match_id' => $match->id,
+            'status' => 'active',
+            'current_level' => 1,
+            'score' => 1000
+        ]);
+
+        $opponentSession = GameSession::create([
+            'user_id' => $opponent->id,
+            'match_id' => $match->id,
+            'status' => 'active',
+            'current_level' => 1,
+            'score' => 1500
+        ]);
+
+        $this->actingAs($opponent, 'api');
+
+        // Opponent leaves (surrenders)
+        $response = $this->postJson('/api/multiplayer/action', [
+            'match_id' => $match->id,
+            'action_type' => 'player_left',
+            'payload' => ['left' => true]
+        ]);
+
+        $response->assertStatus(200);
+
+        // Opponent's session should be failed with 2000 points penalty (min 0)
+        $this->assertEquals('failed', $opponentSession->fresh()->status);
+        $this->assertEquals(0, $opponentSession->fresh()->score); // 1500 - 2000 capped at 0
+
+        // Remaining player's session should be set to completed
+        $this->assertEquals('completed', $playerSession->fresh()->status);
+    }
 }
+
