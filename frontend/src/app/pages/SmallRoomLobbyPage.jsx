@@ -42,7 +42,7 @@ export default function SmallRoomLobbyPage() {
             });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => { if (!gameState || gameState.mode !== 'Room') {
+    useEffect(() => { if (!gameState || (gameState.mode !== 'Room' && gameState.mode !== 'battle')) {
         if (joining) return; // still joining, don't redirect yet
         navigate('/mode-select');
         return;

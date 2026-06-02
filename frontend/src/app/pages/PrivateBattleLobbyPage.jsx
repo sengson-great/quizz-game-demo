@@ -47,7 +47,7 @@ export default function PrivateBattleLobbyPage() {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (!gameState || gameState.mode !== '1v1') {
+        if (!gameState || (gameState.mode !== '1v1' && gameState.mode !== 'battle')) {
             if (joining) return;
             navigate('/mode-select');
             return;
