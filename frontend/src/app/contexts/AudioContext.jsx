@@ -11,7 +11,7 @@ const AudioCtx = createContext(null);
 const SFX_KEYS = ['click', 'correct', 'wrong', 'lifeline', 'timeout', 'victory', 'loss'];
 
 const MUSIC_TRACKS = [
-    '/music/super_mario.mp3', // Working local file
+    '/music/sad.mp3', // Working local file
 ];
 
 export function AudioProvider({ children }) {
