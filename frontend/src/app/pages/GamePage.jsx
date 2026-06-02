@@ -480,12 +480,12 @@ export default function GamePage() {
             >
                 <div className="glass-card rounded-[1.75rem] sm:rounded-[2.5rem] p-5 sm:p-8 mb-4 sm:mb-6 relative overflow-hidden group shadow-xl">
                     <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-white/20 to-transparent rounded-bl-full pointer-events-none" />
-                    <p className="text-[#1A1A2E] text-xl sm:text-3xl font-bold leading-snug text-center" style={{ fontFamily: 'inherit' }}>
+                    <p className="text-[#1A1A2E] text-lg sm:text-2xl md:text-3xl font-bold leading-snug text-center" style={{ fontFamily: 'inherit' }}>
                         {(isKhmer && question.text_km) ? question.text_km : question.text}
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
+                <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
                     {question.answers.map((answer, i) => {
                         const isDoubleDipWrong = doubleDipWrongId === answer.id;
                         const answeredAndCorrect = revealed && lastAnswer && String(lastAnswer.correctAnswerId) === String(answer.id);

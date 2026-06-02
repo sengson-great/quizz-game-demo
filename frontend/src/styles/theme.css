@@ -6,7 +6,7 @@
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
 
-  --font-size: 20px;
+  --font-size: 15px;
   --font-family-body: 'Fredoka', 'Kantumruy Pro', sans-serif;
   --font-family-heading: 'Luckiest Guy', 'Koulen', cursive;
   --background: #FFFBEB; /* Soft Creamy Yellow */
@@ -83,6 +83,7 @@ button:not(.nav-link):active {
 @media (min-width: 768px) {
   :root {
     --navbar-height: 80px;
+    --font-size: 20px;
   }
 }
 
@@ -313,7 +314,3 @@ h1, h2, h3, h4, h5, h6, .logo-text, .title-text {
     letter-spacing: 0;
 }
 
-/* Force all micro-sized texts and descriptions to be comfortably legibly sized without being too big */
-.text-\[8px\], .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\], .text-xs, .text-sm {
-    font-size: 0.925rem !important;
-}

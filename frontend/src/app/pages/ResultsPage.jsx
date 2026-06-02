@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, Star, CheckCircle, XCircle, Home, RotateCcw, Medal, Sparkles, Brain, Cpu, History, Globe, Zap, Palette, Target, Flag, Award, Crown, Swords } from 'lucide-react';
@@ -44,11 +44,16 @@ export default function ResultsPage() {
         }
     }, [gameState?.matchId]);
 
+    const hasPlayedSound = useRef(false);
+
     useEffect(() => { 
         if (!gameState || !currentUser) {
             navigate('/dashboard');
             return;
         } 
+        
+        if (hasPlayedSound.current) return;
+        hasPlayedSound.current = true;
         
         // Play result sound
         const correctCount = (gameState?.answers || []).filter(a => a.isCorrect).length;

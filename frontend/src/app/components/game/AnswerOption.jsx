@@ -65,7 +65,7 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
         whileTap={!disabled && !isEliminated ? { scale: 0.99 } : {}} 
         onClick={onClick} 
         disabled={disabled || isEliminated} 
-        className={`group relative w-full flex items-center gap-2.5 sm:gap-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-left transition-all duration-300 ${styles.text} ${isEliminated ? 'cursor-not-allowed opacity-30 grayscale' : 'cursor-pointer'}`} 
+        className={`group relative w-full flex items-center gap-1.5 sm:gap-4 p-2 sm:p-4 rounded-xl sm:rounded-2xl text-left transition-all duration-300 ${styles.text} ${isEliminated ? 'cursor-not-allowed opacity-30 grayscale' : 'cursor-pointer'}`} 
         style={{
             background: styles.bg,
             backdropFilter: 'blur(16px)',
@@ -81,12 +81,12 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
         />
       )}
 
-      <span className="relative z-10 flex-shrink-0 w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center text-sm sm:text-lg transition-all duration-300 shadow-sm" 
+      <span className="relative z-10 flex-shrink-0 w-7 h-7 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center text-[11px] sm:text-lg transition-all duration-300 shadow-sm" 
             style={{ ...styles.badge, fontFamily: 'inherit', fontWeight: 800 }}>
         {label}
       </span>
       
-      <span className="relative z-10 flex-1 text-sm sm:text-base md:text-lg font-bold tracking-tight leading-snug" style={{ fontFamily: 'inherit' }}>
+      <span className="relative z-10 flex-1 text-[11px] sm:text-sm md:text-base font-bold tracking-tight leading-snug" style={{ fontFamily: 'inherit' }}>
         {text}
       </span>
 

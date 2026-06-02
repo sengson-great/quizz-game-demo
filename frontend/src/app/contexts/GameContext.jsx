@@ -195,11 +195,16 @@ export function GameProvider({ children }) {
 
             setGameState(prev => {
                 if (!prev) return prev;
+                const newQuestions = [...(prev.questions || [])];
+                if (type === 'skip' && data.next_question) {
+                    newQuestions[prev.currentQuestionIndex] = data.next_question;
+                }
                 return {
                     ...prev,
                     lifelines: { ...prev.lifelines, [type]: true },
                     eliminatedAnswers: type === 'fifty' && data.hidden_ids ? data.hidden_ids : prev.eliminatedAnswers,
                     currentQuestion: type === 'skip' && data.next_question ? data.next_question : prev.currentQuestion,
+                    questions: newQuestions,
                 };
             });
 

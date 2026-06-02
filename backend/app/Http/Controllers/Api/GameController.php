@@ -24,13 +24,19 @@ class GameController extends Controller
     #[OA\Response(response: 200, description: "Returns the newly created game session and first question")]
     public function store(Request $request)
     {
-        // Resolve category slugs (e.g. ['science', 'history']) → integer IDs
-        $categorySlugs = $request->input('categories', []);
+        // Resolve categories: support both database IDs (integers/numeric) and slugs (strings)
+        $categoryInputs = $request->input('categories', []);
         $categoryIds = [];
-        if (!empty($categorySlugs)) {
-            $categoryIds = Category::whereIn('slug', $categorySlugs)
-                ->pluck('id')
-                ->toArray();
+        if (!empty($categoryInputs)) {
+            foreach ($categoryInputs as $cat) {
+                if (is_numeric($cat)) {
+                    $categoryIds[] = (int) $cat;
+                } elseif (is_string($cat)) {
+                    $id = Category::where('slug', $cat)->value('id');
+                    if ($id) $categoryIds[] = $id;
+                }
+            }
+            $categoryIds = array_unique($categoryIds);
         }
 
         $session = $this->gameService->createSession(

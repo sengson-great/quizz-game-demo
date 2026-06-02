@@ -72,7 +72,7 @@ class GameFlowTest extends TestCase
         $this->assertEquals(2, $session->fresh()->current_level);
     }
 
-    public function test_user_fails_on_wrong_answer()
+    public function test_user_continues_on_wrong_answer()
     {
         $this->actingAs($this->user, 'api');
         
@@ -92,6 +92,124 @@ class GameFlowTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('status', 'wrong');
             
-        $this->assertEquals('failed', $session->fresh()->status);
+        $this->assertEquals('active', $session->fresh()->status);
+        $this->assertEquals(2, $session->fresh()->current_level);
+    }
+
+    public function test_user_can_use_skip_lifeline_and_gets_new_question()
+    {
+        $this->actingAs($this->user, 'api');
+        
+        $session = GameSession::create([
+            'user_id' => $this->user->id,
+            'status' => 'active',
+            'current_level' => 1,
+            'lifelines' => [
+                'fiftyFifty'   => true,
+                'skip'         => true,
+                'doubleChance' => true,
+                'audienceVote' => true,
+                'phoneFriend'  => true
+            ]
+        ]);
+        
+        // Load the first question to cache it
+        $response1 = $this->getJson("/api/games/{$session->id}");
+        $response1->assertStatus(200);
+        $firstQuestionId = $response1->json('question.id');
+        $this->assertNotNull($firstQuestionId);
+
+        // Verify that calling show again returns the same cached question
+        $response2 = $this->getJson("/api/games/{$session->id}");
+        $this->assertEquals($firstQuestionId, $response2->json('question.id'));
+
+        // Use the skip lifeline
+        $responseSkip = $this->postJson("/api/games/{$session->id}/lifeline", [
+            'type' => 'skip',
+            'question_id' => $firstQuestionId
+        ]);
+
+        $responseSkip->assertStatus(200)
+            ->assertJsonPath('status', 'ok');
+
+        $nextQuestionId = $responseSkip->json('next_question.id');
+        
+        // Assert that the next question is different from the skipped one
+        $this->assertNotNull($nextQuestionId);
+        $this->assertNotEquals($firstQuestionId, $nextQuestionId);
+
+        // Verify that the database recorded the skip
+        $this->assertDatabaseHas('game_session_questions', [
+            'game_session_id' => $session->id,
+            'question_id' => $firstQuestionId,
+            'is_correct' => null
+        ]);
+
+        // Verify that the skip lifeline is now marked as used (false)
+        $this->assertFalse($session->fresh()->lifelines['skip']);
+    }
+
+    public function test_user_can_complete_full_15_level_game()
+    {
+        $this->actingAs($this->user, 'api');
+
+        // Create enough questions for a full game: 10 easy, 10 medium, 10 hard
+        Question::factory()
+            ->count(5)
+            ->has(Answer::factory()->count(4))
+            ->create(['difficulty_level' => 'easy']);
+        
+        Question::factory()
+            ->count(10)
+            ->has(Answer::factory()->count(4))
+            ->create(['difficulty_level' => 'medium']);
+
+        Question::factory()
+            ->count(10)
+            ->has(Answer::factory()->count(4))
+            ->create(['difficulty_level' => 'hard']);
+
+        // Set one correct answer for all questions
+        foreach (Question::all() as $q) {
+            if ($q->answers()->where('is_correct', true)->count() === 0) {
+                $q->answers()->first()->update(['is_correct' => true]);
+            }
+        }
+
+        // Start session
+        $response = $this->postJson('/api/games');
+        $response->assertStatus(200);
+        $session = GameSession::latest()->first();
+
+        for ($level = 1; $level <= 15; $level++) {
+            $this->assertEquals($level, $session->current_level);
+            
+            // Get current question
+            $responseShow = $this->getJson("/api/games/{$session->id}");
+            $responseShow->assertStatus(200);
+            $question = $responseShow->json('question');
+            $this->assertNotNull($question, "Question should not be null at level {$level}");
+
+            // Find correct answer
+            $dbQuestion = Question::find($question['id']);
+            $correctAns = $dbQuestion->answers()->where('is_correct', true)->first();
+
+            // Submit answer
+            $responseAns = $this->postJson("/api/games/{$session->id}/answer", [
+                'answer_id' => $correctAns->id
+            ]);
+            $responseAns->assertStatus(200);
+
+            $session = $session->fresh();
+
+            if ($level < 15) {
+                $responseAns->assertJsonPath('status', 'correct');
+                $this->assertNotNull($responseAns->json('next_question'), "Next question should not be null at level {$level}");
+            } else {
+                $responseAns->assertJsonPath('status', 'correct');
+                $this->assertEquals('completed', $session->status);
+                $this->assertNull($responseAns->json('next_question'));
+            }
+        }
     }
 }

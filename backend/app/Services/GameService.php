@@ -153,6 +153,18 @@ class GameService
                 ->first();
         }
 
+        // Fallback 2: Complete fallback - grab any unused question in the database (ignoring category and difficulty)
+        if (!$question) {
+            $question = Question::whereNotIn('id', $usedQuestionIds)
+                ->with([
+                    'answers' => function ($q) {
+                        $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
+                    }
+                ])
+                ->inRandomOrder()
+                ->first();
+        }
+
         if ($question) {
             \Illuminate\Support\Facades\Cache::put($cacheKey, $question->id, now()->addHours(2));
         }
@@ -283,8 +295,12 @@ class GameService
                 'time_taken' => 0
             ]);
 
-            $session->status = 'failed';
-            $session->ended_at = now();
+            if ($session->current_level >= 15) {
+                $session->status = 'completed';
+                $session->ended_at = now();
+            } else {
+                $session->current_level += 1;
+            }
             $session->save();
 
             return [
@@ -344,6 +360,9 @@ class GameService
                     'time_taken' => 0
                 ]);
             }
+
+            // Clear the cache for the current level so getNextQuestion will query the database for a new question
+            \Illuminate\Support\Facades\Cache::forget("session_question_{$session->id}_{$session->current_level}");
 
             $nextQuestion = $this->getNextQuestion($session);
             return ['status' => 'ok', 'next_question' => $nextQuestion];
