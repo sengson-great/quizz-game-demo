@@ -57,6 +57,9 @@ Route::middleware('auth:api')->group(function () {
 
         // Score polling fallback
         Route::get('/scores/{matchId}', [MultiplayerController::class, 'getScores']);
+
+        // Match status polling fallback (for WebSocket-less environments)
+        Route::get('/match-status', [MultiplayerController::class, 'matchStatus']);
         
         // Debug
         Route::get('/debug/match/{matchId}', [MultiplayerController::class, 'debugMatch']);

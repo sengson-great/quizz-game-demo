@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, CheckCircle, Wifi, Bot, Copy, Check, Sparkles, Swords, Target, Trophy, Search, Loader2 } from 'lucide-react';
@@ -6,11 +6,13 @@ import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { ReturnButton } from '../components/ui/ReturnButton';
+import api from '../../api/axios';
+import { getFixedAvatar } from '../utils/avatar';
 
 const LIGHT_BG = 'var(--grad-surface)';
 
 export default function MatchmakingPage() {
-    const { gameState, startBattle } = useGame();
+    const { gameState, startBattle, initGame, setGameState } = useGame();
     const { currentUser } = useAuth();
     const { t, lang } = useTranslation();
     const isKhmer = lang === 'km';
@@ -20,6 +22,7 @@ export default function MatchmakingPage() {
     const [countdown, setCountdown] = useState(3);
     const [joinedPlayers, setJoinedPlayers] = useState(1);
     const [matchType, setMatchType] = useState(null);
+    const pollRef = useRef(null);
 
     useEffect(() => { 
         if (!gameState) {
@@ -53,6 +56,40 @@ export default function MatchmakingPage() {
             setStage('searching');
         }
     }, [gameState?.mode, gameState?.isPrivate, gameState?.status, gameState?.lobbyPlayers?.length, stage]);
+
+    // HTTP polling fallback: the first/waiting player may never receive the WebSocket
+    // `.match.found` event if Reverb is unreachable on the server. Poll every 3 s.
+    useEffect(() => {
+        const shouldPoll =
+            gameState?.mode === '1v1' &&
+            gameState?.is_ranked &&
+            gameState?.status === 'matchmaking';
+
+        if (!shouldPoll) {
+            if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+            return;
+        }
+
+        pollRef.current = setInterval(async () => {
+            try {
+                const res = await api.get('/multiplayer/match-status');
+                const data = res.data?.data || res.data;
+                if (data?.status === 'matched' && data?.match_id) {
+                    clearInterval(pollRef.current);
+                    pollRef.current = null;
+                    await initGame('1v1', data.match_id, [], true);
+                    const opp = data.opponent;
+                    setGameState(prev => prev ? {
+                        ...prev,
+                        opponents: [{ id: opp.id, name: opp.name, username: opp.name, avatar: getFixedAvatar(opp.id || opp.name, opp.avatar), score: 0, answered: false }],
+                        status: 'active'
+                    } : prev);
+                }
+            } catch (_) { /* silently ignore polling errors */ }
+        }, 3000);
+
+        return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
+    }, [gameState?.mode, gameState?.is_ranked, gameState?.status, initGame, setGameState]);
 
     useEffect(() => {
         if (stage === 'filling' && gameState?.isHost && !gameState?.isPrivate) {

@@ -435,6 +435,18 @@ class MultiplayerService
                 'status' => 'active'
             ]);
 
+            // Store a cache notification for BOTH players so HTTP polling works as a WebSocket fallback.
+            // The waiting player (opponent) cannot rely on the API response, so we cache their match info.
+            Cache::put('user_matched_' . $opponent['id'], [
+                'match_id' => $matchId,
+                'opponent' => ['id' => $user->id, 'name' => $user->name, 'avatar' => $user->avatar],
+            ], now()->addMinutes(5));
+            // Also cache for the current user (they get it in the API response, but belt-and-suspenders)
+            Cache::put('user_matched_' . $user->id, [
+                'match_id' => $matchId,
+                'opponent' => $opponent,
+            ], now()->addMinutes(5));
+
             try {
                 broadcast(new MatchFound($user->id, $matchId, $opponent));
                 broadcast(new MatchFound($opponent['id'], $matchId, [

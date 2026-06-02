@@ -425,12 +425,24 @@ export function GameProvider({ children }) {
                 preferredCategories: categories,
                 opponents: []
             });
-            await api.post('/multiplayer/matchmake', { mode: '1v1', categories: categories });
+            const res = await api.post('/multiplayer/matchmake', { mode: '1v1', categories: categories });
+            const data = res.data?.data || res.data;
+            // If the server immediately paired us (we were the second player to enter the queue),
+            // handle the match here instead of waiting for the WebSocket event which may not arrive.
+            if (data?.status === 'matched' && data?.match_id) {
+                await initGame('1v1', data.match_id, [], true);
+                const opp = data.opponent;
+                setGameState(prev => prev ? {
+                    ...prev,
+                    opponents: [{ id: opp.id, name: opp.name, username: opp.name, avatar: getFixedAvatar(opp.id || opp.name, opp.avatar), score: 0, answered: false }],
+                    status: 'active'
+                } : prev);
+            }
             return 'searching';
         } catch (error) {
             console.error("Matchmaking failed", error);
         }
-    }, []);
+    }, [initGame]);
 
     const cancelMatchmake = useCallback(async () => {
         try {
@@ -528,12 +540,12 @@ export function GameProvider({ children }) {
     const createRandomSmallRoom = useCallback((categories) => createBattle(5, false, categories), [createBattle]);
 
     const contextValue = React.useMemo(() => ({
-        gameState, 
+        gameState, setGameState,
         initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame, forceQuitDueToOpponentLeft, surrenderGame,
         createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
         createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle, joinBattle
     }), [
-        gameState, 
+        gameState, setGameState,
         initGame, answerQuestion, useLifeline, nextQuestion, resetGame, finalizeGame, forceQuitDueToOpponentLeft, surrenderGame,
         createSmallRoom, createRandomSmallRoom, joinSmallRoom, extendLobbyTimer, addAIPlayers, startSmallRoomGame,
         createPrivate1v1, joinPrivate1v1, startRanked1v1, switchToRandom, cancelMatchmake, startBattle, setReady, leaveBattle, joinBattle
@@ -617,6 +629,7 @@ export function useGame() {
     const ctx = useContext(GameContext);
     if (!ctx) return {
         gameState: null,
+        setGameState: () => {},
         initGame: () => {},
         answerQuestion: async () => {},
         useLifeline: async () => {},

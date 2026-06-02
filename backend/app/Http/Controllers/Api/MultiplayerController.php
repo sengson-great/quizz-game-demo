@@ -188,6 +188,36 @@ class MultiplayerController extends Controller
         return $this->successResponse($scores);
     }
 
+    /**
+     * HTTP polling fallback: let the queued player check if they've been matched.
+     * The `matchmake` endpoint stores a `user_matched_<userId>` cache entry when
+     * a match is found, so the other player can discover it by polling this endpoint.
+     */
+    #[OA\Get(path: "/multiplayer/match-status", summary: "Poll for match status (WebSocket fallback)", tags: ["Multiplayer"])]
+    public function matchStatus(Request $request)
+    {
+        $user = $request->user();
+        $matchedData = \Illuminate\Support\Facades\Cache::get('user_matched_' . $user->id);
+
+        if ($matchedData) {
+            // Consume the notification so it's only delivered once
+            \Illuminate\Support\Facades\Cache::forget('user_matched_' . $user->id);
+            return $this->successResponse([
+                'status'    => 'matched',
+                'match_id'  => $matchedData['match_id'],
+                'opponent'  => $matchedData['opponent'],
+            ]);
+        }
+
+        // Check if the user is still in the queue
+        $queueKey  = \Illuminate\Support\Facades\Cache::get('user_matchmake_key_' . $user->id);
+        $inQueue   = $queueKey && \Illuminate\Support\Facades\Cache::has($queueKey);
+
+        return $this->successResponse([
+            'status' => $inQueue ? 'queued' : 'idle',
+        ]);
+    }
+
     #[OA\Get(path: "/multiplayer/debug/match/{matchId}", summary: "Debug match payload", tags: ["Multiplayer"])]
     public function debugMatch($matchId)
     {
