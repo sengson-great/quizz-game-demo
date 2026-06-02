@@ -284,6 +284,39 @@ export function GameProvider({ children }) {
     }, [gameState]);
 
 
+    // Score polling fallback: keep opponent scores up-to-date even when
+    // WebSocket (Reverb) events are not being delivered on the server.
+    // Polls /multiplayer/scores/{matchId} every 4 seconds during an active 1v1 match.
+    useEffect(() => {
+        if (!gameState?.matchId || gameState.status !== 'active' || !gameState.opponents?.length) return;
+
+        const matchId = gameState.matchId;
+        const interval = setInterval(async () => {
+            try {
+                const res = await api.get(`/multiplayer/scores/${matchId}`);
+                // Response: { data: { userId: score, ... } }
+                const scores = res.data?.data || res.data;
+                if (!scores || typeof scores !== 'object') return;
+
+                setGameState(prev => {
+                    if (!prev || prev.status !== 'active' || !prev.opponents) return prev;
+                    let changed = false;
+                    const newOpponents = prev.opponents.map(opp => {
+                        const polledScore = scores[String(opp.id)];
+                        if (polledScore !== undefined && polledScore !== opp.score) {
+                            changed = true;
+                            return { ...opp, score: polledScore };
+                        }
+                        return opp;
+                    });
+                    return changed ? { ...prev, opponents: newOpponents } : prev;
+                });
+            } catch (_) { /* silently ignore */ }
+        }, 4000);
+
+        return () => clearInterval(interval);
+    }, [gameState?.matchId, gameState?.status, gameState?.opponents?.length]);
+
     /** ---------------- MULTIPLAYER/LOBBY ---------------- **/
 
     // Bind lobby channel logic
