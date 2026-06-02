@@ -128,16 +128,12 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     steps:
     - name: Deploy to Server via SSH
-      # To use this, you need to add SSH_PRIVATE_KEY, SERVER_HOST, and SERVER_USER to your GitHub Repo Secrets
-      run: echo "Ready to deploy to production. Configure your SSH secrets to enable automatic deployment."
-      
-      # Example implementation (requires appleboy/ssh-action):
-      # uses: appleboy/ssh-action@master
-      # with:
-      #   host: ${{ secrets.SERVER_HOST }}
-      #   username: ${{ secrets.SERVER_USER }}
-      #   key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #   script: |
-      #     cd /home/${{ secrets.SERVER_USER }}/millionaire-quiz
-      #     docker compose pull
-      #     docker compose up -d
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /var/www/quiz
+          docker compose pull
+          docker compose up -d
