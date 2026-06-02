@@ -290,8 +290,8 @@ export function GameProvider({ children }) {
     // Polls /multiplayer/scores/{matchId} every 4 seconds during an active or
     // finished (waiting) 1v1/battle match.
     useEffect(() => {
-        const isActive   = gameState?.status === 'active';
-        const isWaiting  = gameState?.status === 'finished' && gameState?.mode !== 'Solo';
+        const isActive  = gameState?.status === 'active';
+        const isWaiting = gameState?.status === 'finished' && gameState?.mode !== 'Solo';
         if (!gameState?.matchId || (!isActive && !isWaiting) || !gameState.opponents?.length) return;
 
         const matchId = gameState.matchId;
@@ -309,10 +309,15 @@ export function GameProvider({ children }) {
                     if (!prev || !prev.opponents) return prev;
                     let changed = false;
                     const newOpponents = prev.opponents.map(opp => {
-                        const polledScore   = scores[String(opp.id)];
-                        const polledDone    = done[String(opp.id)];
-                        const scoreChanged  = polledScore !== undefined && polledScore !== opp.score;
+                        const polledScore = Number(scores[String(opp.id)] ?? -1);
+                        const polledDone  = done[String(opp.id)];
+
+                        // Only advance the score — never let polling regress it backwards.
+                        // (Race condition: WS event can arrive before DB commit, or the poll
+                        //  reads a stale session. Scores only ever go up, so keep the max.)
+                        const scoreChanged   = polledScore > opp.score;
                         const answeredChanged = polledDone && !opp.answered;
+
                         if (scoreChanged || answeredChanged) {
                             changed = true;
                             return {
