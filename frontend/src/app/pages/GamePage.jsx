@@ -22,7 +22,7 @@ const RESULT_DELAY = 2200;
 function ShowForceResultsButton({ onForce }) {
     const [show, setShow] = useState(false);
     useEffect(() => {
-        const t = setTimeout(() => setShow(true), 12000);
+        const t = setTimeout(() => setShow(true), 8000);
         return () => clearTimeout(t);
     }, []);
     if (!show) return null;
@@ -578,7 +578,7 @@ export default function GamePage() {
                                 ))}
                             </div>
                             
-                            <ShowForceResultsButton onForce={() => navigate('/results')} />
+                            <ShowForceResultsButton onForce={() => { finalizeGame(gameState.playerScore); navigate('/results'); }} />
                         </div>
                     </motion.div>
                 )}

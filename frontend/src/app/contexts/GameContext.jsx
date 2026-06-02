@@ -284,28 +284,42 @@ export function GameProvider({ children }) {
     }, [gameState]);
 
 
-    // Score polling fallback: keep opponent scores up-to-date even when
-    // WebSocket (Reverb) events are not being delivered on the server.
-    // Polls /multiplayer/scores/{matchId} every 4 seconds during an active 1v1 match.
+    // Score + completion polling fallback: keep opponent scores up-to-date and
+    // detect when all opponents have finished — even when WebSocket events are
+    // not being delivered on the server.
+    // Polls /multiplayer/scores/{matchId} every 4 seconds during an active or
+    // finished (waiting) 1v1/battle match.
     useEffect(() => {
-        if (!gameState?.matchId || gameState.status !== 'active' || !gameState.opponents?.length) return;
+        const isActive   = gameState?.status === 'active';
+        const isWaiting  = gameState?.status === 'finished' && gameState?.mode !== 'Solo';
+        if (!gameState?.matchId || (!isActive && !isWaiting) || !gameState.opponents?.length) return;
 
         const matchId = gameState.matchId;
         const interval = setInterval(async () => {
             try {
                 const res = await api.get(`/multiplayer/scores/${matchId}`);
-                // Response: { data: { userId: score, ... } }
-                const scores = res.data?.data || res.data;
+                // Response: { data: { scores: {userId: score}, done: {userId: bool} } }
+                const payload = res.data?.data || res.data;
+                const scores  = payload?.scores ?? payload;   // backward-compat if still flat
+                const done    = payload?.done ?? {};
+
                 if (!scores || typeof scores !== 'object') return;
 
                 setGameState(prev => {
-                    if (!prev || prev.status !== 'active' || !prev.opponents) return prev;
+                    if (!prev || !prev.opponents) return prev;
                     let changed = false;
                     const newOpponents = prev.opponents.map(opp => {
-                        const polledScore = scores[String(opp.id)];
-                        if (polledScore !== undefined && polledScore !== opp.score) {
+                        const polledScore   = scores[String(opp.id)];
+                        const polledDone    = done[String(opp.id)];
+                        const scoreChanged  = polledScore !== undefined && polledScore !== opp.score;
+                        const answeredChanged = polledDone && !opp.answered;
+                        if (scoreChanged || answeredChanged) {
                             changed = true;
-                            return { ...opp, score: polledScore };
+                            return {
+                                ...opp,
+                                score:    scoreChanged ? polledScore : opp.score,
+                                answered: answeredChanged ? true : opp.answered,
+                            };
                         }
                         return opp;
                     });

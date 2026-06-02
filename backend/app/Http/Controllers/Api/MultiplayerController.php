@@ -180,12 +180,22 @@ class MultiplayerController extends Controller
         return $this->successResponse(null, 'Cancelled');
     }
 
-    #[OA\Get(path: "/multiplayer/scores/{matchId}", summary: "Get all scores for a match", tags: ["Multiplayer"])]
+    #[OA\Get(path: "/multiplayer/scores/{matchId}", summary: "Get all scores and statuses for a match", tags: ["Multiplayer"])]
     public function getScores($matchId)
     {
-        $scores = \App\Models\GameSession::where('match_id', $matchId)
-            ->pluck('score', 'user_id');
-        return $this->successResponse($scores);
+        $sessions = \App\Models\GameSession::where('match_id', $matchId)
+            ->get(['user_id', 'score', 'status']);
+
+        $scores   = $sessions->pluck('score', 'user_id');
+        $statuses = $sessions->pluck('status', 'user_id');
+        // A player is "done" if their session is completed or failed (not still active)
+        $done     = $sessions->mapWithKeys(fn($s) => [$s->user_id => in_array($s->status, ['completed', 'failed'])]);
+
+        return $this->successResponse([
+            'scores'   => $scores,
+            'statuses' => $statuses,
+            'done'     => $done,
+        ]);
     }
 
     /**
