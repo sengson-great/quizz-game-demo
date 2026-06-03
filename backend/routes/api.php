@@ -16,6 +16,15 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::get('/debug-deploy', function() {
+    return response()->json([
+        'status' => 'ok',
+        'time' => date('Y-m-d H:i:s'),
+        'git_commit' => @exec('git log -n 1 --oneline') ?: 'unknown',
+        'app_env' => env('APP_ENV'),
+        'cache_driver' => env('CACHE_STORE', env('CACHE_DRIVER')),
+    ]);
+});
 
 // Explicitly register broadcast routes for API/Passport
 \Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth:api']]);
