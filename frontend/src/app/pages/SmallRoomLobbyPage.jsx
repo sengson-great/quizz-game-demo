@@ -23,7 +23,7 @@ export default function SmallRoomLobbyPage() {
     const [joinError, setJoinError] = useState(null);
     const sysConfig = loadSystemConfig();
     const maxPlayers = gameState?.roomSize || sysConfig.maxRoomPlayers;
-    const minPlayers = 2;
+    const minPlayers = maxPlayers;
 
     // Handle joining via invite code passed from ModeSelectPage or URL
     useEffect(() => {
