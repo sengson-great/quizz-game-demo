@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import api from '../../api/axios';
 import { Sparkles, Users, Globe, Shield, Trophy, ChevronRight, Star, Swords, BarChart3, Brain, Zap, Download, Cpu, History, Palette } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { usePWA } from '../contexts/PWAContext';
+import { useAuth } from '../contexts/AuthContext';
 
 
 const LIGHT_BG = 'var(--grad-surface)';
@@ -23,6 +24,23 @@ const CategoryIcon = ({ name, className, style }) => {
 export default function LandingPage() {
     const { t, lang } = useTranslation();
     const { isInstallable, isIOS, installPWA } = usePWA();
+    const navigate = useNavigate();
+    const { currentUser, updateUser } = useAuth();
+
+    const handleLanguageChange = (newLang) => {
+        localStorage.setItem('lang', newLang);
+        try {
+            const SETTINGS_KEY = 'user_settings';
+            const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+            savedSettings.language = newLang;
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(savedSettings));
+        } catch (e) {}
+
+        if (currentUser && updateUser) {
+            updateUser({ language: newLang });
+        }
+        navigate(`/${newLang}/`);
+    };
 
     const FEATURES = [
         { icon: Zap, title: t('soloPractice'), desc: t('soloDesc'), color: 'text-amber-500', gradient: 'from-amber-500 to-orange-500' },
@@ -77,6 +95,24 @@ export default function LandingPage() {
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-6">
+            {/* Language Selection Buttons */}
+            <div className="flex items-center gap-1 border-2 border-black rounded-xl p-0.5 bg-slate-50">
+              <button 
+                onClick={() => handleLanguageChange('km')}
+                className={`px-2 py-1 rounded-lg text-[10px] sm:text-xs font-black transition-all ${lang === 'km' ? 'bg-[#FACC15] text-black shadow-[1.5px_1.5px_0_0_#000000]' : 'bg-transparent text-slate-500 border-none shadow-none hover:text-black hover:bg-slate-100'}`}
+                style={lang === 'km' ? {} : { border: 'none', boxShadow: 'none' }}
+              >
+                🇰🇭 ខ្មែរ
+              </button>
+              <button 
+                onClick={() => handleLanguageChange('en')}
+                className={`px-2 py-1 rounded-lg text-[10px] sm:text-xs font-black transition-all ${lang === 'en' ? 'bg-[#FACC15] text-black shadow-[1.5px_1.5px_0_0_#000000]' : 'bg-transparent text-slate-500 border-none shadow-none hover:text-black hover:bg-slate-100'}`}
+                style={lang === 'en' ? {} : { border: 'none', boxShadow: 'none' }}
+              >
+                🇺🇸 EN
+              </button>
+            </div>
+
             <Link to={`/${lang}/leaderboard`} className="text-black font-bold hover:text-[#EAB308] text-xs sm:text-sm transition-colors whitespace-nowrap hidden xs:block">{t('leaderboard')}</Link>
             <Link to={`/${lang}/auth`} className="px-3 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-black text-xs sm:text-sm font-bold border-2 border-black shadow-[2px_2px_0_0_#000000] sm:shadow-[4px_4px_0_0_#000000] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px]" style={{ background: '#FACC15' }}>
               {t('getStarted')}
@@ -106,6 +142,30 @@ export default function LandingPage() {
           <p className="text-slate-600 max-w-2xl mx-auto mb-12 font-medium" style={{ fontSize: 'clamp(1.125rem, 2vw, 1.25rem)' }}>
             {t('heroSubtitle')}
           </p>
+
+          {/* Quick Language Selector in Hero */}
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
+              ភាសា​ / Language:
+            </span>
+            <div className="inline-flex items-center gap-2 border-[3px] border-black rounded-2xl p-1 bg-white shadow-[4px_4px_0_0_#000000]">
+              <button 
+                onClick={() => handleLanguageChange('km')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${lang === 'km' ? 'bg-[#FACC15] text-black shadow-[2px_2px_0_0_#000000]' : 'bg-transparent text-slate-500 border-none shadow-none hover:text-black hover:bg-slate-100'}`}
+                style={lang === 'km' ? {} : { border: 'none', boxShadow: 'none' }}
+              >
+                🇰🇭 ខ្មែរ
+              </button>
+              <button 
+                onClick={() => handleLanguageChange('en')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${lang === 'en' ? 'bg-[#FACC15] text-black shadow-[2px_2px_0_0_#000000]' : 'bg-transparent text-slate-500 border-none shadow-none hover:text-black hover:bg-slate-100'}`}
+                style={lang === 'en' ? {} : { border: 'none', boxShadow: 'none' }}
+              >
+                🇺🇸 EN
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4">
             <Link to={`/${lang}/auth`} className="w-full sm:w-auto group flex items-center justify-center gap-3 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl text-black text-lg sm:text-xl font-bold border-[3px] border-black shadow-[4px_4px_0_0_#000000] sm:shadow-[6px_6px_0_0_#000000] transition-all hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[8px_8px_0_0_#000000] sm:hover:shadow-[10px_10px_0_0_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" style={{ background: '#FACC15' }}>
               <Brain className="w-5 h-5 sm:w-6 sm:h-6"/>
