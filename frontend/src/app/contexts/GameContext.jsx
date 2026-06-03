@@ -19,6 +19,11 @@ export function GameProvider({ children }) {
         }
     });
 
+    const gameStateRef = useRef(gameState);
+    useEffect(() => {
+        gameStateRef.current = gameState;
+    }, [gameState]);
+
     // Synchronize game state with sessionStorage
     useEffect(() => {
         if (gameState) {
@@ -533,7 +538,8 @@ export function GameProvider({ children }) {
             // Use keepLoading=true so status stays 'loading' until initGame resolves,
             // preventing the lobby from navigating to /game before the session + question
             // are fully loaded. This mirrors the .match.found handler's pattern.
-            await initGame('battle', e.match_id, [], true);
+            const currentMode = gameStateRef.current?.mode || 'Room';
+            await initGame(currentMode, e.match_id, [], true);
             setGameState(prev => prev ? { ...prev, status: 'active' } : prev);
         });
 
@@ -730,7 +736,8 @@ export function GameProvider({ children }) {
                     // 1. If game has started and match_id is available, transition to active game state
                     if ((data.status === 'starting' || data.status === 'started' || data.status === 'active') && data.match_id) {
                         clearInterval(interval);
-                        await initGame('battle', data.match_id, [], true);
+                        const currentMode = gameStateRef.current?.mode || 'Room';
+                        await initGame(currentMode, data.match_id, [], true);
                         setGameState(prev => prev ? { ...prev, status: 'active' } : prev);
                         return;
                     }
