@@ -199,7 +199,7 @@ export default function SmallRoomLobbyPage() {
                         </div>
                         <div className="text-left">
                             <p className="text-amber-600 text-[10px] font-black uppercase tracking-widest">{t('readyToStart')}</p>
-                            <div className="text-2xl font-black text-black" style={{ fontFamily: 'inherit' }}>{minPlayers - playerCount} MORE</div>
+                            <div className="text-2xl font-black text-black" style={{ fontFamily: 'inherit' }}>{minPlayers - playerCount} {t('more')}</div>
                         </div>
                     </div>
                 </motion.div>

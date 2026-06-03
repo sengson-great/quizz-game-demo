@@ -88,7 +88,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
         )}
         {isSurrenderMode ? (
             <span className="text-xs font-black uppercase tracking-normal text-white hidden sm:inline">
-                Surrender 🏳️
+                {t('surrenderButton')}
             </span>
         ) : (
             variant === 'default' && (
@@ -111,7 +111,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                       <AlertTriangle className="w-5 h-5 text-red-500"/>
                     </div>
                     <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.25rem' }}>
-                      {isSurrenderMode ? 'Surrender Match 🏳️' : t('forfeitTitle')}
+                      {isSurrenderMode ? t('surrenderMatch') : t('forfeitTitle')}
                     </h2>
                   </div>
                   <button onClick={() => setShowConfirmation(false)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors">
@@ -121,7 +121,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
 
                 <p className="text-slate-600 mb-6">
                   {isSurrenderMode 
-                    ? 'Are you sure you want to surrender and leave early? You will receive a -2,000 point penalty on your profile!' 
+                    ? t('surrenderDesc')
                     : t('forfeitDesc')}
                 </p>
 
@@ -132,7 +132,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 fontFamily: 'inherit',
                 fontWeight: 600,
             }}>
-                    {isSurrenderMode ? 'Keep Playing' : t('stayInGame')}
+                    {isSurrenderMode ? t('keepPlaying') : t('stayInGame')}
                   </motion.button>
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmReturn} className="flex-1 py-3 rounded-xl text-white transition-all" style={{
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
@@ -140,7 +140,7 @@ export function ReturnButton({ context, variant = 'default', onClick, className,
                 fontFamily: 'inherit',
                 fontWeight: 600,
             }}>
-                    {isSurrenderMode ? 'Surrender' : t('forfeitAndLeave')}
+                    {isSurrenderMode ? t('surrender') : t('forfeitAndLeave')}
                   </motion.button>
                 </div>
               </div>

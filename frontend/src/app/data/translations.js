@@ -125,6 +125,11 @@ export const translations = {
     forfeitDesc: 'Leaving now will forfeit your score and count as a loss. Are you sure you want to quit this game?',
     stayInGame: 'Stay in Game',
     forfeitAndLeave: 'Forfeit & Leave',
+    surrenderMatch: 'Surrender Match 🏳️',
+    surrenderDesc: 'Are you sure you want to surrender and leave early? You will receive a -2,000 point penalty on your profile!',
+    keepPlaying: 'Keep Playing',
+    surrender: 'Surrender',
+    surrenderButton: 'Surrender 🏳️',
 
     // Mode Select
     selectMode: 'Select a Mode',
@@ -233,6 +238,7 @@ export const translations = {
     invalidBattleCode: 'Invalid or expired battle code.',
 
     // Small Room Lobby
+    more: 'MORE',
     joiningRoom: 'Joining Room...',
     inviteRoomLobby: 'Invite Room Lobby',
     readyToStart: 'Ready to Start!',
@@ -552,6 +558,11 @@ export const translations = {
     forfeitDesc: 'ការចាកចេញឥឡូវនេះ នឹងធ្វើឱ្យអ្នកបាត់ពិន្ទុ និងត្រូវបានកត់ថាចាញ់។ តើអ្នកប្រាកដចង់ចាកចេញទេ?',
     stayInGame: 'នៅក្នុងហ្គេម',
     forfeitAndLeave: 'បោះបង់ និងចាកចេញ',
+    surrenderMatch: 'ចុះចាញ់ការប្រកួត 🏳️',
+    surrenderDesc: 'តើអ្នកប្រាកដជាចង់ចុះចាញ់ និងចាកចេញមុនកំណត់មែនទេ? អ្នកនឹងត្រូវកាត់ -2,000 ពិន្ទុពីគណនីរបស់អ្នក!',
+    keepPlaying: 'បន្តលេង',
+    surrender: 'ចុះចាញ់',
+    surrenderButton: 'ចុះចាញ់ 🏳️',
 
     // Mode Select
     selectMode: 'ជ្រើសរើសរបៀបលេង',
@@ -660,6 +671,7 @@ export const translations = {
     invalidBattleCode: 'លេខកូដការប្រកួតមិនត្រឹមត្រូវ ឬផុតកំណត់។',
 
     // Small Room Lobby
+    more: 'នាក់ទៀត',
     joiningRoom: 'កំពុងចូលរួមបន្ទប់...',
     inviteRoomLobby: 'បន្ទប់អញ្ជើញ',
     readyToStart: 'រួចរាល់ដើម្បីចាប់ផ្តើម!',
