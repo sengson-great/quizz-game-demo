@@ -339,34 +339,11 @@ export default function GamePage() {
     return (
     <div className="min-h-screen flex flex-col overflow-hidden relative" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
       
-      {/* Animated Background Blobs */}
+      {/* Static Background Blobs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div 
-            animate={{ 
-                x: [0, 100, 0], 
-                y: [0, 50, 0],
-                rotate: [0, 90, 0]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-20 -left-20 w-96 h-96 bg-[#FACC15]/10 rounded-full blur-[80px]"
-        />
-        <motion.div 
-            animate={{ 
-                x: [0, -100, 0], 
-                y: [0, 100, 0],
-                rotate: [0, -90, 0]
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 -right-20 w-80 h-80 bg-[#8B5CF6]/10 rounded-full blur-[80px]"
-        />
-        <motion.div 
-            animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.5, 0.3]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-10 left-1/4 w-64 h-64 bg-emerald-400/10 rounded-full blur-[60px]"
-        />
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-[#FACC15]/10 rounded-full blur-[80px]" />
+        <div className="absolute top-1/2 -right-20 w-80 h-80 bg-[#8B5CF6]/10 rounded-full blur-[80px]" />
+        <div className="absolute bottom-10 left-1/4 w-64 h-64 bg-emerald-400/10 rounded-full blur-[60px] opacity-40" />
       </div>
 
       <div className="flex-1 flex flex-col px-4 py-5 max-w-3xl mx-auto w-full relative z-10">

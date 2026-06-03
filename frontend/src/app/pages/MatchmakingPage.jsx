@@ -142,13 +142,13 @@ export default function MatchmakingPage() {
 
             {/* Ambient Background Elements */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-amber-200/40 blur-[120px] animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-300/30 blur-[120px] animate-pulse" style={{ animationDelay: '2.5s' }} />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-amber-200/40 blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-300/30 blur-[120px]" />
                 
-                {/* Dynamic Floating Icons */}
-                <motion.div animate={{ y: [0, -30, 0], rotate: [12, -12, 12] }} transition={{ duration: 6, repeat: Infinity }} className="absolute top-[20%] left-[15%] text-6xl opacity-10">🎮</motion.div>
-                <motion.div animate={{ y: [0, 40, 0], rotate: [-10, 10, -10] }} transition={{ duration: 8, repeat: Infinity }} className="absolute bottom-[25%] right-[20%] text-6xl opacity-10">⚔️</motion.div>
-                <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.15, 0.05] }} transition={{ duration: 5, repeat: Infinity }} className="absolute top-[40%] right-[10%] text-8xl opacity-5">🏆</motion.div>
+                {/* Static Floating Icons */}
+                <div className="absolute top-[20%] left-[15%] text-6xl opacity-10 rotate-12">🎮</div>
+                <div className="absolute bottom-[25%] right-[20%] text-6xl opacity-10 -rotate-12">⚔️</div>
+                <div className="absolute top-[40%] right-[10%] text-8xl opacity-5">🏆</div>
             </div>
 
             <div className="relative z-10 w-full max-w-2xl">

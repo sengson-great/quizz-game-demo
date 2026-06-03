@@ -138,7 +138,7 @@ export default function ResultsPage() {
 
     return (<div className="min-h-screen px-4 py-8 max-w-3xl mx-auto" style={{ fontFamily: 'inherit' }}>
       {isWinner && (<div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-          {Array.from({ length: 20 }, (_, i) => (<motion.div key={i} className="absolute w-3 h-3 rounded-sm" style={{ left: `${Math.random() * 100}%`, background: ['#FACC15', '#818CF8', '#06b6d4', '#34d399'][i % 4], top: '-20px' }} animate={{ y: ['0vh', '110vh'], rotate: [0, 720], opacity: [1, 0] }} transition={{ duration: Math.random() * 2 + 1.5, delay: Math.random() * 1, repeat: Infinity }}/>))}
+          {Array.from({ length: 20 }, (_, i) => (<motion.div key={i} className="absolute w-3 h-3 rounded-sm" style={{ left: `${Math.random() * 100}%`, background: ['#FACC15', '#818CF8', '#06b6d4', '#34d399'][i % 4], top: '-20px' }} animate={{ y: ['0vh', '110vh'], rotate: [0, 720], opacity: [1, 0] }} transition={{ duration: Math.random() * 2 + 1.5, delay: Math.random() * 1 }}/>))}
         </div>)}
 
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8 relative z-10">
