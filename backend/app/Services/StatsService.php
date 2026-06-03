@@ -32,12 +32,19 @@ class StatsService
         $wins        = (int) ($aggregate->wins         ?? 0);
         $winRate     = $gamesPlayed > 0 ? round($wins / $gamesPlayed * 100, 1) : 0;
 
-        // Rank: how many users have a higher total_score than this user
-        $rank = GameSession::selectRaw('user_id, SUM(score) as total_score')
-            ->groupBy('user_id')
-            ->havingRaw('SUM(score) > ?', [$totalScore])
-            ->get()
-            ->count() + 1;
+        // Rank: how many users (excluding admins) have a higher total_score than this user
+        if ($user->isAdmin()) {
+            $rank = 0;
+        } else {
+            $rank = GameSession::whereHas('user', function ($query) {
+                $query->where('role', '!=', 'admin');
+            })
+                ->selectRaw('user_id, SUM(score) as total_score')
+                ->groupBy('user_id')
+                ->havingRaw('SUM(score) > ?', [$totalScore])
+                ->get()
+                ->count() + 1;
+        }
 
         // Category Breakdown
         $categoryStats = Category::leftJoin('questions', 'categories.id', '=', 'questions.category_id')

@@ -18,12 +18,21 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
+        // Additional Admin for mock matching
+        User::forceCreate([
+            'name' => 'Admin',
+            'email' => 'admin@quiz.com',
+            'role' => 'admin',
+            'password' => Hash::make('admin123'),
+        ]);
+
         // Player users
         $players = [
             ['name' => 'John Doe', 'email' => 'john@example.com'],
             ['name' => 'Jane Smith', 'email' => 'jane@example.com'],
             ['name' => 'Bob Builder', 'email' => 'bob@example.com'],
-            ['name' => 'Alice Wonder', 'email' => 'alice@example.com']
+            ['name' => 'Alice Wonder', 'email' => 'alice@example.com'],
+            ['name' => 'NovaMind', 'email' => 'player@quiz.com', 'password' => 'player123']
         ];
 
         foreach ($players as $p) {
@@ -31,7 +40,7 @@ class DatabaseSeeder extends Seeder
                 'name' => $p['name'],
                 'email' => $p['email'],
                 'role' => 'player',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($p['password'] ?? 'password'),
             ]);
         }
 
