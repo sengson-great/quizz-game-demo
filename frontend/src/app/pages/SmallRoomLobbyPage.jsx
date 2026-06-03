@@ -16,14 +16,16 @@ export default function SmallRoomLobbyPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const urlCode = queryParams.get('code');
     const [copied, setCopied] = useState(false);
-    const [joining, setJoining] = useState(!!location.state?.joinCode);
+    const [joining, setJoining] = useState(!!(location.state?.joinCode || urlCode));
     const [joinError, setJoinError] = useState(null);
     const sysConfig = loadSystemConfig();
     const maxPlayers = gameState?.roomSize || sysConfig.maxRoomPlayers;
     const minPlayers = 2;
 
-    // Handle joining via invite code passed from ModeSelectPage
+    // Handle joining via invite code passed from ModeSelectPage or URL
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const urlCode = queryParams.get('code');
@@ -33,7 +35,12 @@ export default function SmallRoomLobbyPage() {
             setJoining(false);
             return;
         }
-        if (!currentUser) { navigate('/auth'); return; }
+        // Redirect to auth preserving the current URL so the user lands back here after login
+        if (!currentUser) {
+            const returnUrl = encodeURIComponent(location.pathname + location.search);
+            navigate(`/auth?return=${returnUrl}`);
+            return;
+        }
         
         setJoining(true);
         joinSmallRoom(joinCode)

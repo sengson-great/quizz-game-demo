@@ -41,7 +41,7 @@ export function LangRedirect() {
             newPath = newPath.replace(/\/+/g, '/');
             
             if (currentPath !== newPath) {
-                navigate(newPath, { replace: true });
+                navigate(newPath + location.search + location.hash, { replace: true });
             }
         } else {
             // Persist the valid lang in localStorage
