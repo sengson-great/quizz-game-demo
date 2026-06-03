@@ -22,7 +22,11 @@ Route::get('/debug-deploy', function() {
         'time' => date('Y-m-d H:i:s'),
         'git_commit' => @exec('git log -n 1 --oneline') ?: 'unknown',
         'app_env' => env('APP_ENV'),
-        'cache_driver' => env('CACHE_STORE', env('CACHE_DRIVER')),
+        'cache_driver' => env('CACHE_STORE', env('CACHE_DRIVER') ?: config('cache.default')),
+        'broadcast_connection' => env('BROADCAST_CONNECTION') ?: config('broadcasting.default'),
+        'session_driver' => env('SESSION_DRIVER') ?: config('session.driver'),
+        'db_connection' => env('DB_CONNECTION') ?: config('database.default'),
+        'db_database' => env('DB_DATABASE'),
     ]);
 });
 
