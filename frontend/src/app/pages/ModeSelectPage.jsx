@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, Check, LogIn, X, Zap, Shuffle, UserPlus, Target, Swords, Trophy, Brain, Cpu, History, Globe, Palette } from 'lucide-react';
@@ -33,6 +33,11 @@ export default function ModeSelectPage() {
     const [joinCode1v1, setJoinCode1v1] = useState('');
     const [toast, setToast] = useState(null);
     const { lang } = useTranslation();
+    
+    // Use a ref to track if navigation is in progress
+    const isNavigating = useRef(false);
+    // Use a ref to store the timeout ID
+    const navigateTimeout = useRef(null);
 
     useEffect(() => {
         api.get('/categories').then(res => {
@@ -51,6 +56,13 @@ export default function ModeSelectPage() {
             setCategories(MOCK_CATEGORIES);
             setSelectedCategories(MOCK_CATEGORIES.map(c => c.id));
         });
+
+        // Cleanup timeouts on unmount
+        return () => {
+            if (navigateTimeout.current) {
+                clearTimeout(navigateTimeout.current);
+            }
+        };
     }, [currentUser]);
 
     const showToast = (message, type = 'warning') => {
@@ -61,6 +73,7 @@ export default function ModeSelectPage() {
     const toggleCategory = (id) => {
         setSelectedCategories(prev => prev.includes(id) ? (prev.length > 1 ? prev.filter(c => c !== id) : prev) : [...prev, id]);
     };
+    
     const handleStart = async () => {
         if (!selectedMode || selectedCategories.length === 0) {
           showToast(t('pleaseSelectModeAndCategory'));
@@ -78,226 +91,460 @@ export default function ModeSelectPage() {
         await initGame(selectedMode, null, selectedCategories);
         navigate('/game');
     };
-    const handleCreateInviteRoom = async () => { if (selectedCategories.length === 0) return; await createSmallRoom(selectedCategories); navigate('/lobby'); };
-    const handleCreateRandomRoom = async () => { if (selectedCategories.length === 0) return; await createRandomSmallRoom(selectedCategories); navigate('/matchmaking'); };
-    const handleJoinRoom = () => { if (!joinCode.trim() || joinCode.length !== 6) return; navigate('/lobby', { state: { joinCode } }); };
-    const handleInviteFriend1v1 = async () => { if (selectedCategories.length === 0) return; await createPrivate1v1(selectedCategories); navigate('/battle-lobby'); };
-    const handleRandomMatch1v1 = async () => { if (selectedCategories.length === 0) return; await startRanked1v1(selectedCategories); navigate('/matchmaking'); };
-    const handleJoin1v1 = () => { if (!joinCode1v1.trim() || joinCode1v1.length !== 6) return; navigate('/battle-lobby', { state: { joinCode: joinCode1v1 } }); };
+    
+    const handleCreateInviteRoom = async () => { 
+        if (selectedCategories.length === 0) return; 
+        await createSmallRoom(selectedCategories); 
+        navigate('/lobby'); 
+    };
+    
+    const handleCreateRandomRoom = async () => { 
+        if (selectedCategories.length === 0) return; 
+        await createRandomSmallRoom(selectedCategories); 
+        navigate('/matchmaking'); 
+    };
+    
+    // Simplified join handlers with no setTimeout
+    const handleJoinRoom = useCallback(async (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        if (isNavigating.current) return;
+        
+        const code = joinCode.trim().toUpperCase();
+        if (!code || code.length !== 6) {
+            showToast(t('invalidCode') || 'Please enter a valid 6-digit code');
+            return;
+        }
+        
+        isNavigating.current = true;
+        setShowRoomOptions(false);
+        
+        // Include lang prefix and pass code in query string to survive redirects
+        navigate(`/${lang}/lobby?code=${code}`, { replace: true });
+        
+        navigateTimeout.current = setTimeout(() => {
+            isNavigating.current = false;
+        }, 1000);
+    }, [joinCode, navigate, t, lang]);
+    
+    const handleJoin1v1 = useCallback(async (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        if (isNavigating.current) return;
+        
+        const code = joinCode1v1.trim().toUpperCase();
+        if (!code || code.length !== 6) {
+            showToast(t('invalidCode') || 'Please enter a valid 6-digit code');
+            return;
+        }
+        
+        isNavigating.current = true;
+        setShow1v1Options(false);
+        
+        // Include lang prefix and pass code in query string to survive redirects
+        navigate(`/${lang}/battle-lobby?code=${code}`, { replace: true });
+        
+        navigateTimeout.current = setTimeout(() => {
+            isNavigating.current = false;
+        }, 1000);
+    }, [joinCode1v1, navigate, t, lang]);
+    
+    const handleInviteFriend1v1 = async () => { 
+        if (selectedCategories.length === 0) return; 
+        await createPrivate1v1(selectedCategories); 
+        navigate(`/${lang}/battle-lobby`); 
+    };
+    
+    const handleRandomMatch1v1 = async () => { 
+        if (selectedCategories.length === 0) return; 
+        await startRanked1v1(selectedCategories); 
+        navigate(`/${lang}/matchmaking`); 
+    };
+    
     const modes = [
         { mode: 'Solo', icon: <Target className="w-10 h-10 text-emerald-500" />, title: t('soloPractice'), desc: t('soloDesc'), badge: t('practiceMode'), badgeColor: '#10b981', activeColor: '#10b981', activeBorder: 'rgba(16,185,129,0.35)' },
         { mode: '1v1', icon: <Swords className="w-10 h-10 text-rose-500" />, title: t('battle1v1'), desc: t('battleDesc'), badge: t('battle1v1'), badgeColor: '#f43f5e', activeColor: '#f43f5e', activeBorder: 'rgba(244,63,94,0.35)' },
         { mode: 'Room', icon: <Trophy className="w-10 h-10 text-violet-500" />, title: t('roomMode'), desc: t('roomDesc'), badge: t('mostFun'), badgeColor: '#8b5cf6', activeColor: '#8b5cf6', activeBorder: 'rgba(139,92,246,0.35)' },
     ];
-    return (<div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'inherit' }}>
-
-      {/* Toast notification */}
-      <AnimatePresence>
-        {toast && (
-          <div className="fixed top-6 inset-x-0 z-[999] flex justify-center pointer-events-none px-4">
-            <motion.div
-              key="toast"
-              initial={{ opacity: 0, y: -50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -30, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 420, damping: 30 }}
-              className="relative flex items-center gap-3 px-5 py-4 rounded-2xl pointer-events-auto overflow-hidden"
-              style={{
-                background: 'rgba(255,255,255,0.97)',
-                backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(251,191,36,0.35)',
-                boxShadow: '0 8px 32px rgba(251,191,36,0.18), 0 2px 10px rgba(0,0,0,0.08)',
-                maxWidth: 'calc(100vw - 2rem)',
-              }}
-            >
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>
-                <span style={{ fontSize: '1rem' }}>⚠️</span>
-              </div>
-              <p className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'inherit', fontWeight: 500 }}>
-                {toast.message}
-              </p>
-              <button
-                onClick={() => setToast(null)}
-                className="ml-1 text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-                </svg>
-              </button>
-              {/* Progress bar */}
-              <motion.div
-                className="absolute bottom-0 left-0 h-[3px]"
-                style={{ background: 'linear-gradient(90deg, #fbbf24, #f59e0b)' }}
-                initial={{ width: '100%' }}
-                animate={{ width: '0%' }}
-                transition={{ duration: 3, ease: 'linear' }}
-              />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-[#1A1A2E] text-center mb-2" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.8rem' }}>
-          {t('chooseBattle')}
-        </h1>
-        <p className="text-slate-500 text-center text-sm">{t('chooseCompete')}</p>
-      </motion.div>
-
-      {/* Mode Cards */}
-      <div className="grid sm:grid-cols-3 gap-4 mb-10">
-        {modes.map(({ mode, icon, title, desc, badge, badgeColor, activeColor, activeBorder }, i) => {
-            const isActive = selectedMode === mode;
-            return (<motion.button key={mode} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }} onClick={() => setSelectedMode(mode)} className="relative text-left rounded-2xl p-6 transition-all duration-200" style={{
-                    background: isActive ? `${activeColor}08` : 'rgba(255,255,255,0.8)',
-                    backdropFilter: 'blur(20px)',
-                    border: `2px solid ${isActive ? activeBorder : 'rgba(0,0,0,0.06)'}`,
-                    boxShadow: isActive ? '0 4px 20px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.04)',
-                }}>
-              {isActive && (<motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: activeColor }}>
-                  <Check className="w-3.5 h-3.5 text-white"/>
-                </motion.div>)}
-              <div className="text-4xl mb-4">{icon}</div>
-              <span className="text-xs px-2.5 py-1 rounded-full mb-3 inline-block" style={{ background: `${badgeColor}15`, color: badgeColor }}>{badge}</span>
-              <h3 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{title}</h3>
-              <p className="text-slate-500 text-sm">{desc}</p>
-            </motion.button>);
-        })}
-      </div>
-
-      {/* Category Selection */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="rounded-2xl p-6 mb-8" style={CARD}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('knowledgeCategories')}</h2>
-          <div className="flex gap-2">
-            <button onClick={() => setSelectedCategories(categories.map(c => c.id))} className="text-xs text-[#FACC15] hover:text-[#4F46E5] transition-colors">{t('all')}</button>
-            <span className="text-slate-300">·</span>
-            <button onClick={() => setSelectedCategories([categories[0]?.id].filter(Boolean))} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{t('none')}</button>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {categories.map(({ id, name, nameKm, icon, color, iconColor }) => {
-            const isSelected = selectedCategories.includes(id);
-            return (<motion.button key={id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => toggleCategory(id)} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group" style={{
-                    background: isSelected ? 'rgba(250, 204, 21, 0.04)' : 'rgba(0,0,0,0.02)',
-                    border: isSelected ? '1px solid rgba(250, 204, 21, 0.2)' : '1px solid rgba(0,0,0,0.06)',
-                }}>
-                <div className={`w-8 h-8 rounded-lg bg-black/[0.03] flex items-center justify-center text-sm shadow-sm transition-transform group-hover:scale-110 ${isSelected ? '' : 'opacity-60'}`}>
-                    <CategoryIcon name={icon} className="w-4 h-4" style={{ color: isSelected ? iconColor : '#94a3b8' }} />
-                </div>
-                <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`}>{(lang === 'km' && nameKm) ? nameKm : name}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#FACC15] ml-auto"/>}
-              </motion.button>);
-        })}
-        </div>
-        <p className="text-slate-400 text-xs mt-3">{selectedCategories.length} {t('of')} {categories.length} {t('selected')}</p>
-      </motion.div>
-
-      {/* Difficulty Info */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-wrap items-center justify-center gap-3 mb-8 text-sm">
-        {[
-            { label: `5 ${t('difficultyEasy')}`, bg: 'rgba(52,211,153,0.08)', color: '#FACC15', border: 'rgba(52,211,153,0.15)' },
-            { label: `5 ${t('difficultyMedium')}`, bg: 'rgba(251,191,36,0.08)', color: '#d97706', border: 'rgba(251,191,36,0.15)' },
-            { label: `5 ${t('difficultyHard')}`, bg: 'rgba(239,68,68,0.08)', color: '#dc2626', border: 'rgba(239,68,68,0.15)' },
-        ].map(({ label, bg, color, border }) => (<span key={label} className="px-3.5 py-1.5 rounded-full" style={{ background: bg, color, border: `1px solid ${border}` }}>{label}</span>))}
-      </motion.div>
-
-      {/* Start Button */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center">
-        <motion.button whileHover={selectedMode ? { scale: 1.03 } : {}} whileTap={selectedMode ? { scale: 0.97 } : {}} onClick={handleStart} disabled={!selectedMode} className={`px-10 py-4 rounded-2xl text-white text-lg flex items-center gap-3 mx-auto transition-all ${selectedMode ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'}`} style={{
-            background: selectedMode ? 'linear-gradient(135deg, #FACC15, #4F46E5)' : 'rgba(0,0,0,0.1)',
-            boxShadow: selectedMode ? '0 4px 25px rgba(99,102,241,0.3)' : 'none',
-            fontFamily: 'inherit', fontWeight: 600,
-        }}>
-          {selectedMode === 'Room' 
-            ? t('chooseRoomOption') 
-            : selectedMode === '1v1' 
-                ? t('chooseBattleOption') 
-                : selectedMode 
-                    ? t('startGameMode').replace('{mode}', t(selectedMode.toLowerCase()) || selectedMode) 
-                    : t('selectMode')}
-          <ChevronRight className="w-5 h-5"/>
-        </motion.button>
-      </motion.div>
-
-      {/* Room Battle Options Modal */}
-      <AnimatePresence>
-        {showRoomOptions && (<>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowRoomOptions(false)} className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"/>
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
-              <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.5rem' }}>{t('battleOptions')}</h2>
-                  <button onClick={() => setShowRoomOptions(false)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"><X className="w-5 h-5"/></button>
-                </div>
-                <div className="space-y-3 mb-4">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCreateRandomRoom} className="w-full p-5 rounded-xl text-left transition-all" style={{ background: 'rgba(6,182,212,0.06)', border: '2px solid rgba(6,182,212,0.15)' }}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600"><Shuffle className="w-5 h-5 text-white"/></div>
-                      <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('randomRoom')}</h3><p className="text-slate-400 text-xs">{t('randomRoomDesc')}</p></div>
-                      <ChevronRight className="w-5 h-5 text-cyan-500"/>
+    
+    return (
+        <div className="min-h-screen px-4 py-10 max-w-4xl mx-auto" style={{ fontFamily: 'inherit' }}>
+            {/* Toast notification - same as before */}
+            <AnimatePresence>
+                {toast && (
+                    <div className="fixed top-6 inset-x-0 z-[999] flex justify-center pointer-events-none px-4">
+                        <motion.div
+                            key="toast"
+                            initial={{ opacity: 0, y: -50, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -30, scale: 0.95 }}
+                            transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+                            className="relative flex items-center gap-3 px-5 py-4 rounded-2xl pointer-events-auto overflow-hidden"
+                            style={{
+                                background: 'rgba(255,255,255,0.97)',
+                                backdropFilter: 'blur(24px)',
+                                border: '1px solid rgba(251,191,36,0.35)',
+                                boxShadow: '0 8px 32px rgba(251,191,36,0.18), 0 2px 10px rgba(0,0,0,0.08)',
+                                maxWidth: 'calc(100vw - 2rem)',
+                            }}
+                        >
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                                style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>
+                                <span style={{ fontSize: '1rem' }}>⚠️</span>
+                            </div>
+                            <p className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'inherit', fontWeight: 500 }}>
+                                {toast.message}
+                            </p>
+                            <button
+                                onClick={() => setToast(null)}
+                                className="ml-1 text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                                </svg>
+                            </button>
+                            <motion.div
+                                className="absolute bottom-0 left-0 h-[3px]"
+                                style={{ background: 'linear-gradient(90deg, #fbbf24, #f59e0b)' }}
+                                initial={{ width: '100%' }}
+                                animate={{ width: '0%' }}
+                                transition={{ duration: 3, ease: 'linear' }}
+                            />
+                        </motion.div>
                     </div>
-                  </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCreateInviteRoom} className="w-full p-5 rounded-xl text-left transition-all" style={{ background: 'rgba(99,102,241,0.06)', border: '2px solid rgba(99,102,241,0.15)' }}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#FACC15] to-indigo-500"><UserPlus className="w-5 h-5 text-white"/></div>
-                      <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('privateRoom')}</h3><p className="text-slate-400 text-xs">{t('privateRoomDescFull')}</p></div>
-                      <ChevronRight className="w-5 h-5 text-[#FACC15]"/>
-                    </div>
-                  </motion.button>
-                </div>
-                <div className="p-5 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.1)' }}><LogIn className="w-5 h-5 text-emerald-500"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('joinExistingRoom')}</h3><p className="text-slate-400 text-xs">{t('joinWithCode')}</p></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <input type="text" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder={t('enterCodePlaceholder')} maxLength={6} className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 500 }}/>
-                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleJoinRoom} disabled={joinCode.length !== 6} className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode.length === 6 ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} style={{ background: joinCode.length === 6 ? 'linear-gradient(135deg, #34d399, #FACC15)' : 'rgba(0,0,0,0.1)', fontFamily: 'inherit', fontWeight: 600 }}>{t('join')}</motion.button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </>)}
-      </AnimatePresence>
+                )}
+            </AnimatePresence>
 
-      {/* 1v1 Battle Options Modal */}
-      <AnimatePresence>
-        {show1v1Options && (<>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShow1v1Options(false)} className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"/>
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
-              <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.5rem' }}>{t('battle1v1Options')}</h2>
-                  <button onClick={() => setShow1v1Options(false)} className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"><X className="w-5 h-5"/></button>
-                </div>
-                <div className="space-y-3 mb-4">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleRandomMatch1v1} className="w-full p-4 rounded-xl flex items-center gap-4 transition-all text-left" style={{ background: 'rgba(6,182,212,0.06)', border: '2px solid rgba(6,182,212,0.15)' }}>
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)' }}><Zap className="w-6 h-6 text-white"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 600, fontSize: '1rem' }}>{t('randomMatch')}</h3><p className="text-slate-400 text-sm">{t('randomMatchDesc')}</p></div>
-                    <ChevronRight className="w-5 h-5 text-cyan-500"/>
-                  </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleInviteFriend1v1} className="w-full p-4 rounded-xl flex items-center gap-4 transition-all text-left" style={{ background: 'rgba(139,92,246,0.06)', border: '2px solid rgba(139,92,246,0.15)' }}>
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}><UserPlus className="w-6 h-6 text-white"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 600, fontSize: '1rem' }}>{t('inviteFriend')}</h3><p className="text-slate-400 text-sm">{t('inviteFriendDesc')}</p></div>
-                    <ChevronRight className="w-5 h-5 text-violet-400"/>
-                  </motion.button>
-                </div>
-                <div className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.1)' }}><LogIn className="w-5 h-5 text-emerald-500"/></div>
-                    <div className="flex-1"><h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('joinBattle')}</h3><p className="text-slate-400 text-xs">{t('enterBattleCode')}</p></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <input type="text" value={joinCode1v1} onChange={(e) => setJoinCode1v1(e.target.value.toUpperCase())} placeholder={t('enterBattleCode')} maxLength={6} className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 500 }}/>
-                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleJoin1v1} disabled={joinCode1v1.length !== 6} className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode1v1.length === 6 ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} style={{ background: joinCode1v1.length === 6 ? 'linear-gradient(135deg, #34d399, #FACC15)' : 'rgba(0,0,0,0.1)', fontFamily: 'inherit', fontWeight: 600 }}>{t('join')}</motion.button>
-                  </div>
-                </div>
-              </div>
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+                <h1 className="text-[#1A1A2E] text-center mb-2" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.8rem' }}>
+                    {t('chooseBattle')}
+                </h1>
+                <p className="text-slate-500 text-center text-sm">{t('chooseCompete')}</p>
             </motion.div>
-          </>)}
-      </AnimatePresence>
-    </div>);
+
+            {/* Mode Cards */}
+            <div className="grid sm:grid-cols-3 gap-4 mb-10">
+                {modes.map(({ mode, icon, title, desc, badge, badgeColor, activeColor, activeBorder }, i) => {
+                    const isActive = selectedMode === mode;
+                    return (
+                        <motion.button 
+                            key={mode} 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ delay: i * 0.1 }} 
+                            whileHover={{ scale: 1.02, y: -2 }} 
+                            whileTap={{ scale: 0.98 }} 
+                            onClick={() => setSelectedMode(mode)} 
+                            className="relative text-left rounded-2xl p-6 transition-all duration-200" 
+                            style={{
+                                background: isActive ? `${activeColor}08` : 'rgba(255,255,255,0.8)',
+                                backdropFilter: 'blur(20px)',
+                                border: `2px solid ${isActive ? activeBorder : 'rgba(0,0,0,0.06)'}`,
+                                boxShadow: isActive ? '0 4px 20px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.04)',
+                            }}
+                        >
+                            {isActive && (
+                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: activeColor }}>
+                                    <Check className="w-3.5 h-3.5 text-white"/>
+                                </motion.div>
+                            )}
+                            <div className="text-4xl mb-4">{icon}</div>
+                            <span className="text-xs px-2.5 py-1 rounded-full mb-3 inline-block" style={{ background: `${badgeColor}15`, color: badgeColor }}>{badge}</span>
+                            <h3 className="text-[#1A1A2E] mb-2" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{title}</h3>
+                            <p className="text-slate-500 text-sm">{desc}</p>
+                        </motion.button>
+                    );
+                })}
+            </div>
+
+            {/* Category Selection - same as before */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="rounded-2xl p-6 mb-8" style={CARD}>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('knowledgeCategories')}</h2>
+                    <div className="flex gap-2">
+                        <button onClick={() => setSelectedCategories(categories.map(c => c.id))} className="text-xs text-[#FACC15] hover:text-[#4F46E5] transition-colors">{t('all')}</button>
+                        <span className="text-slate-300">·</span>
+                        <button onClick={() => setSelectedCategories([categories[0]?.id].filter(Boolean))} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{t('none')}</button>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {categories.map(({ id, name, nameKm, icon, color, iconColor }) => {
+                        const isSelected = selectedCategories.includes(id);
+                        return (
+                            <motion.button 
+                                key={id} 
+                                whileHover={{ scale: 1.02 }} 
+                                whileTap={{ scale: 0.98 }} 
+                                onClick={() => toggleCategory(id)} 
+                                className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group" 
+                                style={{
+                                    background: isSelected ? 'rgba(250, 204, 21, 0.04)' : 'rgba(0,0,0,0.02)',
+                                    border: isSelected ? '1px solid rgba(250, 204, 21, 0.2)' : '1px solid rgba(0,0,0,0.06)',
+                                }}
+                            >
+                                <div className={`w-8 h-8 rounded-lg bg-black/[0.03] flex items-center justify-center text-sm shadow-sm transition-transform group-hover:scale-110 ${isSelected ? '' : 'opacity-60'}`}>
+                                    <CategoryIcon name={icon} className="w-4 h-4" style={{ color: isSelected ? iconColor : '#94a3b8' }} />
+                                </div>
+                                <span className={`text-sm transition-colors ${isSelected ? 'text-[#1A1A2E]' : 'text-slate-400'}`}>{(lang === 'km' && nameKm) ? nameKm : name}</span>
+                                {isSelected && <Check className="w-3.5 h-3.5 text-[#FACC15] ml-auto"/>}
+                            </motion.button>
+                        );
+                    })}
+                </div>
+                <p className="text-slate-400 text-xs mt-3">{selectedCategories.length} {t('of')} {categories.length} {t('selected')}</p>
+            </motion.div>
+
+            {/* Difficulty Info */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-wrap items-center justify-center gap-3 mb-8 text-sm">
+                {[
+                    { label: `5 ${t('difficultyEasy')}`, bg: 'rgba(52,211,153,0.08)', color: '#FACC15', border: 'rgba(52,211,153,0.15)' },
+                    { label: `5 ${t('difficultyMedium')}`, bg: 'rgba(251,191,36,0.08)', color: '#d97706', border: 'rgba(251,191,36,0.15)' },
+                    { label: `5 ${t('difficultyHard')}`, bg: 'rgba(239,68,68,0.08)', color: '#dc2626', border: 'rgba(239,68,68,0.15)' },
+                ].map(({ label, bg, color, border }) => (
+                    <span key={label} className="px-3.5 py-1.5 rounded-full" style={{ background: bg, color, border: `1px solid ${border}` }}>{label}</span>
+                ))}
+            </motion.div>
+
+            {/* Start Button */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center">
+                <motion.button 
+                    whileHover={selectedMode ? { scale: 1.03 } : {}} 
+                    whileTap={selectedMode ? { scale: 0.97 } : {}} 
+                    onClick={handleStart} 
+                    disabled={!selectedMode} 
+                    className={`px-10 py-4 rounded-2xl text-white text-lg flex items-center gap-3 mx-auto transition-all ${selectedMode ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'}`} 
+                    style={{
+                        background: selectedMode ? 'linear-gradient(135deg, #FACC15, #4F46E5)' : 'rgba(0,0,0,0.1)',
+                        boxShadow: selectedMode ? '0 4px 25px rgba(99,102,241,0.3)' : 'none',
+                        fontFamily: 'inherit', fontWeight: 600,
+                    }}
+                >
+                    {selectedMode === 'Room' 
+                        ? t('chooseRoomOption') 
+                        : selectedMode === '1v1' 
+                            ? t('chooseBattleOption') 
+                            : selectedMode 
+                                ? t('startGameMode').replace('{mode}', t(selectedMode.toLowerCase()) || selectedMode) 
+                                : t('selectMode')}
+                    <ChevronRight className="w-5 h-5"/>
+                </motion.button>
+            </motion.div>
+
+            {/* Room Battle Options Modal - Simplified */}
+            <AnimatePresence>
+                {showRoomOptions && (
+                    <>
+                        <motion.div 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }} 
+                            onClick={() => {
+                                setShowRoomOptions(false);
+                                setJoinCode('');
+                            }} 
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+                            animate={{ opacity: 1, scale: 1, y: 0 }} 
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4"
+                        >
+                            <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.5rem' }}>{t('battleOptions')}</h2>
+                                    <button 
+                                        onClick={() => {
+                                            setShowRoomOptions(false);
+                                            setJoinCode('');
+                                        }} 
+                                        className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"
+                                    >
+                                        <X className="w-5 h-5"/>
+                                    </button>
+                                </div>
+                                <div className="space-y-3 mb-4">
+                                    <motion.button 
+                                        whileHover={{ scale: 1.02 }} 
+                                        whileTap={{ scale: 0.98 }} 
+                                        onClick={handleCreateRandomRoom} 
+                                        className="w-full p-5 rounded-xl text-left transition-all" 
+                                        style={{ background: 'rgba(6,182,212,0.06)', border: '2px solid rgba(6,182,212,0.15)' }}
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600">
+                                                <Shuffle className="w-5 h-5 text-white"/>
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('randomRoom')}</h3>
+                                                <p className="text-slate-400 text-xs">{t('randomRoomDesc')}</p>
+                                            </div>
+                                            <ChevronRight className="w-5 h-5 text-cyan-500"/>
+                                        </div>
+                                    </motion.button>
+                                    <motion.button 
+                                        whileHover={{ scale: 1.02 }} 
+                                        whileTap={{ scale: 0.98 }} 
+                                        onClick={handleCreateInviteRoom} 
+                                        className="w-full p-5 rounded-xl text-left transition-all" 
+                                        style={{ background: 'rgba(99,102,241,0.06)', border: '2px solid rgba(99,102,241,0.15)' }}
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#FACC15] to-indigo-500">
+                                                <UserPlus className="w-5 h-5 text-white"/>
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('privateRoom')}</h3>
+                                                <p className="text-slate-400 text-xs">{t('privateRoomDescFull')}</p>
+                                            </div>
+                                            <ChevronRight className="w-5 h-5 text-[#FACC15]"/>
+                                        </div>
+                                    </motion.button>
+                                </div>
+                                <div className="p-5 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.1)' }}>
+                                            <LogIn className="w-5 h-5 text-emerald-500"/>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('joinExistingRoom')}</h3>
+                                            <p className="text-slate-400 text-xs">{t('joinWithCode')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={joinCode} 
+                                            onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 6))} 
+                                            placeholder={t('enterCodePlaceholder')} 
+                                            maxLength={6} 
+                                            className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" 
+                                            style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 500 }}
+                                        />
+                                        <button 
+                                            onClick={handleJoinRoom} 
+                                            disabled={joinCode.trim().length !== 6 || isNavigating.current} 
+                                            className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode.trim().length === 6 && !isNavigating.current ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} 
+                                            style={{ background: joinCode.trim().length === 6 && !isNavigating.current ? 'linear-gradient(135deg, #34d399, #FACC15)' : 'rgba(0,0,0,0.1)', fontFamily: 'inherit', fontWeight: 600 }}
+                                        >
+                                            {isNavigating.current ? 'Joining...' : t('join')}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* 1v1 Battle Options Modal - Simplified */}
+            <AnimatePresence>
+                {show1v1Options && (
+                    <>
+                        <motion.div 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }} 
+                            onClick={() => {
+                                setShow1v1Options(false);
+                                setJoinCode1v1('');
+                            }} 
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+                            animate={{ opacity: 1, scale: 1, y: 0 }} 
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4"
+                        >
+                            <div className="rounded-2xl p-6 shadow-2xl" style={MODAL_BG}>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '1.5rem' }}>{t('battle1v1Options')}</h2>
+                                    <button 
+                                        onClick={() => {
+                                            setShow1v1Options(false);
+                                            setJoinCode1v1('');
+                                        }} 
+                                        className="p-2 rounded-lg hover:bg-black/5 text-slate-400 hover:text-[#1A1A2E] transition-colors"
+                                    >
+                                        <X className="w-5 h-5"/>
+                                    </button>
+                                </div>
+                                <div className="space-y-3 mb-4">
+                                    <motion.button 
+                                        whileHover={{ scale: 1.02 }} 
+                                        whileTap={{ scale: 0.98 }} 
+                                        onClick={handleRandomMatch1v1} 
+                                        className="w-full p-4 rounded-xl flex items-center gap-4 transition-all text-left" 
+                                        style={{ background: 'rgba(6,182,212,0.06)', border: '2px solid rgba(6,182,212,0.15)' }}
+                                    >
+                                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)' }}>
+                                            <Zap className="w-6 h-6 text-white"/>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 600, fontSize: '1rem' }}>{t('randomMatch')}</h3>
+                                            <p className="text-slate-400 text-sm">{t('randomMatchDesc')}</p>
+                                        </div>
+                                        <ChevronRight className="w-5 h-5 text-cyan-500"/>
+                                    </motion.button>
+                                    <motion.button 
+                                        whileHover={{ scale: 1.02 }} 
+                                        whileTap={{ scale: 0.98 }} 
+                                        onClick={handleInviteFriend1v1} 
+                                        className="w-full p-4 rounded-xl flex items-center gap-4 transition-all text-left" 
+                                        style={{ background: 'rgba(139,92,246,0.06)', border: '2px solid rgba(139,92,246,0.15)' }}
+                                    >
+                                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}>
+                                            <UserPlus className="w-6 h-6 text-white"/>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-[#1A1A2E] mb-1" style={{ fontFamily: 'inherit', fontWeight: 600, fontSize: '1rem' }}>{t('inviteFriend')}</h3>
+                                            <p className="text-slate-400 text-sm">{t('inviteFriendDesc')}</p>
+                                        </div>
+                                        <ChevronRight className="w-5 h-5 text-violet-400"/>
+                                    </motion.button>
+                                </div>
+                                <div className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)' }}>
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.1)' }}>
+                                            <LogIn className="w-5 h-5 text-emerald-500"/>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-[#1A1A2E]" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{t('joinBattle')}</h3>
+                                            <p className="text-slate-400 text-xs">{t('enterBattleCode')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={joinCode1v1} 
+                                            onChange={(e) => setJoinCode1v1(e.target.value.toUpperCase().slice(0, 6))} 
+                                            placeholder={t('enterBattleCode')} 
+                                            maxLength={6} 
+                                            className="flex-1 px-4 py-2.5 rounded-xl text-sm text-[#1A1A2E] placeholder-slate-400" 
+                                            style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', fontFamily: 'inherit', fontWeight: 500 }}
+                                        />
+                                        <button 
+                                            onClick={handleJoin1v1} 
+                                            disabled={joinCode1v1.trim().length !== 6 || isNavigating.current} 
+                                            className={`px-5 py-2.5 rounded-xl text-white text-sm transition-all ${joinCode1v1.trim().length === 6 && !isNavigating.current ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`} 
+                                            style={{ background: joinCode1v1.trim().length === 6 && !isNavigating.current ? 'linear-gradient(135deg, #34d399, #FACC15)' : 'rgba(0,0,0,0.1)', fontFamily: 'inherit', fontWeight: 600 }}
+                                        >
+                                            {isNavigating.current ? 'Joining...' : t('join')}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </div>
+    );
 }

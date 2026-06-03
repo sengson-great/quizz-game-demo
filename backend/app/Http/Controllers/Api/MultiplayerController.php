@@ -37,7 +37,17 @@ class MultiplayerController extends Controller
     {
         try {
             $lobby = $this->service->joinLobby($request->user(), $inviteCode);
-            return $this->successResponse($lobby, 'Joined successfully');
+            
+            $response = [
+                'battle_id' => $lobby['id'] ?? null,
+                'invite_code' => $inviteCode,
+                'player_count' => $lobby['player_count'] ?? 0,
+                'total_needed' => $lobby['player_count'] ?? 0,
+                'players' => $lobby['players'] ?? [],
+                'is_host' => $request->user()->id === ($lobby['host_id'] ?? null)
+            ];
+
+            return $this->successResponse($response, 'Joined successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), (int) $e->getCode() ?: 400);
         }

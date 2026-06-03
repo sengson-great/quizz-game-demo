@@ -613,7 +613,7 @@ export function GameProvider({ children }) {
                 is_private: isPrivate,
                 categories: categories
             });
-            const data = res.data;
+            const data = res.data?.data || res.data;
             const mappedPlayers = (data.players || []).map(p => ({ ...p, avatar: getFixedAvatar(p.id || p.name || p.username, p.avatar) }));
             setGameState({
                 mode: playerCount === 2 ? '1v1' : 'Room',
@@ -635,7 +635,7 @@ export function GameProvider({ children }) {
     const joinBattle = useCallback(async (inviteCode) => {
         try {
             const res = await api.post(`/multiplayer/battle/join/${inviteCode}`);
-            const data = res.data;
+            const data = res.data?.data || res.data;
             const mappedPlayers = (data.players || []).map(p => ({ ...p, avatar: getFixedAvatar(p.id || p.name || p.username, p.avatar) }));
             setGameState({
                 mode: data.total_needed === 2 ? '1v1' : 'Room',
@@ -716,13 +716,17 @@ export function GameProvider({ children }) {
         return () => clearInterval(interval);
     }, [gameState?.lobbyInviteCode, gameState?.status]);
 
-    // Instant leave when tab is closed or hidden — uses keepalive fetch so it survives page unload
+    // Instant leave when tab is closed — uses keepalive fetch so it survives page unload.
+    // IMPORTANT: We use 'pagehide' instead of 'beforeunload' because 'beforeunload' fires
+    // on React Router SPA navigations in WebViews (Capacitor/Android), causing full page reloads.
     useEffect(() => {
         if (!gameState?.lobbyInviteCode || gameState.status !== 'matchmaking') return;
 
         const inviteCode = gameState.lobbyInviteCode;
 
-        const sendLeave = () => {
+        const sendLeave = (e) => {
+            // 'pagehide' persisted=false means actual close; persisted=true means bfcache (back/forward)
+            // We send leave in both cases to be safe, but only if the page is truly unloading
             const token = localStorage.getItem('auth_token');
             // VITE_API_BASE_URL is already '/api', so don't append '/api' again
             const apiBase = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
@@ -738,12 +742,14 @@ export function GameProvider({ children }) {
             }).catch(() => {});
         };
 
-        // Only fire on actual close/refresh — NOT on tab switch (visibilitychange fires on tab switch too)
-        window.addEventListener('beforeunload', sendLeave);
-        return () => window.removeEventListener('beforeunload', sendLeave);
+        // Use 'pagehide' — it only fires on actual page unload, NOT on SPA/history navigations
+        window.addEventListener('pagehide', sendLeave);
+        return () => window.removeEventListener('pagehide', sendLeave);
     }, [gameState?.lobbyInviteCode, gameState?.status]);
 
-    // Broadcast player_left on tab close or refresh during an active match
+    // Broadcast player_left on tab close during an active match.
+    // Use 'pagehide' instead of 'beforeunload' to avoid triggering on SPA navigations
+    // in WebViews (Capacitor/Android) which can cause unintended full page reloads.
     useEffect(() => {
         if (!gameState?.matchId || gameState.status !== 'active') return;
 
@@ -768,8 +774,9 @@ export function GameProvider({ children }) {
             }).catch(() => {});
         };
 
-        window.addEventListener('beforeunload', sendPlayerLeft);
-        return () => window.removeEventListener('beforeunload', sendPlayerLeft);
+        // Use 'pagehide' — it only fires on actual page unload, NOT on SPA/history navigations
+        window.addEventListener('pagehide', sendPlayerLeft);
+        return () => window.removeEventListener('pagehide', sendPlayerLeft);
     }, [gameState?.matchId, gameState?.status]);
 
     return (

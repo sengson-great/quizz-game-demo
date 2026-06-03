@@ -25,7 +25,10 @@ export default function SmallRoomLobbyPage() {
 
     // Handle joining via invite code passed from ModeSelectPage
     useEffect(() => {
-        const joinCode = location.state?.joinCode;
+        const queryParams = new URLSearchParams(location.search);
+        const urlCode = queryParams.get('code');
+        const joinCode = location.state?.joinCode || urlCode;
+
         if (!joinCode || (gameState && gameState.lobbyInviteCode === joinCode)) {
             setJoining(false);
             return;
@@ -42,14 +45,37 @@ export default function SmallRoomLobbyPage() {
             });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => { if (!gameState || (gameState.mode !== 'Room' && gameState.mode !== 'battle')) {
-        if (joining) return; // still joining, don't redirect yet
-        navigate('/mode-select');
-        return;
-    } if (!currentUser) {
-        navigate('/auth');
-        return;
-    } }, [gameState, currentUser, navigate, joining]);
+    useEffect(() => {
+        if (joining || joinError) return;
+        
+        const queryParams = new URLSearchParams(location.search);
+        const urlCode = queryParams.get('code');
+        const joinCode = location.state?.joinCode || urlCode;
+
+        if (!gameState) {
+            if (joinCode) return; // Wait for GameContext to propagate
+            navigate('/mode-select');
+            return;
+        }
+
+        // Guard against stale state kicking user out immediately after joining
+        if (!joinCode || gameState.lobbyInviteCode === joinCode) {
+            if (gameState.mode === '1v1' || gameState.mode === 'battle') {
+                navigate('/battle-lobby', { replace: true, state: { joinCode: gameState.lobbyInviteCode } });
+                return;
+            }
+
+            if (gameState.mode !== 'Room' && gameState.lobbyInviteCode !== joinCode) {
+                navigate('/mode-select');
+                return;
+            }
+        }
+
+        if (!currentUser) {
+            navigate('/auth');
+            return;
+        }
+    }, [gameState?.mode, gameState?.lobbyInviteCode, currentUser, navigate, joining, joinError, location.state?.joinCode]);
 
     // Navigate when game starts
     useEffect(() => { if (gameState?.status === 'active') {
@@ -67,7 +93,39 @@ export default function SmallRoomLobbyPage() {
     const handleStart = () => { if (!gameState?.isHost) return; startSmallRoomGame(); };
     const handleLeave = () => { resetGame(); navigate('/mode-select'); };
 
-    if (!gameState || !currentUser) return null;
+    if (!gameState || !currentUser) {
+        if (joining || joinError) {
+            return (
+                <div className="min-h-screen px-4 py-10" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
+                    <AnimatePresence>
+                        {joining && (
+                            <motion.div 
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md"
+                            >
+                                <div className="text-center">
+                                    <Loader2 className="w-16 h-16 text-[#FACC15] animate-spin mx-auto mb-4" strokeWidth={3} />
+                                    <p className="text-[#1A1A2E] font-black uppercase tracking-widest">{t('joiningRoom')}</p>
+                                </div>
+                            </motion.div>
+                        )}
+                        {joinError && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                                className="fixed top-20 left-1/2 -translate-x-1/2 z-[101] w-full max-w-sm px-4"
+                            >
+                                <div className="bg-red-50 border-3 border-black text-red-600 px-6 py-4 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
+                                    <span className="text-xl">⚠️</span>
+                                    <p className="font-black uppercase tracking-tight">{joinError}</p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+        return null;
+    }
 
     const isHost = gameState.isHost;
     const lobbyPlayers = gameState.lobbyPlayers || [];
@@ -79,32 +137,6 @@ export default function SmallRoomLobbyPage() {
       <div className="fixed z-40" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}>
           <ReturnButton context="lobby"/>
       </div>
-      
-      <AnimatePresence>
-        {joining && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md"
-          >
-            <div className="text-center">
-              <Loader2 className="w-16 h-16 text-[#FACC15] animate-spin mx-auto mb-4" strokeWidth={3} />
-              <p className="text-[#1A1A2E] font-black uppercase tracking-widest">{t('joiningRoom')}</p>
-            </div>
-          </motion.div>
-        )}
-
-        {joinError && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-[101] w-full max-w-sm px-4"
-          >
-            <div className="bg-red-50 border-3 border-black text-red-600 px-6 py-4 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
-              <span className="text-xl">⚠️</span>
-              <p className="font-black uppercase tracking-tight">{joinError}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.1]" style={{ background: 'radial-gradient(circle, rgba(250, 204, 21, 0.2), transparent)', filter: 'blur(100px)' }}/>

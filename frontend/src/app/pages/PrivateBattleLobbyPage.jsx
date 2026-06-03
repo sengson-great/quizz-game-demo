@@ -29,7 +29,10 @@ export default function PrivateBattleLobbyPage() {
 
     // Handle joining via invite code passed from ModeSelectPage
     useEffect(() => {
-        const joinCode = location.state?.joinCode;
+        const queryParams = new URLSearchParams(location.search);
+        const urlCode = queryParams.get('code');
+        const joinCode = location.state?.joinCode || urlCode;
+        
         if (!joinCode || (gameState && gameState.lobbyInviteCode === joinCode)) {
             setJoining(false);
             return;
@@ -47,11 +50,31 @@ export default function PrivateBattleLobbyPage() {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (!gameState || (gameState.mode !== '1v1' && gameState.mode !== 'battle')) {
-            if (joining) return;
+        if (joining || joinError) return;
+        
+        const queryParams = new URLSearchParams(location.search);
+        const urlCode = queryParams.get('code');
+        const joinCode = location.state?.joinCode || urlCode;
+
+        if (!gameState) {
+            if (joinCode) return; // Wait for GameContext to propagate
             navigate('/mode-select');
             return;
         }
+        
+        // Guard against stale state kicking user out immediately after joining
+        if (!joinCode || gameState.lobbyInviteCode === joinCode) {
+            if (gameState.mode === 'Room') {
+                navigate('/lobby', { replace: true, state: { joinCode: gameState.lobbyInviteCode } });
+                return;
+            }
+
+            if (gameState.mode !== '1v1' && gameState.mode !== 'battle' && gameState.lobbyInviteCode !== joinCode) {
+                navigate('/mode-select');
+                return;
+            }
+        }
+
         if (!currentUser) {
             navigate('/auth');
             return;
@@ -60,7 +83,7 @@ export default function PrivateBattleLobbyPage() {
             setSwitchedToRandom(true);
             setSearchingRandom(true);
         }
-    }, [gameState?.mode, currentUser, navigate, joining]);
+    }, [gameState?.mode, gameState?.lobbyInviteCode, currentUser, navigate, joining, joinError, location.state?.joinCode]);
 
     useEffect(() => {
         if (gameState?.status === 'active') {
@@ -91,7 +114,39 @@ export default function PrivateBattleLobbyPage() {
     const handleStart = () => { if (!gameState?.isHost || (gameState.lobbyPlayers?.length || 0) < 2) return; startBattle(); };
     const handleCancel = () => { resetGame(); navigate('/mode-select', { state: { preMode: '1v1' } }); };
 
-    if (!gameState || !currentUser) return null;
+    if (!gameState || !currentUser) {
+        if (joining || joinError) {
+            return (
+                <div className="min-h-screen px-4 py-10" style={{ background: LIGHT_BG, fontFamily: 'inherit' }}>
+                    <AnimatePresence>
+                        {joining && (
+                            <motion.div 
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md"
+                            >
+                                <div className="text-center">
+                                    <div className="w-16 h-16 border-4 border-[#FACC15] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                                    <p className="text-[#1A1A2E] font-semibold">{t('joiningBattle')}</p>
+                                </div>
+                            </motion.div>
+                        )}
+                        {joinError && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                                className="fixed top-20 left-1/2 -translate-x-1/2 z-[101] w-full max-w-sm px-4"
+                            >
+                                <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3">
+                                    <AlertCircle className="w-6 h-6 flex-shrink-0" />
+                                    <p className="font-semibold text-sm">{joinError}</p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+        return null;
+    }
 
     const lobbyPlayers = gameState.lobbyPlayers || [];
     const opponent = lobbyPlayers.find(p => p.id !== currentUser.id);
@@ -103,32 +158,6 @@ export default function PrivateBattleLobbyPage() {
       <div className="fixed z-40" style={{ top: 'calc(1.5rem + var(--safe-area-top))', left: 'calc(1.5rem + var(--safe-area-left))' }}>
           <ReturnButton context="lobby"/>
       </div>
-      
-      <AnimatePresence>
-        {joining && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md"
-          >
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[#FACC15] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-[#1A1A2E] font-semibold">{t('joiningBattle')}</p>
-            </div>
-          </motion.div>
-        )}
-
-        {joinError && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-[101] w-full max-w-sm px-4"
-          >
-            <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3">
-              <AlertCircle className="w-6 h-6"/>
-              <p className="font-medium">{joinError}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.2]" style={{ background: 'radial-gradient(circle, rgba(250, 204, 21, 0.03), transparent)', filter: 'blur(100px)' }}/>
