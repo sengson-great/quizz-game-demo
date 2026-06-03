@@ -350,7 +350,7 @@ export default function MatchmakingPage() {
                                 </motion.div>
                             )}
 
-                            <div className="flex items-center justify-center gap-6 sm:gap-20 mt-10 sm:mt-24">
+                            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 mt-10 sm:mt-16 max-w-full px-4">
                                 {allPlayers.map((p, i) => (
                                     <motion.div 
                                         key={i} 
