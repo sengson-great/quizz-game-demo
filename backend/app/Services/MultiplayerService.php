@@ -492,8 +492,12 @@ class MultiplayerService
             'started_at' => now()
         ]);
         
-        Cache::forget("battle_lobby_{$inviteCode}");
-        Cache::forget("battle_lobby_id_{$lobby['id']}");
+        // Keep the lobby in cache with a status of 'starting' and store the match_id
+        // so that players polling the lobby can discover the match has started.
+        $lobby['status'] = 'starting';
+        $lobby['match_id'] = $matchId;
+        Cache::put("battle_lobby_{$inviteCode}", $lobby, now()->addMinutes(2));
+        Cache::put("battle_lobby_id_{$lobby['id']}", $inviteCode, now()->addMinutes(2));
         
         foreach ($players as $index => $player) {
             $otherPlayers = array_values(array_filter($players, fn($p) => $p['id'] !== $player['id']));

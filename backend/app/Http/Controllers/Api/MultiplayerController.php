@@ -68,7 +68,8 @@ class MultiplayerController extends Controller
             'needed' => $lobby['player_count'] - count($lobby['players']),
             'total_needed' => $lobby['player_count'],
             'status' => $lobby['status'],
-            'is_host' => $request->user()->id === $lobby['host_id']
+            'is_host' => $request->user()->id === $lobby['host_id'],
+            'match_id' => $lobby['match_id'] ?? null,
         ]);
     }
 

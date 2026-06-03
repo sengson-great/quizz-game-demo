@@ -716,6 +716,61 @@ export function GameProvider({ children }) {
         return () => clearInterval(interval);
     }, [gameState?.lobbyInviteCode, gameState?.status]);
 
+    // Polling loop to keep lobby player list updated and detect game start (WebSocket fallback)
+    useEffect(() => {
+        if (!gameState?.lobbyInviteCode || gameState.status !== 'matchmaking') return;
+        
+        const inviteCode = gameState.lobbyInviteCode;
+        
+        const interval = setInterval(async () => {
+            try {
+                const res = await api.get(`/multiplayer/battle/lobby/${inviteCode}`);
+                const data = res.data?.data || res.data;
+                if (data) {
+                    // 1. If game has started and match_id is available, transition to active game state
+                    if ((data.status === 'starting' || data.status === 'started' || data.status === 'active') && data.match_id) {
+                        clearInterval(interval);
+                        await initGame('battle', data.match_id, [], true);
+                        setGameState(prev => prev ? { ...prev, status: 'active' } : prev);
+                        return;
+                    }
+
+                    // 2. Otherwise update local player list and host status if changed
+                    const mappedPlayers = (data.players || []).map(p => ({
+                        ...p,
+                        avatar: getFixedAvatar(p.id || p.name || p.username, p.avatar)
+                    }));
+
+                    setGameState(prev => {
+                        if (!prev || prev.lobbyInviteCode !== inviteCode) return prev;
+                        
+                        let newIsHost = prev.isHost;
+                        if (data.host?.id) {
+                            newIsHost = currentUser?.id === data.host.id;
+                        }
+
+                        const playersChanged = JSON.stringify(prev.lobbyPlayers) !== JSON.stringify(mappedPlayers);
+                        const hostChanged = prev.isHost !== newIsHost;
+
+                        if (playersChanged || hostChanged) {
+                            return {
+                                ...prev,
+                                lobbyPlayers: mappedPlayers,
+                                isHost: newIsHost,
+                                roomSize: data.total_needed ?? prev.roomSize
+                            };
+                        }
+                        return prev;
+                    });
+                }
+            } catch (err) {
+                // Ignore errors (e.g. temporary connection drop or lobby not found during transition)
+            }
+        }, 2500);
+
+        return () => clearInterval(interval);
+    }, [gameState?.lobbyInviteCode, gameState?.status, currentUser, initGame, setGameState]);
+
     // Instant leave when tab is closed — uses keepalive fetch so it survives page unload.
     // IMPORTANT: We use 'pagehide' instead of 'beforeunload' because 'beforeunload' fires
     // on React Router SPA navigations in WebViews (Capacitor/Android), causing full page reloads.
