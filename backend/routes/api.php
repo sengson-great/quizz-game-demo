@@ -16,28 +16,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-Route::get('/debug-deploy', function() {
-    try {
-        \Illuminate\Support\Facades\Cache::put('deploy_test_key', 'hello_world', 10);
-        $cacheVal = \Illuminate\Support\Facades\Cache::get('deploy_test_key');
-        $cacheStatus = ($cacheVal === 'hello_world') ? 'working' : 'failed';
-    } catch (\Exception $e) {
-        $cacheStatus = 'error: ' . $e->getMessage();
-    }
-    return response()->json([
-        'status' => 'ok',
-        'time' => date('Y-m-d H:i:s'),
-        'git_commit' => @exec('git log -n 1 --oneline') ?: 'unknown',
-        'app_env' => env('APP_ENV'),
-        'cache_driver' => env('CACHE_STORE', env('CACHE_DRIVER') ?: config('cache.default')),
-        'cache_status' => $cacheStatus,
-        'broadcast_connection' => env('BROADCAST_CONNECTION') ?: config('broadcasting.default'),
-        'session_driver' => env('SESSION_DRIVER') ?: config('session.driver'),
-        'db_connection' => env('DB_CONNECTION') ?: config('database.default'),
-        'db_database' => env('DB_DATABASE'),
-    ]);
-});
-
 // Explicitly register broadcast routes for API/Passport
 \Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth:api']]);
 
