@@ -9,7 +9,7 @@ class IsAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->user() || $request->user()->role !== 'admin') {
+        if (!$request->user() || \Illuminate\Support\Facades\Gate::denies('admin-only')) {
             return response()->json(['message' => 'Forbidden. Admins only.'], 403);
         }
 

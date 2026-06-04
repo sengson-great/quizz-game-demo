@@ -79,6 +79,7 @@ export default defineConfig({
 
     hmr: {
       host: 'parlerbien.xyz',
+      clientPort: 443,
     },
 
     proxy: {

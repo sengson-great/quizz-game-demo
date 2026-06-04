@@ -10,23 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class GameService
 {
-    private $prizeLadder = [
-        1 => 500,
-        2 => 1000,
-        3 => 2000,
-        4 => 3000,
-        5 => 5000,
-        6 => 7500,
-        7 => 10000,
-        8 => 12500,
-        9 => 15000,
-        10 => 25000,
-        11 => 50000,
-        12 => 100000,
-        13 => 250000,
-        14 => 500000,
-        15 => 1000000
-    ];
 
     public function createSession($user, $matchId = null, $categoryIds = null)
     {

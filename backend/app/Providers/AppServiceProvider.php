@@ -8,6 +8,8 @@ use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Laravel\Passport\Passport;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
 
         ResetPassword::createUrlUsing(function ($user, string $token) {
             return config('app.frontend_url').'/password-reset?token='.$token.'&email='.$user->email;
+        });
+
+        Gate::define('admin-only', function (User $user) {
+            return $user->isAdmin();
         });
     }
 }

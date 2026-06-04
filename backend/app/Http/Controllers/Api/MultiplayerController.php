@@ -14,6 +14,7 @@ class MultiplayerController extends Controller
     public function __construct(protected MultiplayerService $service) {}
 
     #[OA\Post(path: "/multiplayer/battle/create", summary: "Create a new battle lobby", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Battle lobby created successfully")]
     public function createBattle(Request $request)
     {
         $request->validate([
@@ -33,6 +34,8 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/battle/join/{inviteCode}", summary: "Join a battle lobby", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Joined lobby successfully")]
+    #[OA\Response(response: 400, description: "Failed to join lobby")]
     public function joinBattle(Request $request, $inviteCode)
     {
         try {
@@ -54,6 +57,8 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Get(path: "/multiplayer/battle/lobby/{inviteCode}", summary: "Get battle lobby details", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Lobby details retrieved")]
+    #[OA\Response(response: 404, description: "Lobby not found")]
     public function getBattleLobby(Request $request, $inviteCode)
     {
         $lobby = \Illuminate\Support\Facades\Cache::get("battle_lobby_{$inviteCode}");
@@ -74,6 +79,8 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/battle/ready/{inviteCode}", summary: "Set player ready status", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Ready status updated successfully")]
+    #[OA\Response(response: 400, description: "Failed to update ready status")]
     public function setReady(Request $request, $inviteCode)
     {
         $request->validate(['ready' => 'required|boolean']);
@@ -86,6 +93,8 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/battle/start/{inviteCode}", summary: "Start the battle (host only)", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Battle started successfully")]
+    #[OA\Response(response: 400, description: "Failed to start battle")]
     public function startBattle(Request $request, $inviteCode)
     {
         try {
@@ -97,6 +106,7 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/battle/leave/{inviteCode}", summary: "Leave battle lobby", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Left lobby successfully")]
     public function leaveBattle(Request $request, $inviteCode)
     {
         $this->service->leaveLobby($request->user(), $inviteCode);
@@ -104,6 +114,7 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/battle/ping/{inviteCode}", summary: "Send heartbeat to keep presence in lobby", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Presence heartbeat received")]
     public function pingLobby(Request $request, $inviteCode)
     {
         $this->service->pingLobby($request->user(), $inviteCode);
@@ -111,6 +122,7 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/matchmake", summary: "Enter 1v1 matchmaking", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Matchmaking queue entered")]
     public function matchmake(Request $request)
     {
         $request->validate([
@@ -122,6 +134,8 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/action", summary: "Send game action to other players", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Action broadcasted successfully")]
+    #[OA\Response(response: 500, description: "Failed to broadcast action")]
     public function sendAction(Request $request)
     {
         $request->validate([
@@ -171,6 +185,7 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Post(path: "/multiplayer/cancel-matchmake", summary: "Cancel 1v1 matchmaking", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Matchmaking queue cancelled")]
     public function cancelMatchmake(Request $request)
     {
         $user = $request->user();
@@ -192,6 +207,7 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Get(path: "/multiplayer/scores/{matchId}", summary: "Get all scores and statuses for a match", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Scores and player session statuses")]
     public function getScores($matchId)
     {
         $sessions = \App\Models\GameSession::where('match_id', $matchId)
@@ -215,6 +231,7 @@ class MultiplayerController extends Controller
      * a match is found, so the other player can discover it by polling this endpoint.
      */
     #[OA\Get(path: "/multiplayer/match-status", summary: "Poll for match status (WebSocket fallback)", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Poll response for matchmaking queue status")]
     public function matchStatus(Request $request)
     {
         $user = $request->user();
@@ -240,6 +257,7 @@ class MultiplayerController extends Controller
     }
 
     #[OA\Get(path: "/multiplayer/debug/match/{matchId}", summary: "Debug match payload", tags: ["Multiplayer"])]
+    #[OA\Response(response: 200, description: "Debug match payload info")]
     public function debugMatch($matchId)
     {
         $match = GameMatch::find($matchId);

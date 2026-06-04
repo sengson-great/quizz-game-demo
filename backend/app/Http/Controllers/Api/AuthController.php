@@ -127,6 +127,8 @@ class AuthController extends Controller
     }
 
     #[OA\Post(path: "/forgot-password", summary: "Send password reset link", tags: ["Authentication"])]
+    #[OA\Response(response: 200, description: "Password reset link sent successfully")]
+    #[OA\Response(response: 422, description: "Validation error")]
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -141,6 +143,8 @@ class AuthController extends Controller
     }
 
     #[OA\Post(path: "/reset-password", summary: "Reset password with token", tags: ["Authentication"])]
+    #[OA\Response(response: 200, description: "Password has been reset successfully")]
+    #[OA\Response(response: 422, description: "Validation error")]
     public function resetPassword(Request $request)
     {
         $request->validate([

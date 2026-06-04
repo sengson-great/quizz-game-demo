@@ -135,6 +135,66 @@
                         "description": "User profile data"
                     }
                 }
+            },
+            "put": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Update current user profile",
+                "operationId": "5c4370b04de069d196077b185063eb82",
+                "responses": {
+                    "200": {
+                        "description": "Updated user profile"
+                    }
+                }
+            }
+        },
+        "/me/stats": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get current user's game stats and history",
+                "operationId": "ac55eb79cfdda9233883a74331c04ca4",
+                "responses": {
+                    "200": {
+                        "description": "Aggregated stats and recent games"
+                    }
+                }
+            }
+        },
+        "/forgot-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Send password reset link",
+                "operationId": "f46fe87b31c0dadd30642d353886e6f1",
+                "responses": {
+                    "200": {
+                        "description": "Password reset link sent successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/reset-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reset password with token",
+                "operationId": "f93180f97c46f79e028b188d8763b2e1",
+                "responses": {
+                    "200": {
+                        "description": "Password has been reset successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
             }
         },
         "/admin/categories": {
@@ -489,7 +549,7 @@
                 "operationId": "5e41702f56aaaec9b321d4d648095413",
                 "responses": {
                     "200": {
-                        "description": "List of top 10 players"
+                        "description": "List of top players"
                     }
                 }
             }
@@ -514,34 +574,10 @@
                     "Multiplayer"
                 ],
                 "summary": "Create a new battle lobby",
-                "description": "Create a new battle lobby (for battle mode)",
                 "operationId": "49b335e5e1c6dd8f0d40aef9da9c9097",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "player_count"
-                                ],
-                                "properties": {
-                                    "player_count": {
-                                        "type": "integer",
-                                        "example": 4
-                                    },
-                                    "is_private": {
-                                        "type": "boolean",
-                                        "example": true
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
-                        "description": "Battle lobby created"
+                        "description": "Battle lobby created successfully"
                     }
                 }
             }
@@ -552,22 +588,13 @@
                     "Multiplayer"
                 ],
                 "summary": "Join a battle lobby",
-                "description": "Join a battle using invite code",
                 "operationId": "d3a1c6996e869dedbe28face740051f8",
-                "parameters": [
-                    {
-                        "name": "inviteCode",
-                        "in": "path",
-                        "description": "6-character invite code",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Joined successfully"
+                        "description": "Joined lobby successfully"
                     },
-                    "404": {
-                        "description": "Lobby not found"
+                    "400": {
+                        "description": "Failed to join lobby"
                     }
                 }
             }
@@ -578,19 +605,10 @@
                     "Multiplayer"
                 ],
                 "summary": "Get battle lobby details",
-                "description": "Get battle lobby info",
                 "operationId": "2f97de207eb69341373d842648d57546",
-                "parameters": [
-                    {
-                        "name": "inviteCode",
-                        "in": "path",
-                        "description": "6-character invite code",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Lobby details"
+                        "description": "Lobby details retrieved"
                     },
                     "404": {
                         "description": "Lobby not found"
@@ -604,38 +622,13 @@
                     "Multiplayer"
                 ],
                 "summary": "Set player ready status",
-                "description": "Set player ready status",
                 "operationId": "9280aa6a4ae15d7e1f3af9d0e1be7ee8",
-                "parameters": [
-                    {
-                        "name": "inviteCode",
-                        "in": "path",
-                        "description": "6-character invite code",
-                        "required": true
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "ready"
-                                ],
-                                "properties": {
-                                    "ready": {
-                                        "type": "boolean",
-                                        "example": true
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
-                        "description": "Ready status updated"
+                        "description": "Ready status updated successfully"
+                    },
+                    "400": {
+                        "description": "Failed to update ready status"
                     }
                 }
             }
@@ -646,25 +639,13 @@
                     "Multiplayer"
                 ],
                 "summary": "Start the battle (host only)",
-                "description": "Start the battle (host only)",
                 "operationId": "84fa31091d24a5c6a5c11b860c726585",
-                "parameters": [
-                    {
-                        "name": "inviteCode",
-                        "in": "path",
-                        "description": "6-character invite code",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Battle started"
+                        "description": "Battle started successfully"
                     },
                     "400": {
-                        "description": "Not enough players"
-                    },
-                    "403": {
-                        "description": "Not host"
+                        "description": "Failed to start battle"
                     }
                 }
             }
@@ -675,19 +656,24 @@
                     "Multiplayer"
                 ],
                 "summary": "Leave battle lobby",
-                "description": "Leave battle lobby",
                 "operationId": "1bddc527f8addc44e73e9b6c8107c4c0",
-                "parameters": [
-                    {
-                        "name": "inviteCode",
-                        "in": "path",
-                        "description": "6-character invite code",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Left successfully"
+                        "description": "Left lobby successfully"
+                    }
+                }
+            }
+        },
+        "/multiplayer/battle/ping/{inviteCode}": {
+            "post": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Send heartbeat to keep presence in lobby",
+                "operationId": "8d135a1c8030eae264a86ea4fda1e6ab",
+                "responses": {
+                    "200": {
+                        "description": "Presence heartbeat received"
                     }
                 }
             }
@@ -698,30 +684,10 @@
                     "Multiplayer"
                 ],
                 "summary": "Enter 1v1 matchmaking",
-                "description": "Original 1v1 matchmaking (keep as is)",
                 "operationId": "06a1ed5cdd617fa14e65e574934e5548",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "mode"
-                                ],
-                                "properties": {
-                                    "mode": {
-                                        "type": "string",
-                                        "example": "1v1"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
-                        "description": "Match found or queued"
+                        "description": "Matchmaking queue entered"
                     }
                 }
             }
@@ -732,42 +698,13 @@
                     "Multiplayer"
                 ],
                 "summary": "Send game action to other players",
-                "description": "Send game action to other players in the match",
                 "operationId": "553b8db3e76fc035f0f4eb87886d7182",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "match_id",
-                                    "action_type",
-                                    "payload"
-                                ],
-                                "properties": {
-                                    "match_id": {
-                                        "type": "string",
-                                        "example": "uuid"
-                                    },
-                                    "action_type": {
-                                        "type": "string",
-                                        "example": "score_update"
-                                    },
-                                    "payload": {
-                                        "type": "object",
-                                        "example": {
-                                            "score": 500
-                                        }
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
-                        "description": "Action sent"
+                        "description": "Action broadcasted successfully"
+                    },
+                    "500": {
+                        "description": "Failed to broadcast action"
                     }
                 }
             }
@@ -778,11 +715,10 @@
                     "Multiplayer"
                 ],
                 "summary": "Cancel 1v1 matchmaking",
-                "description": "Cancel matchmaking (1v1 only)",
                 "operationId": "5b6dc2b95e6d72348a488dee14a06145",
                 "responses": {
                     "200": {
-                        "description": "Matchmaking cancelled"
+                        "description": "Matchmaking queue cancelled"
                     }
                 }
             }
@@ -792,20 +728,26 @@
                 "tags": [
                     "Multiplayer"
                 ],
-                "summary": "Get all scores for a match",
-                "description": "HTTP Fallback: Get all scores for a match",
+                "summary": "Get all scores and statuses for a match",
                 "operationId": "3e9b526906b940ecc78545ea1afc3831",
-                "parameters": [
-                    {
-                        "name": "matchId",
-                        "in": "path",
-                        "description": "Match UUID",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Scores dictionary"
+                        "description": "Scores and player session statuses"
+                    }
+                }
+            }
+        },
+        "/multiplayer/match-status": {
+            "get": {
+                "tags": [
+                    "Multiplayer"
+                ],
+                "summary": "Poll for match status (WebSocket fallback)",
+                "description": "HTTP polling fallback: let the queued player check if they've been matched.\nThe `matchmake` endpoint stores a `user_matched_<userId>` cache entry when\na match is found, so the other player can discover it by polling this endpoint.",
+                "operationId": "b106b74d497a816b142c8c686dc253bb",
+                "responses": {
+                    "200": {
+                        "description": "Poll response for matchmaking queue status"
                     }
                 }
             }
@@ -816,19 +758,10 @@
                     "Multiplayer"
                 ],
                 "summary": "Debug match payload",
-                "description": "Debug: View match payload",
                 "operationId": "319afb33c1e8a9d0b393b8ce66d407e8",
-                "parameters": [
-                    {
-                        "name": "matchId",
-                        "in": "path",
-                        "description": "Match UUID",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Match details"
+                        "description": "Debug match payload info"
                     }
                 }
             }
@@ -1043,6 +976,26 @@
             "bearerAuth": {
                 "type": "http",
                 "scheme": "bearer"
+            },
+            "passport": {
+                "type": "oauth2",
+                "description": "Laravel passport oauth2 security.",
+                "in": "header",
+                "scheme": "https",
+                "flows": {
+                    "password": {
+                        "authorizationUrl": "http://127.0.0.1:8001/oauth/authorize",
+                        "tokenUrl": "http://127.0.0.1:8001/oauth/token",
+                        "refreshUrl": "http://127.0.0.1:8001/token/refresh",
+                        "scopes": []
+                    }
+                }
+            },
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     },

@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Services\GameService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
+use Illuminate\Support\Facades\Gate;
 
 class GameController extends Controller
 {
@@ -74,8 +75,7 @@ class GameController extends Controller
     public function show(GameSession $session)
     {
         // Add authorization check
-        if ($session->user_id !== request()->user()->id)
-            abort(403);
+        Gate::authorize('view', $session);
 
         return response()->json([
             'session' => $session,
@@ -97,8 +97,7 @@ class GameController extends Controller
     #[OA\Response(response: 403, description: "Forbidden")]
     public function answer(Request $request, GameSession $session)
     {
-        if ($session->user_id !== request()->user()->id)
-            abort(403);
+        Gate::authorize('update', $session);
         if ($session->status !== 'active')
             return response()->json(['error' => 'Game ended'], 400);
 
@@ -138,8 +137,7 @@ class GameController extends Controller
     #[OA\Response(response: 403, description: "Forbidden")]
     public function lifeline(Request $request, GameSession $session)
     {
-        if ($session->user_id !== request()->user()->id)
-            abort(403);
+        Gate::authorize('update', $session);
         $type = $request->input('type');
         $questionId = $request->input('question_id');
 
