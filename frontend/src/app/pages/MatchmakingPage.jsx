@@ -350,14 +350,14 @@ export default function MatchmakingPage() {
                                 </motion.div>
                             )}
 
-                            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 mt-10 sm:mt-16 max-w-full px-4">
+                            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-12 mt-10 sm:mt-16 w-full px-2 sm:px-4">
                                 {allPlayers.map((p, i) => (
                                     <motion.div 
                                         key={i} 
                                         initial={{ opacity: 0, x: i === 0 ? -100 : 100, rotate: i === 0 ? -15 : 15 }} 
                                         animate={{ opacity: 1, x: 0, rotate: 0 }} 
                                         transition={{ delay: 0.6 + i * 0.3, type: 'spring', bounce: 0.5 }} 
-                                        className="flex flex-col items-center gap-4 sm:gap-8 group"
+                                        className="flex flex-col items-center gap-3 sm:gap-8 group min-w-[90px]"
                                     >
                                         <div className="relative">
                                             {p.isYou && (
@@ -382,8 +382,8 @@ export default function MatchmakingPage() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="px-4 py-1.5 sm:px-8 sm:py-3 rounded-full bg-white border-3 sm:border-4 border-black shadow-[3px_3px_0px_0px_#000000] sm:shadow-[4px_4px_0px_0px_#000000]">
-                                            <p className={`text-xs sm:text-3xl font-black uppercase tracking-widest ${p.isYou ? 'text-[#FACC15] drop-shadow-[1px_1px_0px_#000000]' : 'text-black'}`}>
+                                        <div className="px-2 py-1.5 sm:px-8 sm:py-3 rounded-full bg-white border-3 sm:border-4 border-black shadow-[3px_3px_0px_0px_#000000] sm:shadow-[4px_4px_0px_0px_#000000] max-w-[100px] sm:max-w-[240px] w-full overflow-hidden">
+                                            <p className={`text-[10px] sm:text-3xl font-black uppercase tracking-widest truncate text-center ${p.isYou ? 'text-[#FACC15] drop-shadow-[1px_1px_0px_#000000]' : 'text-black'}`}>
                                                 {p.isYou ? t('youUpper') : p.username}
                                             </p>
                                         </div>
