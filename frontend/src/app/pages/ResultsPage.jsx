@@ -98,9 +98,7 @@ export default function ResultsPage() {
         { 
             name: currentUser.username, 
             avatar: currentUser.avatar, 
-            score: gameState?.playerSurrendered 
-                ? Math.max(0, (gameState?.playerScore || 0) - 2000) 
-                : (gameState?.playerScore || 0), 
+            score: gameState?.playerScore || 0, 
             isPlayer: true 
         }, 
         ...(gameState?.opponents || []).map(o => ({ 
@@ -114,9 +112,8 @@ export default function ResultsPage() {
                 const dbScore   = finalMatchScores[o.id]   ?? finalMatchScores[String(o.id)];
                 const forfeited = o.left || dbStatus === 'failed';
                 if (forfeited) {
-                    // DB score already has the -2,000 penalty. Fall back to applying it
-                    // manually if the API response hasn't arrived yet.
-                    return dbScore != null ? dbScore : Math.max(0, (o.score || 0) - 2000);
+                    // Use DB score for surrendered opponents (score is saved at time of surrender).
+                    return dbScore != null ? dbScore : (o.score || 0);
                 }
                 // Normal finish — take the highest of local WS score and DB score.
                 return Math.max(o.score || 0, dbScore || 0);

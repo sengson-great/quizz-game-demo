@@ -126,12 +126,12 @@ export const translations = {
     stayInGame: 'Stay in Game',
     forfeitAndLeave: 'Forfeit & Leave',
     surrenderMatch: 'Surrender Match 🏳️',
-    surrenderDesc: 'Are you sure you want to surrender and leave early? You will receive a -2,000 point penalty on your profile!',
+    surrenderDesc: 'Are you sure you want to surrender and leave early?',
     keepPlaying: 'Keep Playing',
     surrender: 'Surrender',
     surrenderButton: 'Surrender 🏳️',
     opponentForfeitedMsg: 'Opponent left — You win by forfeit!',
-    playerSurrenderedMsg: 'You surrendered the match (-2,000 pts penalty applied)',
+    playerSurrenderedMsg: 'You surrendered the match',
 
     // Mode Select
     selectMode: 'Select a Mode',
@@ -561,12 +561,12 @@ export const translations = {
     stayInGame: 'នៅក្នុងហ្គេម',
     forfeitAndLeave: 'បោះបង់ និងចាកចេញ',
     surrenderMatch: 'ចុះចាញ់ការប្រកួត 🏳️',
-    surrenderDesc: 'តើអ្នកប្រាកដជាចង់ចុះចាញ់ និងចាកចេញមុនកំណត់មែនទេ? អ្នកនឹងត្រូវកាត់ -2,000 ពិន្ទុពីគណនីរបស់អ្នក!',
+    surrenderDesc: 'តើអ្នកប្រាកដជាចង់ចុះចាញ់ និងចាកចេញមុនកំណត់មែនទេ?',
     keepPlaying: 'បន្តលេង',
     surrender: 'ចុះចាញ់',
     surrenderButton: 'ចុះចាញ់ 🏳️',
     opponentForfeitedMsg: 'គូប្រកួតបានចាកចេញ — អ្នកឈ្នះដោយសារការបោះបង់!',
-    playerSurrenderedMsg: 'អ្នកបានចុះចាញ់ការប្រកួត (ត្រូវបានពិន័យកាត់ -2,000 ពិន្ទុ)',
+    playerSurrenderedMsg: 'អ្នកបានចុះចាញ់ការប្រកួត',
 
     // Mode Select
     selectMode: 'ជ្រើសរើសរបៀបលេង',

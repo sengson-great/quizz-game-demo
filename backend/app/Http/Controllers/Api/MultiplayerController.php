@@ -154,12 +154,10 @@ class MultiplayerController extends Controller
                     ->where('user_id', $request->user()->id)
                     ->first();
                 if ($session) {
-                    $newScore = max(0, $session->score - 2000);
                     $session->update([
                         'status' => 'failed',
-                        'score' => $newScore
                     ]);
-                    $payload['score'] = $newScore;
+                    $payload['score'] = $session->score;
                 }
                 
                 // Get all game sessions for this match
