@@ -409,8 +409,13 @@ export function GameProvider({ children }) {
                         const polledDone   = done[String(opp.id)];
                         const polledStatus = statuses[String(opp.id)];
 
-                        const scoreChanged   = polledScore > opp.score;
-                        const isFailed       = polledStatus === 'failed';
+                        const isFailed = polledStatus === 'failed';
+                        // For normal play, scores only go up (avoid regressions from stale data).
+                        // For failed/surrendered sessions the penalty reduces the score, so we
+                        // must allow the polled value even when it is lower.
+                        const scoreChanged = isFailed
+                            ? polledScore >= 0 && polledScore !== opp.score
+                            : polledScore > opp.score;
                         const answeredChanged = (polledDone || isFailed) && !opp.answered;
                         const leftChanged     = isFailed && !opp.left;
 

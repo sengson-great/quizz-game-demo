@@ -27,6 +27,7 @@ export default function ResultsPage() {
     const [animScore, setAnimScore] = useState(0);
     const [dbCategories, setDbCategories] = useState([]);
     const [finalMatchScores, setFinalMatchScores] = useState({});
+    const [finalMatchStatuses, setFinalMatchStatuses] = useState({});
 
     useEffect(() => {
         api.get('/categories').then(res => {
@@ -40,8 +41,8 @@ export default function ResultsPage() {
                 .then(res => {
                     const payload = res.data.data || res.data || {};
                     // The endpoint returns { scores: {userId: score}, statuses: {...}, done: {...} }
-                    // Extract only the scores map so finalMatchScores[userId] works correctly.
                     setFinalMatchScores(payload.scores ?? payload);
+                    setFinalMatchStatuses(payload.statuses ?? {});
                 })
                 .catch(err => console.error("Failed to load match scores:", err));
         }
@@ -105,13 +106,21 @@ export default function ResultsPage() {
         ...(gameState?.opponents || []).map(o => ({ 
             name: o.username || o.name, 
             avatar: o.avatar || '🦊', 
-            // If the opponent left (forfeited), the backend already applied the -2,000 penalty
-            // and stored it in finalMatchScores. Use that directly instead of the locally-cached
-            // pre-penalty score. For opponents who finished normally, keep the max of both
-            // (WS score vs DB score) to avoid regressions from stale data.
-            score: o.left
-                ? (finalMatchScores[o.id] ?? Math.max(0, (o.score || 0) - 2000))
-                : Math.max(o.score || 0, finalMatchScores[o.id] || 0), 
+            // Use the DB-stored score (penalty already applied) whenever the opponent
+            // surrendered/forfeited — identified by local o.left flag OR DB status 'failed'.
+            // This covers both the WS path and the late-poll/ResultsPage-load path.
+            score: (() => {
+                const dbStatus  = finalMatchStatuses[o.id] ?? finalMatchStatuses[String(o.id)];
+                const dbScore   = finalMatchScores[o.id]   ?? finalMatchScores[String(o.id)];
+                const forfeited = o.left || dbStatus === 'failed';
+                if (forfeited) {
+                    // DB score already has the -2,000 penalty. Fall back to applying it
+                    // manually if the API response hasn't arrived yet.
+                    return dbScore != null ? dbScore : Math.max(0, (o.score || 0) - 2000);
+                }
+                // Normal finish — take the highest of local WS score and DB score.
+                return Math.max(o.score || 0, dbScore || 0);
+            })(),
             isPlayer: false,
             left: o.left
         }))
