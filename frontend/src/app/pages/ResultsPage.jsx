@@ -38,7 +38,10 @@ export default function ResultsPage() {
         if (gameState && gameState.matchId) {
             api.get(`/multiplayer/scores/${gameState.matchId}`)
                 .then(res => {
-                    setFinalMatchScores(res.data.data || res.data || {});
+                    const payload = res.data.data || res.data || {};
+                    // The endpoint returns { scores: {userId: score}, statuses: {...}, done: {...} }
+                    // Extract only the scores map so finalMatchScores[userId] works correctly.
+                    setFinalMatchScores(payload.scores ?? payload);
                 })
                 .catch(err => console.error("Failed to load match scores:", err));
         }
