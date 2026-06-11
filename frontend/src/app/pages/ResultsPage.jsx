@@ -104,9 +104,8 @@ export default function ResultsPage() {
         ...(gameState?.opponents || []).map(o => ({ 
             name: o.username || o.name, 
             avatar: o.avatar || '🦊', 
-            // Use the DB-stored score (penalty already applied) whenever the opponent
-            // surrendered/forfeited — identified by local o.left flag OR DB status 'failed'.
-            // This covers both the WS path and the late-poll/ResultsPage-load path.
+            // Use the DB-stored score for surrendered/forfeited opponents
+            // (identified by local o.left flag OR DB status 'failed').
             score: (() => {
                 const dbStatus  = finalMatchStatuses[o.id] ?? finalMatchStatuses[String(o.id)];
                 const dbScore   = finalMatchScores[o.id]   ?? finalMatchScores[String(o.id)];
