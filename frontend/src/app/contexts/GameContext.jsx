@@ -386,13 +386,16 @@ export function GameProvider({ children }) {
         if (!gameState?.matchId || (!isActive && !isWaiting) || !gameState.opponents?.length) return;
 
         const matchId = gameState.matchId;
+        // Capture currentUser id at effect setup time to avoid stale closure issues
+        const selfId = currentUser?.id;
+
         const interval = setInterval(async () => {
             try {
                 const res = await api.get(`/multiplayer/scores/${matchId}`);
-                // Response: { data: { scores: {userId: score}, done: {userId: bool} } }
+                // Response: { data: { scores: {userId: score}, done: {userId: bool}, statuses: {userId: status} } }
                 const payload = res.data?.data || res.data;
-                const scores  = payload?.scores ?? payload;   // backward-compat if still flat
-                const done    = payload?.done ?? {};
+                const scores   = payload?.scores ?? payload;  // backward-compat if still flat
+                const done     = payload?.done ?? {};
                 const statuses = payload?.statuses ?? {};
 
                 if (!scores || typeof scores !== 'object') return;
@@ -400,18 +403,16 @@ export function GameProvider({ children }) {
                 setGameState(prev => {
                     if (!prev || !prev.opponents) return prev;
                     let changed = false;
+
                     const newOpponents = prev.opponents.map(opp => {
-                        const polledScore = Number(scores[String(opp.id)] ?? -1);
-                        const polledDone  = done[String(opp.id)];
+                        const polledScore  = Number(scores[String(opp.id)] ?? -1);
+                        const polledDone   = done[String(opp.id)];
                         const polledStatus = statuses[String(opp.id)];
 
-                        // Only advance the score — never let polling regress it backwards.
-                        // (Race condition: WS event can arrive before DB commit, or the poll
-                        //  reads a stale session. Scores only ever go up, so keep the max.)
                         const scoreChanged   = polledScore > opp.score;
-                        const isFailed = polledStatus === 'failed';
+                        const isFailed       = polledStatus === 'failed';
                         const answeredChanged = (polledDone || isFailed) && !opp.answered;
-                        const leftChanged = isFailed && !opp.left;
+                        const leftChanged     = isFailed && !opp.left;
 
                         if (scoreChanged || answeredChanged || leftChanged) {
                             changed = true;
@@ -419,40 +420,50 @@ export function GameProvider({ children }) {
                                 ...opp,
                                 score:    scoreChanged ? polledScore : opp.score,
                                 answered: (answeredChanged || leftChanged) ? true : opp.answered,
-                                left:     leftChanged ? true : opp.left
+                                left:     leftChanged ? true : opp.left,
                             };
                         }
                         return opp;
                     });
 
-                    // Check if current user's session is marked finished on the server
-                    const selfId = currentUser?.id;
+                    // Check current player's session status on the server.
                     const selfStatus = selfId ? statuses[String(selfId)] : null;
-                    const selfDone = selfStatus === 'completed' || selfStatus === 'failed';
+                    const selfDone   = selfStatus === 'completed' || selfStatus === 'failed';
 
-                    // If all opponents have left, mark as forfeit-win
+                    // All opponents abandoned the match (their sessions are 'failed').
                     const allLeft = newOpponents.length > 0 && newOpponents.every(opp => opp.left);
-                    
-                    const shouldFinish = allLeft || (selfDone && prev.status === 'active');
-                    if (shouldFinish && prev.status === 'active') {
-                        changed = true;
-                    }
-                    if (allLeft && !prev.opponentForfeited) {
-                        changed = true;
-                    }
 
-                    return changed ? { 
-                        ...prev, 
+                    // Any opponent left while we are still active → forfeit win.
+                    // (covers partial-left cases in room mode too)
+                    const anyOpponentLeft = newOpponents.some(opp => opp.left);
+
+                    // We need to finish (and show results) if:
+                    //  a) All opponents have left (forfeit win), OR
+                    //  b) Server already marked our session as done (completed/failed by backend)
+                    //     while we are locally still 'active'.
+                    const shouldFinish = allLeft || (selfDone && prev.status === 'active');
+
+                    // It's a forfeit win if every opponent left OR if our session was completed
+                    // by the server because the last opponent left while we were mid-game.
+                    const isForfeitWin = allLeft || (anyOpponentLeft && selfDone && prev.status === 'active');
+
+                    if (shouldFinish && prev.status === 'active') changed = true;
+                    if (isForfeitWin && !prev.opponentForfeited) changed = true;
+
+                    if (!changed) return prev;
+
+                    return {
+                        ...prev,
                         opponents: newOpponents,
                         ...(shouldFinish ? { status: 'finished' } : {}),
-                        ...(allLeft ? { opponentForfeited: true } : {})
-                    } : prev;
+                        ...(isForfeitWin ? { opponentForfeited: true } : {}),
+                    };
                 });
             } catch (_) { /* silently ignore */ }
         }, 4000);
 
         return () => clearInterval(interval);
-    }, [gameState?.matchId, gameState?.status, gameState?.opponents?.length]);
+    }, [gameState?.matchId, gameState?.status, gameState?.opponents?.length, currentUser?.id]);
 
     /** ---------------- MULTIPLAYER/LOBBY ---------------- **/
 
@@ -479,7 +490,7 @@ export function GameProvider({ children }) {
                     
                     if (e.action === 'player_left') {
                         const senderId = e.user_id !== undefined ? e.user_id : e.userId;
-                        console.log('[DEBUG] Processing player_left action. Sender user_id:', senderId);
+                        console.log('[DEBUG] Processing player_left action. Sender user_id:', senderId, 'last_remaining_wins:', e.data?.last_remaining_wins);
                         // Mark the opponent as left
                         const newOpponents = prev.opponents.map(opp => {
                             console.log(`[DEBUG] Comparing opponent.id (${opp.id}) [Type: ${typeof opp.id}] with sender user_id (${senderId}) [Type: ${typeof senderId}]`);
@@ -494,13 +505,15 @@ export function GameProvider({ children }) {
                             }
                             return opp;
                         });
-                        // If all opponents have left, mark as forfeit-win
+                        // All opponents gone → forfeit win
                         const allLeft = newOpponents.every(opp => opp.left);
-                        console.log('[DEBUG] All opponents left evaluation:', allLeft);
+                        // Backend explicitly signals that the current user is the last one remaining
+                        const isForfeitWin = allLeft || !!e.data?.last_remaining_wins;
+                        console.log('[DEBUG] allLeft:', allLeft, 'isForfeitWin:', isForfeitWin);
                         return { 
                             ...prev, 
                             opponents: newOpponents,
-                            ...(allLeft ? { status: 'finished', opponentForfeited: true } : {})
+                            ...(isForfeitWin ? { status: 'finished', opponentForfeited: true } : {})
                         };
                     }
                     

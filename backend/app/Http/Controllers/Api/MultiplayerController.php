@@ -174,6 +174,9 @@ class MultiplayerController extends Controller
                             'status' => 'completed'
                         ]);
                     }
+                    // Signal the broadcast that the last player wins by forfeit
+                    $payload['last_remaining_wins'] = true;
+                    $payload['winning_user_id'] = $lastRemainingSession->user_id;
                 }
             } catch (\Exception $e) {
                 Log::error('Forfeit penalty processing failed: ' . $e->getMessage());
