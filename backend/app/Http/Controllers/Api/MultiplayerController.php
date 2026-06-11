@@ -162,13 +162,18 @@ class MultiplayerController extends Controller
                     $payload['score'] = $newScore;
                 }
                 
-                $opponentSession = \App\Models\GameSession::where('match_id', $request->match_id)
-                    ->where('user_id', '!=', $request->user()->id)
-                    ->first();
-                if ($opponentSession) {
-                    $opponentSession->update([
-                        'status' => 'completed'
-                    ]);
+                // Get all game sessions for this match
+                $sessions = \App\Models\GameSession::where('match_id', $request->match_id)->get();
+                // A session is not forfeited if status is NOT 'failed'
+                $nonFailedSessions = $sessions->filter(fn($s) => $s->status !== 'failed');
+                
+                if ($nonFailedSessions->count() === 1) {
+                    $lastRemainingSession = $nonFailedSessions->first();
+                    if ($lastRemainingSession->status === 'active') {
+                        $lastRemainingSession->update([
+                            'status' => 'completed'
+                        ]);
+                    }
                 }
             } catch (\Exception $e) {
                 Log::error('Forfeit penalty processing failed: ' . $e->getMessage());

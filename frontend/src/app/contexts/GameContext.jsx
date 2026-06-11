@@ -425,8 +425,18 @@ export function GameProvider({ children }) {
                         return opp;
                     });
 
+                    // Check if current user's session is marked finished on the server
+                    const selfId = currentUser?.id;
+                    const selfStatus = selfId ? statuses[String(selfId)] : null;
+                    const selfDone = selfStatus === 'completed' || selfStatus === 'failed';
+
                     // If all opponents have left, mark as forfeit-win
                     const allLeft = newOpponents.length > 0 && newOpponents.every(opp => opp.left);
+                    
+                    const shouldFinish = allLeft || (selfDone && prev.status === 'active');
+                    if (shouldFinish && prev.status === 'active') {
+                        changed = true;
+                    }
                     if (allLeft && !prev.opponentForfeited) {
                         changed = true;
                     }
@@ -434,7 +444,8 @@ export function GameProvider({ children }) {
                     return changed ? { 
                         ...prev, 
                         opponents: newOpponents,
-                        ...(allLeft ? { status: 'finished', opponentForfeited: true } : {})
+                        ...(shouldFinish ? { status: 'finished' } : {}),
+                        ...(allLeft ? { opponentForfeited: true } : {})
                     } : prev;
                 });
             } catch (_) { /* silently ignore */ }
