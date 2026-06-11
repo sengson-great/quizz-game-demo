@@ -164,10 +164,10 @@ export default function ResultsPage() {
           )}
         </h1>
         {gameState?.opponentForfeited && (
-          <p className="text-amber-500 text-sm font-semibold mb-0.5">🏳️ Opponent left — You win by forfeit!</p>
+          <p className="text-amber-500 text-sm font-semibold mb-0.5">🏳️ {t('opponentForfeitedMsg')}</p>
         )}
         {gameState?.playerSurrendered && (
-          <p className="text-rose-500 text-sm font-semibold mb-0.5">🏳️ You surrendered the match (-2,000 pts penalty applied)</p>
+          <p className="text-rose-500 text-sm font-semibold mb-0.5">🏳️ {t('playerSurrenderedMsg')}</p>
         )}
         <p className="text-slate-500">{label}</p>
       </motion.div>

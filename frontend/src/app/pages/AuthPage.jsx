@@ -132,11 +132,6 @@ export default function AuthPage() {
                     </span>) : (tab === 'login' ? t('signIn') : t('register'))}
                 </button>
 
-                {tab === 'login' && (<div className="text-center">
-                    <p className="text-slate-400 text-xs">
-                      {t('player')}: <span className="text-[#FACC15]">admin@example.com</span> / <span className="text-[#FACC15]">password</span>
-                    </p>
-                  </div>)}
               </motion.form>
             </AnimatePresence>
           </div>

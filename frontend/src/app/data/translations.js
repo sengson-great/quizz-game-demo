@@ -130,6 +130,8 @@ export const translations = {
     keepPlaying: 'Keep Playing',
     surrender: 'Surrender',
     surrenderButton: 'Surrender 🏳️',
+    opponentForfeitedMsg: 'Opponent left — You win by forfeit!',
+    playerSurrenderedMsg: 'You surrendered the match (-2,000 pts penalty applied)',
 
     // Mode Select
     selectMode: 'Select a Mode',
@@ -563,6 +565,8 @@ export const translations = {
     keepPlaying: 'បន្តលេង',
     surrender: 'ចុះចាញ់',
     surrenderButton: 'ចុះចាញ់ 🏳️',
+    opponentForfeitedMsg: 'គូប្រកួតបានចាកចេញ — អ្នកឈ្នះដោយសារការបោះបង់!',
+    playerSurrenderedMsg: 'អ្នកបានចុះចាញ់ការប្រកួត (ត្រូវបានពិន័យកាត់ -2,000 ពិន្ទុ)',
 
     // Mode Select
     selectMode: 'ជ្រើសរើសរបៀបលេង',
