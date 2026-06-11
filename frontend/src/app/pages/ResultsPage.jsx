@@ -102,7 +102,13 @@ export default function ResultsPage() {
         ...(gameState?.opponents || []).map(o => ({ 
             name: o.username || o.name, 
             avatar: o.avatar || '🦊', 
-            score: Math.max(o.score || 0, finalMatchScores[o.id] || 0), 
+            // If the opponent left (forfeited), the backend already applied the -2,000 penalty
+            // and stored it in finalMatchScores. Use that directly instead of the locally-cached
+            // pre-penalty score. For opponents who finished normally, keep the max of both
+            // (WS score vs DB score) to avoid regressions from stale data.
+            score: o.left
+                ? (finalMatchScores[o.id] ?? Math.max(0, (o.score || 0) - 2000))
+                : Math.max(o.score || 0, finalMatchScores[o.id] || 0), 
             isPlayer: false,
             left: o.left
         }))
