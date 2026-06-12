@@ -157,7 +157,7 @@ class MultiplayerController extends Controller
                     $session->update([
                         'status' => 'failed',
                     ]);
-                    $payload['score'] = $session->score;
+                    $payload['score'] = (int) $session->score;
                 }
                 
                 // Get all game sessions for this match
@@ -219,7 +219,7 @@ class MultiplayerController extends Controller
         $sessions = \App\Models\GameSession::where('match_id', $matchId)
             ->get(['user_id', 'score', 'status']);
 
-        $scores   = $sessions->pluck('score', 'user_id');
+        $scores   = $sessions->pluck('score', 'user_id')->map(fn($s) => (int) $s);
         $statuses = $sessions->pluck('status', 'user_id');
         // A player is "done" if their session is completed or failed (not still active)
         $done     = $sessions->mapWithKeys(fn($s) => [$s->user_id => in_array($s->status, ['completed', 'failed'])]);
