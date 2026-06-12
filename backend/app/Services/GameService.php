@@ -86,13 +86,10 @@ class GameService
         $cachedQuestionId = \Illuminate\Support\Facades\Cache::get($cacheKey);
 
         if ($cachedQuestionId) {
-            $question = Question::with([
-                'answers' => function ($q) {
-                    $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
-                }
-            ])->find($cachedQuestionId);
+            $question = Question::with('answers:id,question_id,text,text_km')->find($cachedQuestionId);
             
             if ($question) {
+                $question->setRelation('answers', $question->answers->shuffle());
                 return $question;
             }
         }
@@ -110,46 +107,43 @@ class GameService
         }
 
         $query = Question::where('difficulty_level', $difficulty)
-            ->whereNotIn('id', $usedQuestionIds)
-            ->with([
-                'answers' => function ($q) {
-                    $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
-                }
-            ]);
+            ->whereNotIn('id', $usedQuestionIds);
 
         // Filter by the categories the player chose (if any were specified)
         if (!empty($session->category_ids)) {
             $query->whereIn('category_id', $session->category_ids);
         }
 
-        $question = $query->inRandomOrder()->first();
+        $questionIds = $query->pluck('id')->toArray();
+        $question = null;
+        if (!empty($questionIds)) {
+            $randomId = $questionIds[array_rand($questionIds)];
+            $question = Question::with('answers:id,question_id,text,text_km')->find($randomId);
+        }
 
         if (!$question && !empty($session->category_ids)) {
-            $question = Question::whereIn('category_id', $session->category_ids)
-                ->whereNotIn('id', $usedQuestionIds)
-                ->with([
-                    'answers' => function ($q) {
-                        $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
-                    }
-                ])
-                ->inRandomOrder()
-                ->first();
+            $fallbackQuery = Question::whereIn('category_id', $session->category_ids)
+                ->whereNotIn('id', $usedQuestionIds);
+            $questionIds = $fallbackQuery->pluck('id')->toArray();
+            if (!empty($questionIds)) {
+                $randomId = $questionIds[array_rand($questionIds)];
+                $question = Question::with('answers:id,question_id,text,text_km')->find($randomId);
+            }
         }
 
         // Fallback 2: Complete fallback - grab any unused question in the database (ignoring category and difficulty)
         if (!$question) {
-            $question = Question::whereNotIn('id', $usedQuestionIds)
-                ->with([
-                    'answers' => function ($q) {
-                        $q->select('id', 'question_id', 'text', 'text_km')->inRandomOrder();
-                    }
-                ])
-                ->inRandomOrder()
-                ->first();
+            $fallbackQuery = Question::whereNotIn('id', $usedQuestionIds);
+            $questionIds = $fallbackQuery->pluck('id')->toArray();
+            if (!empty($questionIds)) {
+                $randomId = $questionIds[array_rand($questionIds)];
+                $question = Question::with('answers:id,question_id,text,text_km')->find($randomId);
+            }
         }
 
         if ($question) {
             \Illuminate\Support\Facades\Cache::put($cacheKey, $question->id, now()->addHours(2));
+            $question->setRelation('answers', $question->answers->shuffle());
         }
 
         return $question;
@@ -159,14 +153,19 @@ class GameService
     {
         $isMultiplayer = (bool)$session->match_id;
 
-        // Get the current correct answer ID
+        // Get the current correct answer ID and load the answer object once to prevent duplicate queries
         $correctAnswerId = null;
+        $answer = null;
         if ($answerId) {
-            $submittedAnswer = Answer::find($answerId);
-            if ($submittedAnswer) {
-                $correctAnswerId = Answer::where('question_id', $submittedAnswer->question_id)
-                    ->where('is_correct', true)
-                    ->value('id');
+            $answer = Answer::find($answerId);
+            if ($answer) {
+                if ($answer->is_correct) {
+                    $correctAnswerId = $answer->id;
+                } else {
+                    $correctAnswerId = Answer::where('question_id', $answer->question_id)
+                        ->where('is_correct', true)
+                        ->value('id');
+                }
             }
         }
 
@@ -207,8 +206,6 @@ class GameService
             $expectedQuestionId = \Illuminate\Support\Facades\Cache::get("session_question_{$session->id}_{$session->current_level}");
         }
 
-        $answer = Answer::find($answerId);
-        
         // If the answer is not found or belongs to a different question, treat it as wrong
         if (!$answer || ($expectedQuestionId && $answer->question_id != $expectedQuestionId)) {
             $isCorrect = false;
