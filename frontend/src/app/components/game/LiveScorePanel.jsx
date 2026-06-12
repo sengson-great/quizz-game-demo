@@ -27,9 +27,9 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
         <span className="text-base sm:text-xl shadow-sm filter drop-shadow-sm">{playerAvatar}</span>
         <div className="flex flex-col -gap-1">
             <span className="text-[8px] sm:text-[9px] font-black text-[#FACC15]/60 tracking-normal">SCORE</span>
-            <motion.span key={playerScore} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-[10px] sm:text-xs tabular-nums font-black" style={{ fontFamily: 'inherit' }}>
+            <span className="text-[10px] sm:text-xs tabular-nums font-black" style={{ fontFamily: 'inherit' }}>
                 {Math.round(playerScore).toLocaleString()}
-            </motion.span>
+            </span>
         </div>
       </div>);
     }
@@ -48,15 +48,15 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
               <span className={`text-[7px] sm:text-[8px] font-black tracking-normal uppercase ${s.isPlayer ? 'text-[#FACC15]' : 'text-slate-400'}`}>
                 {s.isPlayer ? 'YOU' : s.name.slice(0, 3)}
               </span>
-              <motion.span key={`${s.id}-${s.score}`} initial={{ scale: 1.2, y: -2 }} animate={{ scale: 1, y: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="text-[9px] sm:text-[11px] tabular-nums font-black" style={{
+              <span className="text-[9px] sm:text-[11px] tabular-nums font-black" style={{
                 fontFamily: 'inherit',
                 color: s.isPlayer ? '#FACC15' : '#475569',
-            }}>
+              }}>
                 {Math.round(s.score)}
-              </motion.span>
+              </span>
           </div>
           <AnimatePresence>
-            {flashes[s.id] && (<motion.span key={`flash-${s.id}-${s.score}`} initial={{ opacity: 1, y: 0, scale: 0.5 }} animate={{ opacity: 0, y: -25, scale: 1.5 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }} className="absolute -top-4 right-0 text-[10px] font-black z-50" style={{
+            {flashes[s.id] && (<motion.span key={`flash-${s.id}-${s.score}`} initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -15 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="absolute -top-4 right-0 text-[10px] font-black z-50" style={{
                     fontFamily: 'inherit',
                     color: s.isPlayer ? '#10b981' : '#FACC15',
                     textShadow: '0 0 10px rgba(255,255,255,0.8)'

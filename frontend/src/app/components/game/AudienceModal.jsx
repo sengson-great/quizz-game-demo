@@ -8,7 +8,7 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
     const labels = ['A', 'B', 'C', 'D'];
     return (<AnimatePresence>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }} onClick={onClose}>
-        <motion.div initial={{ scale: 0.8, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: 20 }} transition={{ type: 'spring', stiffness: 300 }} className="w-full max-w-md rounded-2xl p-6" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }} onClick={e => e.stopPropagation()}>
+        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} transition={{ duration: 0.15 }} className="w-full max-w-md rounded-2xl p-6" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.12)' }} onClick={e => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -39,7 +39,7 @@ export function AudienceModal({ type, answers, audienceData, phoneMessage, onClo
                       <span className="text-[#1A1A2E]" style={{ fontWeight: 600 }}>{votes}%</span>
                     </div>
                     <div className="h-6 rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.04)' }}>
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${votes}%` }} transition={{ duration: 0.8, delay: i * 0.15 }} className="h-full rounded-lg flex items-center justify-end pr-2" style={{ background: votes > 50 ? 'linear-gradient(90deg, #FACC15, #8B5CF6)' : 'linear-gradient(90deg, #94a3b8, #cbd5e1)' }}/>
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${votes}%` }} transition={{ duration: 0.4 }} className="h-full rounded-lg flex items-center justify-end pr-2" style={{ background: votes > 50 ? 'linear-gradient(90deg, #FACC15, #8B5CF6)' : 'linear-gradient(90deg, #94a3b8, #cbd5e1)' }}/>
                     </div>
                   </div>);
             })}

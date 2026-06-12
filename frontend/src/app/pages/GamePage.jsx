@@ -401,7 +401,7 @@ export default function GamePage() {
                         className="h-full rounded-full shadow-[0_0_8px_rgba(250,204,21,0.4)]" 
                         style={{ background: 'var(--grad-primary)' }} 
                         animate={{ width: `${progressPct}%` }} 
-                        transition={{ duration: 0.8, type: 'spring', bounce: 0.3 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
                     />
                 </div>
             </div>
@@ -411,23 +411,22 @@ export default function GamePage() {
             <div className="mb-6 relative z-20">
                 <div className="flex items-center gap-2 overflow-x-auto py-2 no-scrollbar">
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }} 
-                        animate={{ opacity: 1, scale: 1 }} 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
                         className="flex items-center gap-2 px-3 py-2 rounded-2xl glass-card border-[#FACC15]/20"
                     >
                         <span className="text-base">{currentUser.avatar}</span>
                         <div className="flex flex-col -gap-1">
                             <span className="text-[9px] uppercase font-bold text-[#FACC15]/60">YOU</span>
-                            <motion.span key={gameState.playerScore} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xs font-black tabular-nums">{Math.round(gameState.playerScore)}</motion.span>
+                            <span className="text-xs font-black tabular-nums">{Math.round(gameState.playerScore)}</span>
                         </div>
                     </motion.div>
                     
                     {gameState.opponents.map(opp => (
                         <motion.div 
                             key={opp.id} 
-                            initial={{ opacity: 0, scale: 0.9 }} 
-                            animate={{ opacity: 1, scale: 1 }} 
-                            transition={{ delay: 0.1 }}
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
                             className={`flex items-center gap-2 px-3 py-2 rounded-2xl glass-card transition-colors duration-500 ${opp.answered ? 'bg-emerald-50/50 border-emerald-200/50' : 'border-white/20'}`}
                         >
                             <div className="relative">
@@ -438,7 +437,7 @@ export default function GamePage() {
                             </div>
                             <div className="flex flex-col -gap-1">
                                 <span className="text-[9px] uppercase font-bold text-slate-400">{(opp.username || opp.name || '').slice(0, 6)}</span>
-                                <motion.span key={opp.score} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xs font-black tabular-nums text-slate-600">{Math.round(opp.score)}</motion.span>
+                                <span className="text-xs font-black tabular-nums text-slate-600">{Math.round(opp.score)}</span>
                             </div>
                         </motion.div>
                     ))}
@@ -449,10 +448,10 @@ export default function GamePage() {
         <AnimatePresence mode="wait">
             <motion.div 
                 key={question.id} 
-                initial={{ opacity: 0, y: 30 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                exit={{ opacity: 0, y: -30 }} 
-                transition={{ duration: 0.25, type: 'spring', damping: 18 }} 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                transition={{ duration: 0.15 }} 
                 className="relative z-10 flex-1 flex flex-col"
             >
                 <div className="glass-card rounded-[1.75rem] sm:rounded-[2.5rem] p-5 sm:p-8 mb-4 sm:mb-6 relative overflow-hidden group shadow-xl">
@@ -488,9 +487,10 @@ export default function GamePage() {
                 <AnimatePresence>
                     {revealed && lastAnswer && (
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
-                            animate={{ opacity: 1, scale: 1, y: 0 }} 
-                            exit={{ opacity: 0, scale: 0.9 }} 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }} 
+                            transition={{ duration: 0.15 }}
                             className="rounded-3xl p-5 mb-6 glass-card relative overflow-hidden" 
                             style={{ 
                                 background: lastAnswer.isCorrect ? 'rgba(52,211,153,0.1)' : 'rgba(239,68,68,0.1)', 
@@ -512,10 +512,10 @@ export default function GamePage() {
                                     )}
                                 </div>
                                 {lastAnswer.isCorrect && (
-                                    <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-right">
+                                    <div className="text-right">
                                         <span className="block text-[10px] text-emerald-600/60 font-black uppercase tracking-tighter">EARNED</span>
                                         <span className="text-2xl font-black text-emerald-700 tabular-nums">+{Math.round(lastAnswer.pointsEarned)}</span>
-                                    </motion.div>
+                                    </div>
                                 )}
                             </div>
                         </motion.div>
@@ -543,9 +543,9 @@ export default function GamePage() {
                                         <div className="relative p-1 rounded-2xl bg-white/50 border border-white shadow-sm">
                                             <span className={`text-3xl transition-all duration-500 ${opp.answered ? 'grayscale-0' : 'grayscale'}`}>{opp.avatar}</span>
                                             {opp.answered && (
-                                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-1 border-2 border-white shadow-md">
+                                                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-1 border-2 border-white shadow-md">
                                                     <Check className="w-2 h-2" strokeWidth={5} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                         </div>
                                         <span className="text-[10px] font-black uppercase tracking-normal" style={{ color: opp.answered ? '#10b981' : '#f59e0b' }}>
@@ -582,13 +582,11 @@ export default function GamePage() {
                         size="md"
                     />
                     {timeRemaining <= 10 && timeRemaining > 0 && timerActive && (
-                        <motion.span 
-                            animate={{ opacity: [0.4, 1, 0.4], y: [0, -2, 0] }} 
-                            transition={{ duration: 1.2, repeat: Infinity }} 
+                        <span 
                             className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-rose-500 text-center"
                         >
                             {t('hurryUp')}
-                        </motion.span>
+                        </span>
                     )}
                 </div>
             </div>

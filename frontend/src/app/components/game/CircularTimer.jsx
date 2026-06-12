@@ -41,14 +41,10 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, si
 
     return (<div className="relative flex items-center justify-center">
       <motion.div 
-        animate={isLowTime ? { 
-            scale: [1, 1.08, 1],
-            filter: [`drop-shadow(0 0 8px ${color}44)`, `drop-shadow(0 0 20px ${color}88)`, `drop-shadow(0 0 8px ${color}44)`]
-        } : { 
+        animate={{ 
             scale: 1,
             filter: `drop-shadow(0 0 10px ${color}33)`
         }} 
-        transition={{ duration: 0.6, repeat: isLowTime ? Infinity : 0, ease: "easeInOut" }} 
         className="relative"
       >
         <svg width={dims.w} height={dims.w} viewBox={`0 0 ${dims.w} ${dims.w}`} className="transform -rotate-90">
@@ -97,10 +93,7 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, si
         </svg>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <motion.span 
-            key={timeRemaining}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+          <span 
             className={dims.fs} 
             style={{ 
                 fontFamily: 'inherit', 
@@ -110,23 +103,9 @@ export function CircularTimer({ timeRemaining, totalTime, onExpire, isActive, si
             }}
           >
             {timeRemaining}
-          </motion.span>
+          </span>
         </div>
       </motion.div>
-
-      {/* Decorative pulse rings for low time */}
-      <AnimatePresence>
-        {isLowTime && (
-            <motion.div 
-                initial={{ scale: 0.8, opacity: 0.5 }}
-                animate={{ scale: 1.5, opacity: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
-                className="absolute w-full h-full rounded-full border-2 z-0"
-                style={{ borderColor: color }}
-            />
-        )}
-      </AnimatePresence>
     </div>);
 }
 

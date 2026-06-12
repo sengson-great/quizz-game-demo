@@ -54,9 +54,6 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
     };
     const styles = getStyles();
     return (<motion.button 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ delay: index * 0.1, duration: 0.4, type: 'spring', damping: 20 }} 
         whileHover={!disabled && !isEliminated ? { 
             scale: 1.01, 
             borderColor: 'rgba(250,204,21,0.3)',
@@ -75,8 +72,9 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
       {/* Selection/Status Indicator Glow */}
       {(isSelected || (revealed && isCorrect)) && (
         <motion.div 
-            layoutId={`glow-${id}`}
-            className="absolute inset-0 rounded-xl sm:rounded-2xl z-0 opacity-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.2 }}
+            className="absolute inset-0 rounded-xl sm:rounded-2xl z-0"
             style={{ background: styles.badge.background, filter: 'blur(15px)' }}
         />
       )}
@@ -91,18 +89,14 @@ export function AnswerOption({ id, text, label, isSelected, isCorrect, isElimina
       </span>
 
       <div className="relative z-10 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6">
-          {revealed && isCorrect && (<motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }}>
+          {revealed && isCorrect && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
               <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500"/>
             </motion.div>)}
-          {revealed && isSelected && !isCorrect && (<motion.div initial={{ scale: 0, rotate: 45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }}>
+          {revealed && isSelected && !isCorrect && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
               <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500"/>
             </motion.div>)}
           {!revealed && isSelected && (
-            <motion.div 
-                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }} 
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#FACC15]" 
-            />
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#FACC15]" />
           )}
       </div>
     </motion.button>);

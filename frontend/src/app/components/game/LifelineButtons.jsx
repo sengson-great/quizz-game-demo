@@ -46,10 +46,8 @@ export function LifelineButtons({ lifelines, enabledTypes, onUse, disabled }) {
               </span>
 
               {used && (
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    className="absolute top-1/2 left-0 h-0.5 bg-slate-400 rotate-12 origin-left"
+                  <div 
+                    className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-400 rotate-12 origin-left"
                   />
               )}
             </motion.button>
