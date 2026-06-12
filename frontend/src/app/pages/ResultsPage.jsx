@@ -188,7 +188,7 @@ export default function ResultsPage() {
 
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="rounded-3xl p-6 mb-6 text-center relative z-10" style={{ background: 'rgba(99,102,241,0.06)', backdropFilter: 'blur(20px)', border: '1px solid rgba(99,102,241,0.12)', boxShadow: '0 4px 30px rgba(99,102,241,0.06)' }}>
         <p className="text-slate-500 text-sm mb-2">{t('finalScore')}</p>
-        <motion.p className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '3.5rem' }}>{animScore.toLocaleString()}</motion.p>
+        <motion.p className="text-[#1A1A2E] mb-4" style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '3.5rem' }}>{Math.round(animScore).toLocaleString()}</motion.p>
         <div className="flex items-center justify-center gap-6">
           <div className="text-center"><p className="text-2xl text-amber-500" style={{ fontFamily: 'inherit', fontWeight: 700 }}>{grade}</p><p className="text-slate-400 text-xs">{t('grade')}</p></div>
           <div className="w-px h-10" style={{ background: 'rgba(0,0,0,0.06)' }}/>
@@ -205,7 +205,7 @@ export default function ResultsPage() {
                 <span className="w-8 flex justify-center">{getRankIcon(player.rank)}</span>
                 <span className="text-xl">{player.avatar}</span>
                 <span className={`flex-1 text-sm ${player.isPlayer ? 'text-[#FACC15]' : 'text-[#1A1A2E]'}`}>{player.name} {player.isPlayer ? <span className="text-xs text-[#FACC15]">({t('you')})</span> : player.left ? <span className="text-xs text-rose-500 font-black tracking-tight">(Left 🏳️)</span> : null}</span>
-                <span className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{player.score.toLocaleString()}</span>
+                <span className="text-[#1A1A2E] text-sm" style={{ fontFamily: 'inherit', fontWeight: 600 }}>{Math.round(player.score).toLocaleString()}</span>
               </motion.div>))}
           </div>
         </motion.div>)}
@@ -260,7 +260,7 @@ export default function ResultsPage() {
                           </p>
                         )}
                       </div>
-                      {answer.isCorrect && <span className="text-amber-500 text-xs flex-shrink-0" style={{ fontFamily: 'inherit', fontWeight: 700 }}>+{answer.pointsEarned}</span>}
+                      {answer.isCorrect && <span className="text-amber-500 text-xs flex-shrink-0" style={{ fontFamily: 'inherit', fontWeight: 700 }}>+{Math.round(answer.pointsEarned)}</span>}
                     </div>);
             })}
               </div>

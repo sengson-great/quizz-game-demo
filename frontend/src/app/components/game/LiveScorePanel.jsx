@@ -28,7 +28,7 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
         <div className="flex flex-col -gap-1">
             <span className="text-[8px] sm:text-[9px] font-black text-[#FACC15]/60 tracking-normal">SCORE</span>
             <motion.span key={playerScore} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-[10px] sm:text-xs tabular-nums font-black" style={{ fontFamily: 'inherit' }}>
-                {playerScore.toLocaleString()}
+                {Math.round(playerScore).toLocaleString()}
             </motion.span>
         </div>
       </div>);
@@ -52,7 +52,7 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
                 fontFamily: 'inherit',
                 color: s.isPlayer ? '#FACC15' : '#475569',
             }}>
-                {s.score}
+                {Math.round(s.score)}
               </motion.span>
           </div>
           <AnimatePresence>
@@ -61,7 +61,7 @@ export function LiveScorePanel({ playerScore, playerAvatar, playerName, opponent
                     color: s.isPlayer ? '#10b981' : '#FACC15',
                     textShadow: '0 0 10px rgba(255,255,255,0.8)'
                 }}>
-                +{flashes[s.id]}
+                +{Math.round(flashes[s.id])}
               </motion.span>)}
           </AnimatePresence>
         </div>))}

@@ -418,7 +418,7 @@ export default function GamePage() {
                         <span className="text-base">{currentUser.avatar}</span>
                         <div className="flex flex-col -gap-1">
                             <span className="text-[9px] uppercase font-bold text-[#FACC15]/60">YOU</span>
-                            <motion.span key={gameState.playerScore} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xs font-black tabular-nums">{gameState.playerScore}</motion.span>
+                            <motion.span key={gameState.playerScore} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xs font-black tabular-nums">{Math.round(gameState.playerScore)}</motion.span>
                         </div>
                     </motion.div>
                     
@@ -438,7 +438,7 @@ export default function GamePage() {
                             </div>
                             <div className="flex flex-col -gap-1">
                                 <span className="text-[9px] uppercase font-bold text-slate-400">{(opp.username || opp.name || '').slice(0, 6)}</span>
-                                <motion.span key={opp.score} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xs font-black tabular-nums text-slate-600">{opp.score}</motion.span>
+                                <motion.span key={opp.score} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xs font-black tabular-nums text-slate-600">{Math.round(opp.score)}</motion.span>
                             </div>
                         </motion.div>
                     ))}
@@ -514,7 +514,7 @@ export default function GamePage() {
                                 {lastAnswer.isCorrect && (
                                     <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-right">
                                         <span className="block text-[10px] text-emerald-600/60 font-black uppercase tracking-tighter">EARNED</span>
-                                        <span className="text-2xl font-black text-emerald-700 tabular-nums">+{lastAnswer.pointsEarned}</span>
+                                        <span className="text-2xl font-black text-emerald-700 tabular-nums">+{Math.round(lastAnswer.pointsEarned)}</span>
                                     </motion.div>
                                 )}
                             </div>
