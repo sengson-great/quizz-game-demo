@@ -89,6 +89,15 @@ export default function GamePage() {
     const [oppScorePulse, setOppScorePulse] = useState(false);
     const prevOppScoreRef = useRef(0);
     const [categories, setCategories] = useState([]);
+    const navigationTimeoutRef = useRef(null);
+
+    useEffect(() => {
+        return () => {
+            if (navigationTimeoutRef.current) {
+                clearTimeout(navigationTimeoutRef.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         api.get('/categories').then(res => {
@@ -109,12 +118,12 @@ export default function GamePage() {
             navigate('/results');
             return;
         }
-        if (gameState.status === 'finished' && gameState.mode === 'Solo') {
+        if (gameState.status === 'finished' && gameState.mode === 'Solo' && !revealed) {
             console.log('[DEBUG] Solo game finished. Navigating to /results.');
             navigate('/results');
             return;
         }
-    }, [gameState, currentUser, navigate, finalizeGame]);
+    }, [gameState, currentUser, navigate, finalizeGame, revealed]);
 
     // Check if we are spectating and waiting for others to finish
     useEffect(() => {
@@ -130,12 +139,12 @@ export default function GamePage() {
             }
             const opponents = gameState.opponents || [];
             const allOpponentsDone = opponents.every(opp => opp.answered);
-            if (allOpponentsDone) {
+            if (allOpponentsDone && !revealed) {
                 finalizeGame();
                 navigate('/results');
             }
         }
-    }, [gameState?.status, gameState?.opponents, gameState?.opponentForfeited, finalizeGame, navigate]);
+    }, [gameState?.status, gameState?.opponents, gameState?.opponentForfeited, revealed, finalizeGame, navigate]);
 
     useEffect(() => {
         if (!gameState)
@@ -207,7 +216,7 @@ export default function GamePage() {
                 const result = await answerQuestion(null, 0);
                 setLastAnswer(result);
 
-                setTimeout(() => {
+                navigationTimeoutRef.current = setTimeout(() => {
                     if (result.next_question) {
                         nextQuestion();
                     } else {
@@ -255,7 +264,7 @@ export default function GamePage() {
             setRevealed(true);
             playSFX(result.isCorrect ? 'correct' : 'wrong');
 
-            setTimeout(() => {
+            navigationTimeoutRef.current = setTimeout(() => {
                 // If we have a next_question, move to it (regardless of correct/wrong in multiplayer)
                 if (result.next_question) {
                     nextQuestion();
