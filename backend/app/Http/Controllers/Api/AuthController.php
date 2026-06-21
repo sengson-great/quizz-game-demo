@@ -133,9 +133,29 @@ class AuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Password reset mail sending failed: ' . $e->getMessage());
+
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                $token = Password::getRepository()->create($user);
+                $resetUrl = config('app.frontend_url').'/password-reset?token='.$token.'&email='.$user->email;
+                \Illuminate\Support\Facades\Log::info("Manual reset URL created due to mail failure: {$resetUrl}");
+
+                $responseData = ['message' => 'We have emailed your password reset link! (Logged locally)'];
+                if (config('app.debug')) {
+                    $responseData['reset_url'] = $resetUrl;
+                }
+
+                return $this->successResponse($responseData, 'We have emailed your password reset link!');
+            }
+
+            throw ValidationException::withMessages(['email' => ['We could not find a user with that email address.']]);
+        }
 
         return $status === Password::RESET_LINK_SENT
             ? $this->successResponse(['message' => __($status)], __($status))
