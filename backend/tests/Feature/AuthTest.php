@@ -62,4 +62,15 @@ class AuthTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.email', $user->email);
     }
+
+    public function test_forgot_password_is_not_throttled()
+    {
+        $user = User::factory()->create();
+
+        $response1 = $this->postJson('/api/forgot-password', ['email' => $user->email]);
+        $response1->assertStatus(200);
+
+        $response2 = $this->postJson('/api/forgot-password', ['email' => $user->email]);
+        $response2->assertStatus(200);
+    }
 }
