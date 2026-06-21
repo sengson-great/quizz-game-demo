@@ -149,6 +149,7 @@ class AuthController extends Controller
                 $responseData = ['message' => 'We have emailed your password reset link! (Logged locally)'];
                 if (config('app.debug')) {
                     $responseData['reset_url'] = $resetUrl;
+                    $responseData['error_debug'] = $e->getMessage();
                 }
 
                 return $this->successResponse($responseData, 'We have emailed your password reset link!');
@@ -173,16 +174,34 @@ class AuthController extends Controller
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->setRememberToken(Str::random(60))->save();
+        try {
+            $status = Password::reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function ($user, $password) {
+                    $user->forceFill([
+                        'password' => Hash::make($password)
+                    ])->setRememberToken(Str::random(60))->save();
 
-                event(new PasswordReset($user));
+                    event(new PasswordReset($user));
+                }
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Password reset failed: ' . $e->getMessage());
+
+            if (config('app.debug')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Password reset failed: ' . $e->getMessage(),
+                    'error_debug' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ], 500);
             }
-        );
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected server error occurred during password reset. Please check the logs.',
+            ], 500);
+        }
 
         return $status === Password::PASSWORD_RESET
             ? $this->successResponse(['message' => __($status)], __($status))
